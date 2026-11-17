@@ -106,7 +106,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--accent)]">
                 Focus next
               </span>
-              <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink)] mt-1 leading-snug">
+              <h2 className="text-base sm:text-lg font-extrabold text-[var(--ink)] mt-1 leading-snug">
                 <DoodleTitle title={focusTask.title} size="lg" />
               </h2>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-[var(--muted)]">

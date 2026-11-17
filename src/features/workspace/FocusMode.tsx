@@ -132,7 +132,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
               </Badge>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[var(--ink)] mt-3 leading-tight">
+            <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-[var(--ink)] mt-3 leading-tight">
               <DoodleTitle title={task.title} size="xl" />
             </h1>
             {task.description && (

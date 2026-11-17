@@ -42,13 +42,16 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-030 | Tests for core logic | Filters, queue ordering, pace, repository, parser, components, layout. 53 tests at last run. |
 | I-031 | Issue naming convention | `feat:` for features; `Issue:` for general work. Added to `AGENTS.md`. |
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
-| I-033 | Doodle task titles | Recognised tasks render as hand-drawn SVG illustrations instead of text. Laundry: clothesline, shirt, trousers, sock, clothespins, basket. |
-| I-034 | Doodle coverage | 14 illustrated doodles with muted fills and ink outlines: laundry, groceries, dishes, cleaning, cooking, call, meeting, exercise, reading, plants, bill, repair, health, travel. |
+| I-033 | Image + title task labels | Recognised tasks show an open-source image next to the task title, so the image is never the only meaning. |
+| I-034 | Doodle coverage | 20 images: laundry, groceries, dishes, dentist, doctor, medicine, cleaning, cooking, call, meeting, run, exercise, reading, plants, car, heatpump, washer, bill, repair, travel. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
 | I-035 | Cartoon-sticker doodles | Bold outlines, flat cheerful fills, and a pastel sticker background. Doodle library added to `/style-lab`. |
 | I-036 | Personal welcome card | Optional name, saved on this device, or skip. |
 | I-037 | Daily intention | One optional line per day, explicitly not a task. |
 | I-038 | Gentler navigation | `Still here`, `Later`, `Done`, `Put away`; no numeric counts in the sidebar. |
-| I-039 | Smaller task titles | Task titles reduced to 13px in rows and smaller in focus/detail views. |
+| I-039 | Smaller task titles | Task titles reduced to 10px in rows and smaller in focus/detail views. |
+| I-040 | Priority-based image styles | Experimental. Reverted in the main workspace because changing image styles made tasks harder to read. |
+| I-041 | Specific HVAC, hose, and laundry images | Heat pump photo for HVAC; rubber washer/O-ring photo for hose repair; laundromat photo for high-priority laundry. |
+| I-042 | Priority image legend | Removed with the priority-style experiment. The main workspace uses image + title instead. |
 
 ---
 
@@ -62,26 +65,26 @@ None at the moment.
 
 | ID | Idea | Notes |
 |---|---|---|
-| I-035 | Supabase auth | Google sign-in, session restore, protected routes. |
-| I-036 | Supabase Postgres + RLS | Private task storage with row-level ownership; verify with two accounts. |
-| I-037 | Cross-device sync | Requires Supabase or another backend. |
-| I-038 | Shared workspaces | Teams, invitations, assignment, membership management. |
-| I-039 | Comments / threaded replies | On task checkpoints. |
-| I-040 | Reminders | One calm reminder per task at a chosen lead time. |
-| I-041 | Recurring tasks | Daily/weekly routines; must not create clutter. |
-| I-042 | Tags / custom lists | Deferred until canonical types or grouping prove insufficient. |
-| I-043 | Drag-and-drop ordering | Manual queue order; conflicts with computed priority ordering, so needs a model. |
-| I-044 | Command palette | `Cmd/Ctrl+K` for create, search, views, focus. Only if it reduces steps. |
-| I-045 | Focus session timer | Optional count-up session in Focus mode; no pressure countdown. |
-| I-046 | Daily reflection | One-line “What moved today?” at end of day. |
-| I-047 | Landing page redesign | Align the marketing page with the app’s doodle/colour-psychology direction. |
-| I-048 | Dark mode | Optional low-light theme; not required for the current direction. |
-| I-049 | Data export | CSV/JSON backup. |
-| I-050 | PWA / offline | Installable, offline-first. |
-| I-051 | CI | Typecheck, tests, build on push. |
-| I-052 | Accessibility audit | Keyboard paths, contrast, screen-reader labels. |
-| I-053 | Focus blocks with pause/resume | Time-block model; split current task, insert new task, resume with checkpoints. Explore first. |
-| I-054 | AI agent | Task generation, follow-up suggestions, risk detection, summaries. Grounded in user-approved data. |
+| I-080 | Supabase auth | Google sign-in, session restore, protected routes. |
+| I-081 | Supabase Postgres + RLS | Private task storage with row-level ownership; verify with two accounts. |
+| I-082 | Cross-device sync | Requires Supabase or another backend. |
+| I-083 | Shared workspaces | Teams, invitations, assignment, membership management. |
+| I-084 | Comments / threaded replies | On task checkpoints. |
+| I-085 | Reminders | One calm reminder per task at a chosen lead time. |
+| I-086 | Recurring tasks | Daily/weekly routines; must not create clutter. |
+| I-087 | Tags / custom lists | Deferred until canonical types or grouping prove insufficient. |
+| I-088 | Drag-and-drop ordering | Manual queue order; conflicts with computed priority ordering, so needs a model. |
+| I-089 | Command palette | `Cmd/Ctrl+K` for create, search, views, focus. Only if it reduces steps. |
+| I-090 | Focus session timer | Optional count-up session in Focus mode; no pressure countdown. |
+| I-091 | Daily reflection | One-line “What moved today?” at end of day. |
+| I-092 | Landing page redesign | Align the marketing page with the app’s doodle/colour-psychology direction. |
+| I-093 | Dark mode | Optional low-light theme; not required for the current direction. |
+| I-094 | Data export | CSV/JSON backup. |
+| I-095 | PWA / offline | Installable, offline-first. |
+| I-096 | CI | Typecheck, tests, build on push. |
+| I-097 | Accessibility audit | Keyboard paths, contrast, screen-reader labels. |
+| I-098 | Focus blocks with pause/resume | Time-block model; split current task, insert new task, resume with checkpoints. Explore first. |
+| I-099 | AI agent | Task generation, follow-up suggestions, risk detection, summaries. Grounded in user-approved data. |
 | I-074 | "That's enough for today" rest state | Collapse the Today list into a calm rest state, with undo. |
 | I-075 | Small-win focus selection | Prefer a task with higher progress / due today over the oldest overdue task. |
 | I-076 | Calm overdue language and colours | Replace `Overdue` with `Carried over`; amber cues, never red progress bars. |

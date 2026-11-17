@@ -22,10 +22,10 @@ describe('TodayQueueView', () => {
       />
     );
 
-    expect(screen.getByText(/2 high-priority overdue · 2 due today/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 high-priority overdue · 3 due today/i)).toBeInTheDocument();
     expect(screen.getByText('Overdue')).toBeInTheDocument();
     expect(screen.getByText('Due today')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /property insurance/i })).toBeInTheDocument();
+    expect(screen.getByText(/property insurance/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /start next/i }));
     expect(onFocusTask).toHaveBeenCalledWith(

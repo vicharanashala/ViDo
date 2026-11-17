@@ -8,6 +8,7 @@ This folder is the project memory for ViDo. It exists so a new session can recov
 |---|---|
 | `CONVERSATIONS.md` | The full session log: what was discussed, decided, built, rejected, and verified. |
 | `IDEAS.md` | The idea register: every idea, whether it was implemented, still planned, deferred, or rejected. |
+| `IMAGE_PROMPTS.md` | Master prompt, task list, workflow, and copyright notes for generating a consistent image set. |
 | `README.md` | This guide. |
 
 ## How to use it
@@ -52,7 +53,11 @@ Then open `/app` and `/app/today`.
 - Calm, low-arousal visual system.
 - Progress and checkpoint history over binary checkboxes.
 - Natural-language capture.
-- Doodle titles for recognisable everyday tasks, in a cartoon-sticker style.
+- Recognised tasks show an open-source image **plus the task title**, so the image never has to carry the meaning alone.
+- Images: Twemoji (CC-BY 4.0), CC0 dentist/laundromat/heat-pump/washer photos, and a Tabler-based treadmill (MIT).
+- Unrecognised tasks stay as text.
+- Unrecognised tasks fall back to words, sentences, or clauses.
+- Task titles are 10px in rows, with smaller focus/detail headings.
 - Personal welcome card and a daily intention line.
 - Gentler navigation labels and no pressure counts in the sidebar.
 - No gamification, guilt language, or urgency inflation.

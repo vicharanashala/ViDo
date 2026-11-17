@@ -55,7 +55,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
         </div>
 
         <h4
-          className={`text-[13px] font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
+          className={`text-[10px] font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
             isCompleted ? 'line-through opacity-70' : ''
           }`}
         >

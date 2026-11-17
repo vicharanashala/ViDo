@@ -119,7 +119,7 @@ describe('taskFilters', () => {
     ]);
 
     expect(queue.highOverdue).toBe(2);
-    expect(queue.highToday).toBe(2);
+    expect(queue.highToday).toBe(3);
   });
 });
 

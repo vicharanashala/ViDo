@@ -202,12 +202,15 @@ export const StyleLab: React.FC = () => {
           </div>
         </section>
 
-        {/* Doodle Library */}
+        {/* Image Library */}
         <section className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">3. Doodle Library</h2>
+            <h2 className="text-lg font-semibold">3. Image Library</h2>
             <p className="text-xs text-[var(--muted)] mt-1">
-              Recognised task titles become these illustrated titles. Unrecognised tasks stay as text.
+              Every recognised task shows one of these images next to its title. Unrecognised tasks stay as text.
+            </p>
+            <p className="text-[10px] text-[var(--faint)] mt-2">
+              Images: Twemoji (CC-BY 4.0) · OpenMoji (CC BY-SA 4.0) · rawpixel/Openverse (CC0) · Wikimedia Commons (CC0) · Tabler (MIT).
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

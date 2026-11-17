@@ -46,11 +46,11 @@ describe('TaskRow', () => {
     expect(onFocus).toHaveBeenCalledTimes(2);
   });
 
-  it('renders a doodle instead of letters for a recognised task', () => {
+  it('renders the image and title together for a recognised task', () => {
     const laundry = { ...task, title: 'Making laundry' };
-    render(<TaskRow task={laundry} now={reference} onClick={vi.fn()} />);
+    const { container } = render(<TaskRow task={laundry} now={reference} onClick={vi.fn()} />);
 
-    expect(screen.getByRole('img', { name: /making laundry/i })).toBeInTheDocument();
-    expect(screen.queryByText('Making laundry')).not.toBeInTheDocument();
+    expect(container.querySelector('img')).toBeInTheDocument();
+    expect(screen.getByText('Making laundry')).toBeInTheDocument();
   });
 });

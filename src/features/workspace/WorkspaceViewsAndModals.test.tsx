@@ -43,7 +43,7 @@ describe('Workspace views and modals', () => {
       expect(screen.getByText(/good (morning|afternoon|evening)/i)).toBeInTheDocument();
       expect(screen.getAllByText(todayLabel).length).toBeGreaterThan(0);
       expect(screen.getByText(/focus next/i)).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: focusTask.title })).toBeInTheDocument();
+      expect(screen.getByText(focusTask.title)).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
       expect(screen.getByText(/review q4 budget/i)).toBeInTheDocument();
@@ -76,9 +76,7 @@ describe('Workspace views and modals', () => {
 
       expect(screen.getByRole('heading', { name: /today tasks/i })).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /personal/i }));
-      expect(
-        screen.getByRole('img', { name: /submit vehicle registration renewal/i })
-      ).toBeInTheDocument();
+      expect(screen.getByText(/submit vehicle registration renewal/i)).toBeInTheDocument();
     });
   });
 

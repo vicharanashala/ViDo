@@ -314,8 +314,18 @@ Status: implemented.
 - Doodles are used in TaskRow, Home focus card, Focus mode, Task detail, and TaskCard.
 - Accessibility: the doodle has `role="img"` and the real title as its label.
 - Laundry renders a clothesline with a shirt, trousers, sock, clothespins, and a basket.
-- Illustrations use muted fills and ink outlines so they read as pictures, not abstract icons.
-- The seed workspace includes `Do the laundry` so the illustration is visible immediately.
+- Illustrations now use Twemoji (CC-BY 4.0) open-source cartoon SVGs instead of hand-drawn scenes.
+- Groceries uses a shopping cart, so it no longer reads as a laundry bag.
+- Laundry uses a basket; groceries uses a cart; gym uses a person lifting weights; running uses a treadmill; vehicle registration uses a car; dentist uses a literal CC0 dentist illustration; HVAC uses a heat pump photo; hose repair uses a rubber washer/O-ring photo.
+- The priority-based image-style system was reverted in the main workspace because changing styles made the images harder to read.
+- Every recognised task now shows the image **and the task title**; the image is a visual anchor, not the only label.
+- High-priority laundry uses a CC0 laundromat photo; seed `Do the laundry` is high priority so it is visible.
+- The style lab now shows a single image library, not a priority-style switcher.
+- The user approved the **image + title** direction as the default; keep it.
+- Tasks with no clear image fall back to their text (for example, “Review Q4 Budget” and “Renew SSL Certificates”).
+- Task titles were reduced to 10px in rows; focus and detail headings are smaller too.
+- The doodle library in `/style-lab` shows each image and its meaning.
+- Attribution lives in `public/doodles/README.md`.
 - Tests cover detection, rendering, and fallback.
 
 ---
@@ -441,6 +451,7 @@ Assessment:
 | Colour psychology + icon rail + momentum | pass | 53 | pass |
 | Doodle task titles | pass | 60 | pass |
 | Cartoon sticker doodles + welcome/intention | pass | 65 | pass |
+| Image + title clarity pass | pass | 65 | pass |
 
 Last build at time of writing:
 

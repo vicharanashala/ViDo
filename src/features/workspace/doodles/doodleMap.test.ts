@@ -20,11 +20,15 @@ describe('detectDoodle', () => {
     expect(detectDoodle('Call the dentist')).toBe('dentist');
     expect(detectDoodle('Call mom')).toBe('call');
     expect(detectDoodle('Sprint planning')).toBe('meeting');
-    expect(detectDoodle('Evening 5km jog')).toBe('exercise');
+    expect(detectDoodle('Evening 5km jog')).toBe('run');
+    expect(detectDoodle('Gym workout')).toBe('exercise');
     expect(detectDoodle('Dentist checkup')).toBe('dentist');
     expect(detectDoodle('Doctor appointment')).toBe('doctor');
     expect(detectDoodle('Buy medicine')).toBe('medicine');
     expect(detectDoodle('Pay the internet bill')).toBe('bill');
+    expect(detectDoodle('Submit Vehicle Registration Renewal')).toBe('car');
+    expect(detectDoodle('Schedule Annual HVAC Inspection')).toBe('heatpump');
+    expect(detectDoodle('Fix Leaking Garden Hose Connector')).toBe('washer');
   });
 
   it('returns null for tasks without a doodle', () => {
