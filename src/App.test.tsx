@@ -1,64 +1,42 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
-describe('LandingPage Integration', () => {
-  it('renders landing page with headline, preview, benefits, and footer', () => {
+describe('ViDo app routes', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('renders the landing page', () => {
     render(<App />);
 
-    // Header brand
     expect(screen.getAllByText('ViDo')[0]).toBeInTheDocument();
-
-    // Hero title
     expect(
       screen.getByRole('heading', {
         name: /simple enough for anyone\. structured enough for serious work\./i,
       })
     ).toBeInTheDocument();
-
-    // Use cases
     expect(screen.getByText('Personal Tasks')).toBeInTheDocument();
-    expect(screen.getByText('Household & Living')).toBeInTheDocument();
-    expect(screen.getByText('Work & Projects')).toBeInTheDocument();
-
-    // Principles
     expect(screen.getByText('Clarity over complexity')).toBeInTheDocument();
-    expect(screen.getByText('History over guesswork')).toBeInTheDocument();
-
-    // Footer
     expect(screen.getByText(/All rights reserved/i)).toBeInTheDocument();
   });
 
-  it('opens and closes sign in modal on Google sign in click', () => {
+  it('opens the workspace from the landing page', () => {
     render(<App />);
 
-    const signInBtn = screen.getByRole('button', { name: /continue with google/i });
-    fireEvent.click(signInBtn);
+    fireEvent.click(screen.getByRole('button', { name: /open app/i }));
 
-    expect(
-      screen.getByRole('heading', { name: /welcome to vido/i })
-    ).toBeInTheDocument();
-
-    // Close with Back
-    const cancelBtn = screen.getByRole('button', { name: /back/i });
-    fireEvent.click(cancelBtn);
-
-    expect(
-      screen.queryByRole('heading', { name: /welcome to vido/i })
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^home$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/new task title/i)).toBeInTheDocument();
+    expect(screen.queryByText('DEMO PREVIEW')).not.toBeInTheDocument();
   });
 
-  it('navigates to live preview when Enter Live Preview is clicked in modal', () => {
+  it('redirects the old preview route to the real workspace', () => {
+    window.history.pushState({}, '', '/preview/today');
     render(<App />);
 
-    const signInBtn = screen.getByRole('button', { name: /continue with google/i });
-    fireEvent.click(signInBtn);
-
-    const enterBtn = screen.getByRole('button', { name: /enter live preview/i });
-    fireEvent.click(enterBtn);
-
-    expect(screen.getByText('Interactive Preview')).toBeInTheDocument();
-    expect(screen.getByText('Logged-in demo preview')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /back to landing page/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/new task title/i)).toBeInTheDocument();
   });
 });

@@ -52,41 +52,40 @@ The final accent color is deliberately unresolved and should be chosen through v
 
 ### Public Experience
 
-Before sign-in, users see a complete landing page containing:
+Before opening the workspace, users see a complete landing page containing:
 
 - A universal value proposition
 - A realistic dashboard preview
 - Personal, Home, and Work use cases
-- A clear Google sign-in call to action
+- A clear **Open Workspace** call to action
 
 ### Authentication and Storage
 
-- Google sign-in only
-- Supabase Auth for identity
-- Supabase PostgreSQL for persistent task storage
-- Row-Level Security must enforce task ownership
-- Private tasks come before shared tasks
-- The signed-in dashboard may display the user’s Google name and profile photo
-- Email should remain less prominent in account settings
-
-Do not expose a Supabase service-role key or any backend secret in frontend code.
+- No account is required for the current local-first build.
+- Tasks are stored in `localStorage` under `vido.tasks.v1`.
+- Supabase Auth and PostgreSQL remain the planned path for cross-device sync and shared work.
+- When Supabase is introduced, Row-Level Security must enforce task ownership.
+- Private tasks come before shared tasks.
+- Do not expose a Supabase service-role key or any backend secret in frontend code.
 
 ## Initial Task Model
 
-The initial private task experience is based on:
+The current task experience is based on:
 
 - Title — required
 - Description — optional
 - Due date — required
 - Due time — optional; when omitted, use a consistent end-of-day deadline
 - Priority — optional: High, Medium, or Low
+- Category — Personal, Home, or Work
 - State — Active or Completed
+- Progress — 0 to 100 percent
+- Checkpoint history — timestamped note plus the progress at that moment
 - Completion timestamp
 - Archive timestamp
 - Created and updated timestamps
-- Authenticated owner ID
 
-There is no percentage progress tracker in the initial build.
+Progress and checkpoints are part of the core build. They are what make ViDo different from a checklist.
 
 ## Initial Task Behavior
 
@@ -164,22 +163,25 @@ These remain part of the broader vision, not the current build scope.
 
 ## Current Milestone
 
-The next milestone is:
+The current build is:
 
-### Milestone 1 — Static Visual Foundation
+### Milestone 1 — Working Local-First Workspace
 
-Build only:
+Built:
 
 - Vite + React + TypeScript foundation
 - Reusable visual design system
 - Public landing page
-- Non-functional dashboard shell
-- Sample tasks for visual evaluation
-- Centered task-creation and task-detail concept modals
+- Working `/app` workspace with real task state
+- One-field quick capture
+- Create, edit, complete, reopen, archive, restore, and delete
+- Progress percentage and checkpoint timeline
+- Pace-vs-deadline signal
+- Real dates and derived views
+- Search and priority/deadline filters
+- localStorage persistence
 
-Do not connect Supabase, Google OAuth, or persistent task behavior during Milestone 1.
-
-Milestone 1 ends at **Review Gate 1**. Stop after producing the visual slice and completing its quality checks. Do not begin authentication automatically.
+Supabase, Google OAuth, teams, reminders, and AI are not part of this build.
 
 ## Development Workflow
 
@@ -248,13 +250,10 @@ Update affected planning documents when a decision changes so agents do not inhe
 
 ## Current Repository State
 
-At the time this context was created:
+At the time this context was updated:
 
-- Product discovery is complete enough to begin Milestone 1 planning.
-- Application implementation has not started.
-- OpenSpec is initialized for the universal `.agents/skills/` integration.
-- The active OpenSpec change is `milestone-1-static-visual-foundation`.
-- Its proposal, specifications, design, and task checklist are complete and awaiting user review.
-- No application implementation has started.
-
-The correct next action is to review the active change artifacts. Implementation may begin only after explicit approval through the OpenSpec apply workflow.
+- The workspace is a working local-first application at `/app`.
+- Tasks persist in `localStorage` under `vido.tasks.v1`.
+- Progress, checkpoints, pace, search, filters, and archive are implemented.
+- The verification gates are typecheck, tests, and production build.
+- Supabase Auth, shared workspaces, reminders, and the AI agent remain future work.

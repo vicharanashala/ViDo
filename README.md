@@ -4,7 +4,7 @@
 
 ### See the work. Share the progress. Deliver together.
 
-A modern task-management workspace built for focused individuals and transparent teams.
+A local-first task workspace where every task carries a deadline, a progress percentage, and a checkpoint history.
 
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
 [![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
@@ -12,7 +12,7 @@ A modern task-management workspace built for focused individuals and transparent
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
 
-[Vision](./Idea.md) · [Living Concept](./concept.html) · [Folder Structure](./FOLDER_STRUCTURE.md) · [Agent Guidelines](./AGENTS.md) · [Tech Stack](#tech-stack) · [Getting Started](#getting-started)
+[Vision](./Idea.md) · [Living Concept](./concept.html) · [Folder Structure](./FOLDER_STRUCTURE.md) · [Agent Guidelines](./AGENTS.md)
 
 </div>
 
@@ -20,176 +20,134 @@ A modern task-management workspace built for focused individuals and transparent
 
 ## Why ViDo?
 
-A simple checkbox tells you that something is done. It does not tell you **how the work is going**.
+A checkbox tells you that something is done. It does not tell you **how the work is going**.
 
-ViDo gives every responsibility a precise deadline, measurable progress percentage, a clear owner, and a chronological checkpoint history. Individuals stay focused in a calm, distraction-free environment while teams coordinate from a shared source of truth—without turning every status check into another meeting.
-
-> **ViDo turns “What is the status?” into a question the workspace already answers.**
+ViDo gives every responsibility a precise deadline, measurable progress, and a chronological checkpoint history. The workspace answers "What is the status?" before anyone has to ask.
 
 ---
 
-## Interactive Application Routes
+## What works today
 
-The application features a fully interactive visual foundation:
+- **One-field quick capture** — type a task and press Enter.
+- **Real task lifecycle** — create, edit, complete, reopen, archive, restore, and delete.
+- **Progress 0–100%** with a **pace vs deadline** signal (`Ahead`, `On track`, `At risk`, `Behind`, `Delivered`).
+- **Checkpoint timeline** — every progress update can carry a note, blocker, or decision.
+- **Real dates** — Today, Upcoming, Needs Attention, Recent 7 days are calculated from the clock.
+- **Calm views** — Home, Today, Upcoming, Needs Attention, Completed, Archived.
+- **Search and filters** — keyword, priority, deadline.
+- **Persistence** — tasks are saved in the browser (`localStorage`) and survive refresh.
+- **Working landing page + theme lab**.
 
-- **`/` — Public Landing Page**: Universal value proposition highlighting personal tasks, household management, and serious work projects with an interactive preview frame and design principles.
-- **`/preview` — Interactive Product Demo**: A high-fidelity preview of the authenticated dashboard experience featuring:
-  - **Sticky Top Demo Banner**: Pinned announcement with left-aligned **`Back to Landing Page`** navigation.
-  - **Dark Navy Command Center**: Snapshot hero card with 4 interactive summary tiles (*Today*, *Needs Attention*, *Upcoming*, and *Done (7d)*).
-  - **Horizontal Task Rows**: Compact, scannable responsibilities with priority badges, progress bars, checkpoint counts, and modal inspectors.
-  - **Section Views**: Dedicated subroutes for `/preview/today`, `/preview/upcoming`, `/preview/needs-attention`, `/preview/completed`, and `/preview/archived`.
-- **`/style-lab` — Theme & Accent Palette Lab**: Live design system sandbox testing the primary accent palettes (`Cobalt Blue`, `Deep Indigo`, and `Forest Green`).
-
----
-
-## The Experience
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### 👤 Personal Responsibilities
-
-A focused space for personal and household planning.
-
-- Organize individual responsibilities
-- Set exact dates and deadline times
-- Track progress incrementally from 0% to 100%
-- Maintain a chronological checkpoint update history
-- Automatically separate active, overdue, and completed work
-
-</td>
-<td width="50%" valign="top">
-
-### 👥 Shared Coordination
-
-A transparent space for collaborative execution.
-
-- Organize focused workspaces
-- Clear assignment and ownership
-- Follow progress and checkpoint updates
-- Flag late deliveries automatically
-- Coordinated history without redundant meetings
-
-</td>
-</tr>
-</table>
+No account, server, or external service is required.
 
 ---
 
-## Features
+## Routes
 
-### ✅ Task Lifecycle & Checkpoints
-- Create, inspect, complete, and archive tasks with deterministic sample data.
-- Measure incremental progress percentage (0–100%) instead of relying on binary done/not done.
-- Timestamped progress checkpoints preserving notes, blockers, and decisions.
-- Automatic detection for overdue work and late completions.
+| Route | Purpose |
+|---|---|
+| `/` | Landing page |
+| `/app` | Home overview with 4 summary tiles and a task feed |
+| `/app/today` | Tasks due today |
+| `/app/upcoming` | Tasks due after today |
+| `/app/needs-attention` | Tasks past their deadline |
+| `/app/completed` | Delivered tasks |
+| `/app/archived` | Shelved tasks with preserved history |
+| `/style-lab` | Accent palette and component lab |
 
-### 🎯 Calm, Section-Limited Views
-- **Today's Agenda**: Responsibilities scheduled for today.
-- **Needs Attention**: Overdue or high-priority items requiring immediate focus.
-- **Upcoming Schedule**: Future responsibilities scheduled beyond today.
-- **Delivered**: Finished responsibilities with recorded completion dates and delivery timing.
-- **Archived**: Shelved tasks preserved with their complete historical audit trail.
-
-### 🎨 Design System & Theme Lab
-- Desktop-first, clean light theme with subtle borders and balanced contrast.
-- Three live accent palettes (`Cobalt Blue`, `Deep Indigo`, `Forest Green`) switchable via CSS custom properties.
-- Accessible keyboard navigation and WCAG-compliant contrast ratios.
+Old `/preview/*` links redirect to `/app/*`.
 
 ---
 
-## Getting Started
-
-### Prerequisites
-- Node.js 18+ (Node 20+ recommended)
-- npm or pnpm
-
-### Installation
+## Quick start
 
 ```bash
-# Clone the repository
-git clone https://github.com/vicharanashala/ViDo.git
-cd ViDo
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Visit `http://localhost:5173` in your browser.
+Open `http://localhost:5173`.
 
----
-
-## Verification & Scripts
+### Verification
 
 ```bash
-# Run unit and integration tests (28 tests across 9 suites)
-npm test
-
-# Run TypeScript typecheck without emitting files
 npm run typecheck
-
-# Build optimized production bundle
+npm test
 npm run build
-
-# Preview production build locally
-npm run preview
 ```
 
 ---
 
-## Project Structure
+## Data model
 
-> For complete directory guidelines, placement rules, and anti-patterns, see **[FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md)** and **[AGENTS.md](./AGENTS.md)**.
+```ts
+Task {
+  id, title, description?,
+  dueDate, dueTime?,
+  priority: 'high' | 'medium' | 'low',
+  category: 'personal' | 'home' | 'work',
+  state: 'active' | 'completed',
+  progress: 0..100,
+  createdAt, updatedAt, completedAt?, archivedAt?,
+  checkpoints: { id, createdAt, note, progress }[]
+}
+```
 
-```text
-ViDo/
-├── src/
-│   ├── components/ui/         # Reusable UI primitives (Button, Badge, Card, Input, NoticeModal)
-│   ├── data/                  # Deterministic sample tasks, checkpoints, and filter logic
-│   ├── features/
-│   │   ├── landing/           # Landing page (Header, Hero, Preview, Use Cases, Footer)
-│   │   ├── style-lab/         # Live accent theme switcher and component showcase
-│   │   └── workspace/         # Authenticated dashboard preview, sidebar, topbar, views, and modals
-│   ├── test/                  # Test setup and happy-dom configuration
-│   ├── App.tsx                # Client-side router configuration (/ , /preview/*, /style-lab)
-│   └── main.tsx               # Application bootstrap and CSS entry
-├── openspec/                  # OpenSpec specifications and changes
-├── tailwind.config.js / CSS   # Tailwind CSS v4 styling rules
-├── vite.config.ts             # Vite configuration with Vitest setup
-└── package.json
+Views are derived from the data:
+
+- **Today**: active and due today.
+- **Needs Attention**: active and past the due date.
+- **Upcoming**: active and due after today.
+- **Completed**: completed and not archived.
+- **Archived**: has an `archivedAt` timestamp.
+
+Home limits: Today 5, Needs Attention 3, Upcoming 3, Recently Completed 3.
+
+---
+
+## Persistence
+
+- First run seeds a realistic workspace with dates relative to the current day.
+- Tasks are stored under `vido.tasks.v1` in `localStorage`.
+- Deleting all tasks keeps the workspace empty; it does not re-seed.
+- Clearing browser storage restores the seed on the next load.
+
+Supabase authentication and shared workspaces are planned, not built.
+
+---
+
+## Project structure
+
+```
+src/
+├── components/ui/       # Button, Badge, Card, Input, NoticeModal
+├── data/                # Types, seed data, date/pacing helpers, filters
+├── features/
+│   ├── landing/         # Public landing page
+│   ├── style-lab/       # Accent palette lab
+│   └── workspace/       # Dashboard, views, modals, quick capture, store
+├── lib/                 # localStorage task repository
+├── test/                # Test setup
+├── App.tsx              # Router
+├── index.css            # Design tokens (Tailwind v4)
+└── main.tsx             # Bootstrap
 ```
 
 ---
 
-## Tech Stack
+## Tech stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Frontend Framework** | React 19 | Declarative, component-based user interface |
-| **Bundler & Tooling** | Vite 6 | Rapid development server and optimized ESM builds |
-| **Language** | TypeScript | Strong typing, maintainability, and compile-time safety |
-| **Styling** | Tailwind CSS v4 | Utility-first, semantic CSS custom property styling |
-| **Icons** | Lucide React | Consistent, accessible iconography |
-| **Testing** | Vitest + Happy DOM + Testing Library | Fast unit and integration tests |
+React 19 · Vite 6 · TypeScript · Tailwind CSS v4 · React Router 7 · Lucide React · Vitest + Happy DOM + Testing Library.
 
 ---
 
-## Product Principles
+## Roadmap
 
-```text
-Clarity over complexity          History over guesswork
-Privacy by default               Collaboration without noise
-Trustworthy foundations          AI that drives useful action
-```
+1. **Now** — local-first task lifecycle, checkpoints, pace, search, archive.
+2. **Next** — Supabase Auth, Postgres, Row-Level Security, cross-device sync.
+3. **Later** — shared workspaces, assignments, comments, reminders.
+4. **Long term** — the embedded AI agent from `Idea.md`.
 
 ---
-
-<div align="center">
 
 **ViDo** · Progress made visible
-
-</div>

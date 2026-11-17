@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom';
 import { Button, Badge, Card, Input } from '../../components/ui';
 import { CheckCircle2, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 
-export type AccentCandidate = 'blue' | 'indigo' | 'green';
+export type AccentCandidate = 'clay' | 'blue' | 'indigo' | 'green';
 
 export const ACCENTS: { id: AccentCandidate; name: string; hex: string; bgHex: string; desc: string }[] = [
+  {
+    id: 'clay',
+    name: 'Warm Clay',
+    hex: '#c45a3c',
+    bgHex: '#f9e7df',
+    desc: 'Warm, human, and editorial. Pairs with the cream canvas for a calmer daily workspace.',
+  },
   {
     id: 'blue',
     name: 'Cobalt Blue',
@@ -30,7 +37,7 @@ export const ACCENTS: { id: AccentCandidate; name: string; hex: string; bgHex: s
 ];
 
 export const StyleLab: React.FC = () => {
-  const [activeAccent, setActiveAccent] = useState<AccentCandidate>('blue');
+  const [activeAccent, setActiveAccent] = useState<AccentCandidate>('clay');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-accent', activeAccent);
@@ -51,10 +58,10 @@ export const StyleLab: React.FC = () => {
               </Link>
               <span className="text-xs text-[var(--faint)]">•</span>
               <Link
-                to="/preview"
+                to="/app"
                 className="text-xs font-semibold text-[var(--accent)] hover:underline"
               >
-                Go to Preview
+                Go to App
               </Link>
             </div>
             <h1 className="text-3xl font-bold tracking-tight">ViDo Theme & Accent Lab</h1>
@@ -70,7 +77,7 @@ export const StyleLab: React.FC = () => {
             <span>1. Choose Accent Palette</span>
             <Badge variant="accent">Theme Switcher</Badge>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {ACCENTS.map((accent) => {
               const isSelected = activeAccent === accent.id;
               return (

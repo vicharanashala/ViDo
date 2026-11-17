@@ -4,11 +4,11 @@ import { LandingPreview } from './LandingPreview';
 import { LandingUseCases } from './LandingUseCases';
 
 describe('LandingPreview and LandingUseCases', () => {
-  it('renders realistic dashboard preview frame and date', () => {
+  it('renders the dashboard preview frame with a live date', () => {
     render(<LandingPreview />);
     expect(screen.getByText(/dashboard overview/i)).toBeInTheDocument();
-    expect(screen.getByText(/17 Nov 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/vido\.app\/preview/i)).toBeInTheDocument();
+    expect(screen.getByText(/today:/i)).toBeInTheDocument();
+    expect(screen.getByText(/vido\.app\/app/i)).toBeInTheDocument();
     expect(screen.getByText(/Today \(4\)/i)).toBeInTheDocument();
   });
 

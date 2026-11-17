@@ -1,43 +1,62 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Input } from '../../components/ui';
-import { X, Tag, CheckCircle2 } from 'lucide-react';
+import { NewTaskInput, TaskCategory, TaskPriority } from '../../data/taskTypes';
+import { toDateKey } from '../../data/taskDates';
+import { Tag, X } from 'lucide-react';
 
 export interface TaskCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreate?: (input: NewTaskInput) => void;
+  defaultDate?: string;
 }
 
-export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClose }) => {
+export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
+  isOpen,
+  onClose,
+  onCreate,
+  defaultDate,
+}) => {
+  const today = defaultDate ?? toDateKey(new Date());
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('2026-11-17');
+  const [dueDate, setDueDate] = useState(today);
   const [dueTime, setDueTime] = useState('17:00');
-  const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('medium');
-  const [category, setCategory] = useState<'personal' | 'home' | 'work'>('personal');
-  const [submittedNotice, setSubmittedNotice] = useState(false);
-
+  const [priority, setPriority] = useState<TaskPriority | ''>('medium');
+  const [category, setCategory] = useState<TaskCategory>('personal');
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) onClose();
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
-      setSubmittedNotice(false);
+      setTitle('');
+      setDescription('');
+      setDueDate(defaultDate ?? toDateKey(new Date()));
+      setDueTime('17:00');
+      setPriority('medium');
+      setCategory('personal');
       setTimeout(() => titleInputRef.current?.focus(), 50);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, defaultDate]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    setSubmittedNotice(true);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!title.trim() || !dueDate) return;
+    onCreate?.({
+      title: title.trim(),
+      description: description.trim() || undefined,
+      dueDate,
+      dueTime: dueTime || undefined,
+      priority: (priority || undefined) as TaskPriority | undefined,
+      category,
+    });
+    onClose();
   };
 
   return (
@@ -50,7 +69,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
     >
       <div
         className="w-full max-w-lg bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -64,17 +83,8 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
           Create New Task
         </h2>
         <p className="text-xs text-[var(--muted)] mt-1 mb-5">
-          Define exact deadlines and ownership for your next responsibility.
+          Add the detail you need. Only the title and due date are required.
         </p>
-
-        {submittedNotice && (
-          <div className="mb-5 p-3.5 rounded-xl bg-[var(--green-soft)] border border-[var(--green)]/30 text-xs text-[var(--green)] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <p className="text-xs font-semibold leading-relaxed">
-              Task successfully saved to your workspace.
-            </p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -83,7 +93,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
             required
             placeholder="e.g., Finalize customer onboarding slide deck"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => setTitle(event.target.value)}
           />
 
           <div>
@@ -94,7 +104,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
               rows={3}
               placeholder="Add key context, requirements, or links..."
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(event) => setDescription(event.target.value)}
               className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] placeholder-[var(--faint)] border border-[var(--line)] rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-1 resize-none"
             />
           </div>
@@ -105,15 +115,14 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
               type="date"
               required
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={(event) => setDueDate(event.target.value)}
             />
-
             <Input
               label="Due Time (Optional)"
               type="time"
               value={dueTime}
-              onChange={(e) => setDueTime(e.target.value)}
-              helperText="Defaults to 23:59 if omitted"
+              onChange={(event) => setDueTime(event.target.value)}
+              helperText="Defaults to end of day"
             />
           </div>
 
@@ -124,7 +133,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as any)}
+                onChange={(event) => setCategory(event.target.value as TaskCategory)}
                 className="w-full px-3 py-2 text-xs bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
               >
                 <option value="personal">Personal</option>
@@ -139,7 +148,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({ isOpen, onClos
               </label>
               <select
                 value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
+                onChange={(event) => setPriority(event.target.value as TaskPriority | '')}
                 className="w-full px-3 py-2 text-xs bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
               >
                 <option value="">None</option>

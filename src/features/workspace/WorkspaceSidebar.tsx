@@ -1,16 +1,15 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Clock,
-  Calendar,
-  AlertCircle,
-  CheckCircle2,
   Archive,
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  LayoutDashboard,
   Palette,
   Plus,
 } from 'lucide-react';
-import { Button } from '../../components/ui';
 
 export interface WorkspaceSidebarProps {
   counts: {
@@ -25,41 +24,36 @@ export interface WorkspaceSidebarProps {
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNewTaskClick }) => {
   const navItems = [
+    { to: '/app', end: true, label: 'Home', icon: <LayoutDashboard className="w-5 h-5" /> },
     {
-      to: '/preview',
-      end: true,
-      label: 'Home',
-      icon: <LayoutDashboard className="w-4 h-4" />,
-    },
-    {
-      to: '/preview/today',
+      to: '/app/today',
       label: 'Today',
-      icon: <Clock className="w-4 h-4" />,
+      icon: <Clock className="w-5 h-5" />,
       count: counts.today,
     },
     {
-      to: '/preview/upcoming',
+      to: '/app/upcoming',
       label: 'Upcoming',
-      icon: <Calendar className="w-4 h-4" />,
+      icon: <Calendar className="w-5 h-5" />,
       count: counts.upcoming,
     },
     {
-      to: '/preview/needs-attention',
+      to: '/app/needs-attention',
       label: 'Needs Attention',
-      icon: <AlertCircle className="w-4 h-4 text-amber-400" />,
+      icon: <AlertCircle className="w-5 h-5" />,
       count: counts.needsAttention,
-      badgeColor: 'bg-amber-500/20 text-amber-300 font-bold',
+      badgeColor: 'bg-[var(--amber-soft)] text-[var(--amber)] border border-[var(--amber)]/20',
     },
     {
-      to: '/preview/completed',
+      to: '/app/completed',
       label: 'Completed',
-      icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
+      icon: <CheckCircle2 className="w-5 h-5" />,
       count: counts.completed,
     },
     {
-      to: '/preview/archived',
+      to: '/app/archived',
       label: 'Archived',
-      icon: <Archive className="w-4 h-4" />,
+      icon: <Archive className="w-5 h-5" />,
       count: counts.archived,
     },
   ];
@@ -67,86 +61,73 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNe
   return (
     <aside
       aria-label="Workspace navigation"
-      className="w-64 bg-[var(--dark)] text-gray-200 flex flex-col justify-between shrink-0 sticky top-[45px] h-[calc(100vh-45px)] overflow-y-auto p-5 select-none"
+      className="hidden md:flex w-[76px] shrink-0 flex-col items-center gap-3 border-r border-[var(--line)] bg-[var(--surface)]/80 py-4 sticky top-0 h-screen"
     >
-      <div>
-        {/* Brand Header with Demo Preview Mark */}
-        <div className="flex items-center gap-3 mb-6 px-1">
-          <div className="w-9 h-9 rounded-xl bg-white text-[var(--dark)] flex items-center justify-center font-black text-base shadow-sm">
-            V
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base text-white tracking-tight block">ViDo</span>
-              <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
-                DEMO
+      <Link
+        to="/app"
+        aria-label="ViDo"
+        className="w-10 h-10 rounded-2xl bg-[var(--dark)] text-white flex items-center justify-center font-display font-semibold text-lg shadow-sm"
+      >
+        V
+      </Link>
+
+      {onNewTaskClick && (
+        <button
+          type="button"
+          onClick={onNewTaskClick}
+          aria-label="New task"
+          title="New task"
+          className="w-10 h-10 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+      )}
+
+      <nav aria-label="Views" className="mt-2 flex flex-col gap-1.5">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            aria-label={item.count !== undefined ? `${item.label} ${item.count}` : item.label}
+            title={item.label}
+            className={({ isActive }) =>
+              `relative w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                isActive
+                  ? 'bg-[var(--accent)] text-white shadow-sm'
+                  : 'text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)]'
+              }`
+            }
+          >
+            {item.icon}
+            {item.count !== undefined && item.count > 0 && (
+              <span
+                className={`absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center ${
+                  item.badgeColor || 'bg-[var(--canvas)] text-[var(--muted)] border border-[var(--line)]'
+                }`}
+              >
+                {item.count}
               </span>
-            </div>
-            <span className="text-[10px] text-amber-300/90 font-medium tracking-wide block">
-              Logged-in demo preview
-            </span>
-          </div>
-        </div>
+            )}
+          </NavLink>
+        ))}
+      </nav>
 
-        {/* Quick New Task Button */}
-        {onNewTaskClick && (
-          <div className="mb-6">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onNewTaskClick}
-              className="w-full justify-center gap-1.5 shadow-sm"
-            >
-              <Plus className="w-4 h-4" /> New Task
-            </Button>
-          </div>
-        )}
-
-        {/* Navigation Sections */}
-        <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2 px-2.5">
-          Views
-        </div>
-        <nav className="space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  isActive
-                    ? 'bg-white/15 text-white font-semibold shadow-xs'
-                    : 'text-gray-300 hover:bg-white/8 hover:text-white'
-                }`
-              }
-            >
-              <div className="flex items-center gap-2.5">
-                {item.icon}
-                <span>{item.label}</span>
-              </div>
-              {item.count !== undefined && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    item.badgeColor || 'bg-white/10 text-gray-300'
-                  }`}
-                >
-                  {item.count}
-                </span>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
-
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
+      <div className="mt-auto flex flex-col items-center gap-2">
         <Link
           to="/style-lab"
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+          aria-label="Themes"
+          title="Themes"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)]"
         >
           <Palette className="w-4 h-4" />
-          <span>Themes</span>
         </Link>
+        <div
+          className="w-9 h-9 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center text-xs font-bold"
+          title="You"
+        >
+          Y
+        </div>
       </div>
     </aside>
   );

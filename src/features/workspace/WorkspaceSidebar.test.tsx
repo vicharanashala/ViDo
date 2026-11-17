@@ -12,35 +12,33 @@ describe('WorkspaceSidebar', () => {
     archived: 2,
   };
 
-  it('renders all navigation items and count badges', () => {
+  it('renders the brand, new task action, and view counts', () => {
     render(
-      <MemoryRouter initialEntries={['/preview']}>
+      <MemoryRouter initialEntries={['/app']}>
         <WorkspaceSidebar counts={mockCounts} />
       </MemoryRouter>
     );
 
-    expect(screen.getByText('DEMO')).toBeInTheDocument();
-    expect(screen.getByText('Logged-in demo preview')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /vido/i })).toHaveAttribute('href', '/app');
+    expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/app');
     expect(screen.getByRole('link', { name: /today 6/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /needs attention 4/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /upcoming 5/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /completed 5/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /archived 2/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
+    expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });
 
-  it('triggers new task callback when button is clicked', () => {
+  it('triggers the new task callback', () => {
     const handleNewTask = vi.fn();
     render(
-      <MemoryRouter initialEntries={['/preview']}>
+      <MemoryRouter initialEntries={['/app']}>
         <WorkspaceSidebar counts={mockCounts} onNewTaskClick={handleNewTask} />
       </MemoryRouter>
     );
 
-    const btn = screen.getByRole('button', { name: /new task/i });
-    fireEvent.click(btn);
+    fireEvent.click(screen.getByRole('button', { name: /new task/i }));
     expect(handleNewTask).toHaveBeenCalledTimes(1);
   });
 });
-

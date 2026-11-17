@@ -20,8 +20,9 @@ ViDo/
 │   ├── features/            # Vertical slices of user-facing functionality
 │   │   ├── landing/         # Public landing page (/ route)
 │   │   ├── style-lab/       # Theme, accent palette, and visual lab (/style-lab route)
-│   │   └── workspace/       # Authenticated dashboard preview (/preview route)
+│   │   └── workspace/       # Working task workspace (/app route)
 │   │       └── views/       # Subroute view components (Home, Today, Upcoming, etc.)
+│   ├── lib/                 # Browser persistence (localStorage task repository)
 │   ├── test/                # Global test setup and environment configuration
 │   ├── App.tsx              # Central client-side routing
 │   ├── index.css            # Global CSS variables, theme variables, and Tailwind v4 setup
@@ -55,12 +56,20 @@ ViDo/
 ### `src/data/` — Types, Fixtures & Pure Logic
 - **Purpose**: TypeScript interfaces, sample data fixtures, and pure filtering/calculation functions.
 - **Current Contents**:
-  - `sampleTasks.ts`: Deterministic task dataset, priorities, tags, categories, and checkpoints.
-  - `taskFilters.ts`: Pure functions for filtering tasks into *Today*, *Upcoming*, *Needs Attention*, *Completed*, and *Archived*.
-  - `taskFilters.test.ts`: Exhaustive unit tests for date filtering, overdue detection, and category grouping.
+  - `taskTypes.ts`: Task, Checkpoint, priority, category, state, and pace types.
+  - `taskDates.ts`: date helpers, overdue detection, completion timing, and pace calculation.
+  - `sampleTasks.ts`: relative-date seed generator and new-task factory.
+  - `taskFilters.ts`: pure functions for Today, Upcoming, Needs Attention, Completed, Archived, search, and filters.
+  - `taskFilters.test.ts`: unit tests for derived views, filtering, and pace.
 - **Rules**:
   - Keep functions pure and side-effect free.
-  - The deterministic base date for preview fixtures is **Tuesday, 17 November 2026**.
+  - Dates are calculated from the current date; there is no fixed benchmark date.
+
+### `src/lib/` — Browser Persistence
+- **Purpose**: Side-effectful infrastructure such as the localStorage task repository.
+- **Current Contents**:
+  - `taskRepository.ts`: load, save, normalize, and clear tasks under `vido.tasks.v1`.
+  - `taskRepository.test.ts`: persistence and seed behavior tests.
 
 ### `src/features/` — Domain Vertical Slices
 Each subfolder under `src/features/` encapsulates a complete user-facing product domain:
@@ -71,19 +80,22 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
 - **Purpose**: The public marketing face of ViDo explaining the value proposition to personal, household, and work users.
 
 #### 2. `src/features/workspace/`
-- **Route**: `/preview/*`
+- **Route**: `/app/*`
 - **Components**:
-  - `WorkspaceLayout.tsx`: Shell layout with persistent top demo banner, sidebar, and subroute rendering.
-  - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, filter, and user profile.
-  - `WorkspaceSidebar.tsx`: Left navigation sidebar with view links, badges, and theme link.
-  - `TaskRow.tsx`: Horizontal, scannable task row with priority badge, progress bar, and checkpoint counts.
-  - `TaskCard.tsx`: Detailed card representation of a task.
-  - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Interactive modals for inspecting and creating tasks.
+  - `WorkspaceLayout.tsx`: Shell layout with sidebar, top bar, quick capture, and subroute rendering.
+  - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, filters, and local profile.
+  - `WorkspaceSidebar.tsx`: Left navigation sidebar with view links and counts.
+  - `QuickAdd.tsx`: One-field capture form.
+  - `useTaskStore.ts`: Task state and lifecycle actions backed by localStorage.
+  - `TaskRow.tsx`: Horizontal task row with priority, progress, pace, and checkpoint count.
+  - `TaskCard.tsx`: Card representation of a task.
+  - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Working modals for editing and creating tasks.
   - `views/HomeView.tsx`: Dashboard command center with 4 interactive summary tiles and task feed.
   - `views/ListView.tsx`: Category-filterable list view for specific subroutes.
 - **Rules**:
-  - Must remain clearly designated as an **interactive preview** with sample data.
-  - Must provide the left-aligned **Back to Landing Page** navigation on the persistent top banner.
+  - Data is real and persisted; there is no demo mode.
+  - Views must derive from real dates and the task store.
+  - Every mutation must go through `useTaskStore`.
 
 #### 3. `src/features/style-lab/`
 - **Route**: `/style-lab`
@@ -108,9 +120,10 @@ When adding or modifying files, follow this decision tree:
 | New reusable UI element (e.g., Tooltip, Dropdown) | `src/components/ui/` | `PascalCase.tsx` + export in `index.ts` |
 | New marketing section for landing page | `src/features/landing/` | `Landing<SectionName>.tsx` |
 | New dashboard view or workspace component | `src/features/workspace/` | `<ComponentName>.tsx` |
-| New subroute view under `/preview/<route>` | `src/features/workspace/views/` | `<RouteName>View.tsx` |
+| New subroute view under `/app/<route>` | `src/features/workspace/views/` | `<RouteName>View.tsx` |
 | Data type, interface, or sample fixture | `src/data/` | `camelCase.ts` |
 | Pure business logic or filtering algorithm | `src/data/` | `camelCase.ts` |
+| Browser persistence or storage adapter | `src/lib/` | `camelCase.ts` |
 | Future API client, backend integration, or Supabase client | `src/lib/` or `src/services/` | `camelCase.ts` |
 | Unit / integration test | Colocated with feature/component | `<TargetName>.test.tsx` or `.test.ts` |
 | Global CSS or styling tokens | `src/index.css` | kebab-case variables |
@@ -125,4 +138,4 @@ When adding or modifying files, follow this decision tree:
 4. **DO NOT hardcode raw hex colors or ad-hoc Tailwind colors**: Use semantic CSS variables defined in `src/index.css` (`var(--accent)`, `var(--surface)`, `var(--canvas)`, `var(--ink)`, `var(--muted)`, `var(--line)`).
 5. **DO NOT create orphan components without tests**: Every new component or calculation function must have a colocated test.
 6. **DO NOT expose secrets or service-role keys**: All client code runs in the browser. Never commit `.env` or paste private backend tokens.
-7. **DO NOT label the product as a student or homework project in the UI**: Present ViDo as a refined SaaS product with an interactive `/preview` demo.
+7. **DO NOT reintroduce demo framing**: no demo banner, "Demo User", preview badge, or fixed benchmark date. The app at `/app` is real and persisted.

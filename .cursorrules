@@ -8,5 +8,5 @@ Before writing or editing code in this repository:
    - Data models & pure logic in `src/data/`.
    - Do not create arbitrary root folders or dump files in `src/`.
 3. Use CSS custom property variables (`var(--accent)`, `var(--surface)`, `var(--canvas)`, `var(--ink)`, `var(--line)`) with Tailwind CSS v4.
-4. Keep the UI presented as a clean SaaS product with an interactive `/preview` demo (not an academic project).
+4. Keep the UI presented as a clean, local-first SaaS product with the working app at `/app` (not an academic project).
 5. Always run `npm run typecheck`, `npm test`, and `npm run build` to verify changes before completing tasks.

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '../../components/ui';
 import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { formatDateLong } from '../../data/taskDates';
 
 export const LandingPreview: React.FC = () => {
   return (
@@ -25,10 +26,10 @@ export const LandingPreview: React.FC = () => {
             <span className="w-3 h-3 rounded-full bg-red-400 inline-block" />
             <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
             <span className="w-3 h-3 rounded-full bg-green-400 inline-block" />
-            <span className="ml-2 text-xs font-mono text-[var(--muted)]">vido.app/preview</span>
+            <span className="ml-2 text-xs font-mono text-[var(--muted)]">vido.app/app</span>
           </div>
           <span className="text-[11px] font-medium text-[var(--muted)] bg-[var(--surface)] px-2.5 py-0.5 rounded-full border border-[var(--line)]">
-            Today: 17 Nov 2026
+            Today: {formatDateLong(new Date())}
           </span>
         </div>
 
@@ -74,7 +75,7 @@ export const LandingPreview: React.FC = () => {
               <span className="text-xs text-[var(--faint)]">Search tasks or filter by priority...</span>
               <div className="flex items-center gap-2">
                 <span className="w-7 h-7 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center text-xs font-bold">
-                  DU
+                  Y
                 </span>
               </div>
             </div>

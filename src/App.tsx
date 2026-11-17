@@ -1,7 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LandingPage } from './features/landing/LandingPage';
 import { StyleLab } from './features/style-lab/StyleLab';
 import { WorkspaceLayout } from './features/workspace/WorkspaceLayout';
+
+function LegacyRedirect({ from }: { from: string }) {
+  const location = useLocation();
+  const suffix = location.pathname.replace(new RegExp(`^/${from}`), '');
+  return <Navigate to={`/app${suffix || ''}`} replace />;
+}
 
 export default function App() {
   return (
@@ -9,8 +15,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/style-lab" element={<StyleLab />} />
-        <Route path="/preview/*" element={<WorkspaceLayout />} />
-        <Route path="/workspace/*" element={<Navigate to="/preview" replace />} />
+        <Route path="/app/*" element={<WorkspaceLayout />} />
+        <Route path="/preview/*" element={<LegacyRedirect from="preview" />} />
+        <Route path="/workspace/*" element={<LegacyRedirect from="workspace" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

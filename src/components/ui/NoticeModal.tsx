@@ -13,8 +13,8 @@ export interface NoticeModalProps {
 export const NoticeModal: React.FC<NoticeModalProps> = ({
   isOpen,
   onClose,
-  title = 'Sign In to ViDo',
-  description = 'You can enter and explore your workspace directly right now without needing to configure Google authentication.',
+  title = 'Welcome to ViDo',
+  description = 'Your workspace is ready. Tasks are saved on this device, with no account required.',
 }) => {
   const navigate = useNavigate();
 
@@ -71,10 +71,10 @@ export const NoticeModal: React.FC<NoticeModalProps> = ({
             size="sm"
             onClick={() => {
               onClose();
-              navigate('/preview');
+              navigate('/app');
             }}
           >
-            Enter Live Preview <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            Enter Workspace <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </div>
       </div>

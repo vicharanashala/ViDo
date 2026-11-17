@@ -24,7 +24,7 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
 - **UI Primitives**: Place generic, domain-agnostic components (Buttons, Cards, Badges, Inputs, Modals) in `src/components/ui/` and export them in `src/components/ui/index.ts`. Never import domain models (`Task`, `Checkpoint`, `User`) into `src/components/ui/`.
 - **Feature Code**: Group product functionality into feature slices under `src/features/<feature-name>/`:
   - `src/features/landing/` — Public marketing page (`/`).
-  - `src/features/workspace/` — Authenticated dashboard preview (`/preview`).
+  - `src/features/workspace/` — Working task workspace (`/app`).
   - `src/features/style-lab/` — Theme and palette lab (`/style-lab`).
 - **Data & Pure Logic**: Place data models, types, sample fixtures, and pure filtering/calculation functions in `src/data/`.
 - **Tests**: Colocate tests alongside the files they verify (e.g., `TaskRow.tsx` -> `TaskRow.test.tsx` or `src/features/workspace/WorkspaceViewsAndModals.test.tsx`).
@@ -36,10 +36,25 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
 ## 3. Product Presentation Rules
 
 - **Product, Not a School Project**: ViDo is presented as a high-end, distraction-free SaaS product. **Never** include references to "Milestone 1", "Milestone 2", "Student Project", "Homework", or "Review Gates" in any user-facing UI text.
-- **Preview Route**: The dashboard demo is hosted at `/preview/*` with subroutes (`/preview/today`, `/preview/upcoming`, `/preview/needs-attention`, `/preview/completed`, `/preview/archived`).
-- **Demo Banner & Exit Button**: The preview shell **must always** retain the persistent top demo preview banner with the **left-aligned** `Back to Landing Page` button.
-- **User Identity**: The default preview user profile is `"Demo User"`.
-- **Deterministic Fixtures**: All sample dates and timelines are anchored around **Tuesday, 17 November 2026**.
+- **Workspace Route**: The working app is hosted at `/app/*` with subroutes (`/app/today`, `/app/upcoming`, `/app/needs-attention`, `/app/completed`, `/app/archived`). Legacy `/preview/*` links redirect to `/app/*`.
+- **No Demo Framing**: There is no demo banner, "Demo User", or preview badge. The workspace is a real local-first app.
+- **Local-First Identity**: Tasks are stored in `localStorage` under `vido.tasks.v1`. No account is required.
+- **Real Dates**: Views are calculated from the current date. Seed data is generated relative to today by `createSeedTasks()`, never a fixed benchmark date.
+- **Progress Is Real**: Tasks carry `progress` (0–100) and a checkpoint timeline. The pace-vs-deadline signal is part of the product, not decoration.
+
+---
+
+## 3.1 Issue Naming
+
+Every GitHub issue raised for this repository must follow:
+
+- `feat: <title>` — feature implementation, feature-related bug, or anything that changes product behavior.
+- `Issue: <title>` — general issues: docs, tooling, process, maintenance, or questions.
+
+Examples:
+
+- `feat: Today view: focused priority-aware queue`
+- `Issue: Update local setup instructions`
 
 ---
 
