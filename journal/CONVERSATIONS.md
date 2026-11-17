@@ -97,7 +97,7 @@ Conclusion: the host team directed and committed the app, but it was largely AI-
 | App LOC | ~4,310 | ~2,553 | ~3,393 (+ tests) |
 | Largest file | 1,957 LOC | 1,162 LOC | 300 LOC |
 | Architecture | root + server + client, JS | root + server + client, JS | single package, TS, feature slices |
-| Tests | 0 | 0 | 28 initially, 60 at last run |
+| Tests | 0 | 0 | 28 initially, 65 at last run |
 | Backend | Express + JWT + JSON + cron + email | Express + dataset engine | none |
 | Auth | magic link + Google + JWT | none | none |
 | Algorithm depth | high | highest | low initially |
@@ -349,7 +349,15 @@ An epic covering:
 - Guardrails: no net increase in visible controls, no gamification.
 - Acceptance: capture ≤2 actions, complete from Today ≤1 action, enter Focus ≤1 action, keyboard reachable, reduced motion respected, visible controls do not increase.
 
-### 5.3 Issue #4
+### 5.3 Issue #7
+
+**Title:** `feat: Make ViDo a gentle daily space, not an accountability tool`
+
+URL: `https://github.com/vicharanashala/ViDo/issues/7`
+
+Covers the lighter direction: optional name, daily intention, gentler labels, no pressure counts, calm progress colours, "That's enough for today", and a small-win focus choice. Owner: @NAGASHREE1.
+
+### 5.4 Issue #4
 
 **Title:** `feat: Today view: focused priority-aware queue with calm feedback`
 
@@ -371,7 +379,7 @@ Covers:
 - Keyboard.
 - Tests.
 
-### 5.4 Assignment
+### 5.5 Assignment
 
 - User commented on both issues asking `@Jatin-nicon` to assign them.
 - GitHub rejected direct self-assignment because `NAGASHREE1` has read-only access to the host repo.
@@ -379,7 +387,7 @@ Covers:
 - No assignment yet.
 - No PR raised.
 
-### 5.5 Other issues
+### 5.6 Other issues
 
 - Issue #5 `issue: Conflicting tasks.md and milestones.md` exists and belongs to `hegdev13`. Not ours.
 
@@ -432,6 +440,7 @@ Assessment:
 | Warm/editorial + interactivity | pass | 52 | pass |
 | Colour psychology + icon rail + momentum | pass | 53 | pass |
 | Doodle task titles | pass | 60 | pass |
+| Cartoon sticker doodles + welcome/intention | pass | 65 | pass |
 
 Last build at time of writing:
 
@@ -446,8 +455,11 @@ Last build at time of writing:
 - Working app in `vido-app/`.
 - Routes: `/`, `/app`, `/app/today`, `/app/upcoming`, `/app/needs-attention`, `/app/completed`, `/app/archived`, `/style-lab`.
 - Data persists in localStorage.
-- No commit, push, or PR.
-- Issues #3 and #4 open.
+- First commit `0d10483` pushed to fork `NAGASHREE1/ViDo` on branch `feat/local-first-vido`.
+- Current version includes cartoon-sticker doodles, welcome card, daily intention, gentler navigation, and smaller task titles.
+- Issue #7 opened for the gentle daily-space direction.
+- No PR raised.
+- Issues #3, #4, and #7 open.
 - Assignment pending.
 - Doodle title system implemented for 14 task kinds.
 - Journal folder created with conversation log, idea register, and guide.

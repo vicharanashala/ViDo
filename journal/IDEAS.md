@@ -44,6 +44,11 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
 | I-033 | Doodle task titles | Recognised tasks render as hand-drawn SVG illustrations instead of text. Laundry: clothesline, shirt, trousers, sock, clothespins, basket. |
 | I-034 | Doodle coverage | 14 illustrated doodles with muted fills and ink outlines: laundry, groceries, dishes, cleaning, cooking, call, meeting, exercise, reading, plants, bill, repair, health, travel. |
+| I-035 | Cartoon-sticker doodles | Bold outlines, flat cheerful fills, and a pastel sticker background. Doodle library added to `/style-lab`. |
+| I-036 | Personal welcome card | Optional name, saved on this device, or skip. |
+| I-037 | Daily intention | One optional line per day, explicitly not a task. |
+| I-038 | Gentler navigation | `Still here`, `Later`, `Done`, `Put away`; no numeric counts in the sidebar. |
+| I-039 | Smaller task titles | Task titles reduced to 13px in rows and smaller in focus/detail views. |
 
 ---
 
@@ -77,6 +82,9 @@ None at the moment.
 | I-052 | Accessibility audit | Keyboard paths, contrast, screen-reader labels. |
 | I-053 | Focus blocks with pause/resume | Time-block model; split current task, insert new task, resume with checkpoints. Explore first. |
 | I-054 | AI agent | Task generation, follow-up suggestions, risk detection, summaries. Grounded in user-approved data. |
+| I-074 | "That's enough for today" rest state | Collapse the Today list into a calm rest state, with undo. |
+| I-075 | Small-win focus selection | Prefer a task with higher progress / due today over the oldest overdue task. |
+| I-076 | Calm overdue language and colours | Replace `Overdue` with `Carried over`; amber cues, never red progress bars. |
 
 ---
 

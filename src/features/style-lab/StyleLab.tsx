@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Badge, Card, Input } from '../../components/ui';
 import { CheckCircle2, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Doodle } from '../workspace/doodles/Doodles';
+import { DOODLE_LABELS, type DoodleKind } from '../workspace/doodles/doodleMap';
 
 export type AccentCandidate = 'clay' | 'blue' | 'indigo' | 'green';
 
@@ -197,6 +199,35 @@ export const StyleLab: React.FC = () => {
                 <span className="font-semibold text-[var(--accent)]">Inspect Task →</span>
               </div>
             </Card>
+          </div>
+        </section>
+
+        {/* Doodle Library */}
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold">3. Doodle Library</h2>
+            <p className="text-xs text-[var(--muted)] mt-1">
+              Recognised task titles become these illustrated titles. Unrecognised tasks stay as text.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(Object.keys(DOODLE_LABELS) as DoodleKind[]).map((kind) => {
+              const meta = DOODLE_LABELS[kind];
+              return (
+                <div
+                  key={kind}
+                  className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3"
+                >
+                  <div className="w-16 h-12 shrink-0 text-[var(--ink)]">
+                    <Doodle kind={kind} />
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold">{meta.label}</span>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">{meta.description}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 

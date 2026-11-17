@@ -4,6 +4,8 @@ import type { Task } from '../../../data/taskTypes';
 import { getTaskPace, greeting, paceTone, relativeDayLabel } from '../../../data/taskDates';
 import { TaskRow } from '../TaskRow';
 import { DoodleTitle } from '../doodles/DoodleTitle';
+import { WelcomeCard } from '../WelcomeCard';
+import { IntentionBar } from '../IntentionBar';
 import { MomentumStrip } from '../MomentumStrip';
 import { ArrowRight, Clock, Maximize2 } from 'lucide-react';
 import { Badge, Button, ProgressRing } from '../../../components/ui';
@@ -27,6 +29,11 @@ export interface HomeViewProps {
   onTaskClick: (task: Task) => void;
   onToggleComplete?: (task: Task) => void;
   onFocusTask: (task: Task) => void;
+  userName?: string;
+  welcomed?: boolean;
+  onSaveName?: (name: string) => void;
+  intention?: string;
+  onIntentionChange?: (text: string) => void;
 }
 
 function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -48,8 +55,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onTaskClick,
   onToggleComplete,
   onFocusTask,
+  userName,
+  welcomed = true,
+  onSaveName,
+  intention = '',
+  onIntentionChange,
 }) => {
   const focusPace = focusTask ? getTaskPace(focusTask) : null;
+  const greetingText = userName ? `${greeting()}, ${userName}` : greeting();
   const momentumPercent =
     todayMomentum.total > 0
       ? Math.round((todayMomentum.completed / todayMomentum.total) * 100)
@@ -57,6 +70,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {!welcomed && onSaveName && <WelcomeCard onSave={onSaveName} />}
+
       <section
         className="relative overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
         style={{ background: HERO_GRADIENT }}
@@ -69,9 +84,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {todayLabel}
             </span>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--ink)] mt-1">
-              {greeting()}
+              {greetingText}
             </h1>
-            <p className="text-sm text-[var(--muted)] mt-1">One thing at a time. The rest can wait.</p>
+            <p className="text-sm text-[var(--muted)] mt-1">
+              Make yourself at home. One thing at a time.
+            </p>
           </div>
           <ProgressRing
             value={momentumPercent}
@@ -89,7 +106,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--accent)]">
                 Focus next
               </span>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--ink)] mt-1 leading-snug">
+              <h2 className="text-lg sm:text-xl font-extrabold text-[var(--ink)] mt-1 leading-snug">
                 <DoodleTitle title={focusTask.title} size="lg" />
               </h2>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-[var(--muted)]">
@@ -137,6 +154,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </span>
         </div>
       </section>
+
+      {onIntentionChange && <IntentionBar value={intention} onSave={onIntentionChange} />}
 
       <section aria-labelledby="today-heading" className="space-y-3">
         <div className="flex items-center justify-between gap-2">

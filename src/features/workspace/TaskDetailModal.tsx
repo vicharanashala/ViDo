@@ -256,7 +256,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </form>
         ) : (
           <>
-            <h2 id="task-detail-title" className="text-xl font-bold text-[var(--ink)] leading-snug pr-8">
+            <h2 id="task-detail-title" className="text-lg font-bold text-[var(--ink)] leading-snug pr-8">
               <DoodleTitle title={task.title} size="lg" />
             </h2>
             {task.description && (

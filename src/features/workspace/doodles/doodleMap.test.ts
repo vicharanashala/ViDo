@@ -16,11 +16,14 @@ describe('detectDoodle', () => {
     expect(detectDoodle('Water the plants')).toBe('plants');
   });
 
-  it('recognises work and health tasks', () => {
-    expect(detectDoodle('Call the dentist')).toBe('call');
+  it('recognises work, health, and bill tasks', () => {
+    expect(detectDoodle('Call the dentist')).toBe('dentist');
+    expect(detectDoodle('Call mom')).toBe('call');
     expect(detectDoodle('Sprint planning')).toBe('meeting');
     expect(detectDoodle('Evening 5km jog')).toBe('exercise');
-    expect(detectDoodle('Dentist checkup')).toBe('health');
+    expect(detectDoodle('Dentist checkup')).toBe('dentist');
+    expect(detectDoodle('Doctor appointment')).toBe('doctor');
+    expect(detectDoodle('Buy medicine')).toBe('medicine');
     expect(detectDoodle('Pay the internet bill')).toBe('bill');
   });
 

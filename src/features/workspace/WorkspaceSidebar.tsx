@@ -7,55 +7,24 @@ import {
   CheckCircle2,
   Clock,
   LayoutDashboard,
+  Leaf,
   Palette,
   Plus,
 } from 'lucide-react';
 
 export interface WorkspaceSidebarProps {
-  counts: {
-    today: number;
-    needsAttention: number;
-    upcoming: number;
-    completed: number;
-    archived: number;
-  };
+  userName?: string;
   onNewTaskClick?: () => void;
 }
 
-export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNewTaskClick }) => {
+export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ userName, onNewTaskClick }) => {
   const navItems = [
     { to: '/app', end: true, label: 'Home', icon: <LayoutDashboard className="w-5 h-5" /> },
-    {
-      to: '/app/today',
-      label: 'Today',
-      icon: <Clock className="w-5 h-5" />,
-      count: counts.today,
-    },
-    {
-      to: '/app/upcoming',
-      label: 'Upcoming',
-      icon: <Calendar className="w-5 h-5" />,
-      count: counts.upcoming,
-    },
-    {
-      to: '/app/needs-attention',
-      label: 'Needs Attention',
-      icon: <AlertCircle className="w-5 h-5" />,
-      count: counts.needsAttention,
-      badgeColor: 'bg-[var(--amber-soft)] text-[var(--amber)] border border-[var(--amber)]/20',
-    },
-    {
-      to: '/app/completed',
-      label: 'Completed',
-      icon: <CheckCircle2 className="w-5 h-5" />,
-      count: counts.completed,
-    },
-    {
-      to: '/app/archived',
-      label: 'Archived',
-      icon: <Archive className="w-5 h-5" />,
-      count: counts.archived,
-    },
+    { to: '/app/today', label: 'Today', icon: <Clock className="w-5 h-5" /> },
+    { to: '/app/upcoming', label: 'Later', icon: <Calendar className="w-5 h-5" /> },
+    { to: '/app/needs-attention', label: 'Still here', icon: <AlertCircle className="w-5 h-5" /> },
+    { to: '/app/completed', label: 'Done', icon: <CheckCircle2 className="w-5 h-5" /> },
+    { to: '/app/archived', label: 'Put away', icon: <Archive className="w-5 h-5" /> },
   ];
 
   return (
@@ -89,7 +58,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNe
             key={item.to}
             to={item.to}
             end={item.end}
-            aria-label={item.count !== undefined ? `${item.label} ${item.count}` : item.label}
+            aria-label={item.label}
             title={item.label}
             className={({ isActive }) =>
               `relative w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
@@ -100,15 +69,6 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNe
             }
           >
             {item.icon}
-            {item.count !== undefined && item.count > 0 && (
-              <span
-                className={`absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center ${
-                  item.badgeColor || 'bg-[var(--canvas)] text-[var(--muted)] border border-[var(--line)]'
-                }`}
-              >
-                {item.count}
-              </span>
-            )}
           </NavLink>
         ))}
       </nav>
@@ -124,9 +84,9 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ counts, onNe
         </Link>
         <div
           className="w-9 h-9 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center text-xs font-bold"
-          title="You"
+          title={userName ? `Hi, ${userName}` : 'A little life for your desk'}
         >
-          Y
+          {userName ? userName.trim().charAt(0).toUpperCase() : <Leaf className="w-4 h-4" />}
         </div>
       </div>
     </aside>

@@ -21,6 +21,7 @@ import { TaskCreateModal } from './TaskCreateModal';
 import { QuickAdd } from './QuickAdd';
 import { FocusMode } from './FocusMode';
 import { useTaskStore } from './useTaskStore';
+import { useWelcome } from './useWelcome';
 
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
@@ -47,6 +48,7 @@ export const WorkspaceLayout: React.FC = () => {
     restoreTask,
     deleteTask,
   } = useTaskStore();
+  const welcome = useWelcome();
 
   const [filters, setFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTERS);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -64,7 +66,6 @@ export const WorkspaceLayout: React.FC = () => {
     total: todayTasks.length,
   };
 
-  const views = useMemo(() => getFilteredTasks(tasks, now), [tasks, todayKey]);
   const filteredTasks = useMemo(() => applyTaskFilters(tasks, filters, now), [tasks, filters, todayKey]);
   const filteredViews = useMemo(() => getFilteredTasks(filteredTasks, now), [filteredTasks, todayKey]);
   const dashboard = useMemo(() => getHomeDashboardTasks(filteredTasks, now), [filteredTasks, todayKey]);
@@ -149,13 +150,7 @@ export const WorkspaceLayout: React.FC = () => {
   return (
     <div className="workspace-studio flex min-h-screen text-[var(--ink)] antialiased">
       <WorkspaceSidebar
-        counts={{
-          today: views.today.length + views.needsAttention.length,
-          needsAttention: views.needsAttention.length,
-          upcoming: views.upcoming.length,
-          completed: views.completed.length,
-          archived: views.archived.length,
-        }}
+        userName={welcome.name}
         onNewTaskClick={() => setIsCreateOpen(true)}
       />
 
@@ -191,6 +186,11 @@ export const WorkspaceLayout: React.FC = () => {
                   onTaskClick={handleTaskClick}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
+                  userName={welcome.name}
+                  welcomed={welcome.welcomed}
+                  onSaveName={welcome.saveName}
+                  intention={welcome.intention}
+                  onIntentionChange={welcome.updateIntention}
                 />
               }
             />

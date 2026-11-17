@@ -4,28 +4,20 @@ import { MemoryRouter } from 'react-router-dom';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 
 describe('WorkspaceSidebar', () => {
-  const mockCounts = {
-    today: 6,
-    needsAttention: 4,
-    upcoming: 5,
-    completed: 5,
-    archived: 2,
-  };
-
-  it('renders the brand, new task action, and view counts', () => {
+  it('renders the brand, new task action, and gentle views', () => {
     render(
       <MemoryRouter initialEntries={['/app']}>
-        <WorkspaceSidebar counts={mockCounts} />
+        <WorkspaceSidebar />
       </MemoryRouter>
     );
 
     expect(screen.getByRole('link', { name: /vido/i })).toHaveAttribute('href', '/app');
     expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/app');
-    expect(screen.getByRole('link', { name: /today 6/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /needs attention 4/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /upcoming 5/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /completed 5/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /archived 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^today$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /still here/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^later$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^done$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /put away/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
     expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });
@@ -34,7 +26,7 @@ describe('WorkspaceSidebar', () => {
     const handleNewTask = vi.fn();
     render(
       <MemoryRouter initialEntries={['/app']}>
-        <WorkspaceSidebar counts={mockCounts} onNewTaskClick={handleNewTask} />
+        <WorkspaceSidebar onNewTaskClick={handleNewTask} />
       </MemoryRouter>
     );
 

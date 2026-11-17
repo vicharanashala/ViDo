@@ -93,7 +93,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             <DoodleTitle
               title={task.title}
               size="md"
-              className={`text-sm font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors ${
+              className={`text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors ${
                 isCompleted ? 'line-through opacity-60' : ''
               }`}
             />
