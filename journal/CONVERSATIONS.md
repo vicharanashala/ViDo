@@ -395,7 +395,7 @@ Covers:
 - GitHub rejected direct self-assignment because `NAGASHREE1` has read-only access to the host repo.
 - Options: collaborator invite, claim comment, fork, or maintainer assignment.
 - No assignment yet.
-- No PR raised.
+- PR #9 raised: https://github.com/vicharanashala/ViDo/pull/9
 
 ### 5.6 Other issues
 
@@ -469,7 +469,7 @@ Last build at time of writing:
 - First commit `0d10483` pushed to fork `NAGASHREE1/ViDo` on branch `feat/local-first-vido`.
 - Current version includes cartoon-sticker doodles, welcome card, daily intention, gentler navigation, and smaller task titles.
 - Issue #7 opened for the gentle daily-space direction.
-- No PR raised.
+- PR #9 raised: https://github.com/vicharanashala/ViDo/pull/9
 - Issues #3, #4, and #7 open.
 - Assignment pending.
 - Doodle title system implemented for 14 task kinds.

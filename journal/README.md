@@ -25,7 +25,7 @@ This folder is the project memory for ViDo. It exists so a new session can recov
 - Branch: `feat/local-first-vido`
 - State: committed and pushed to `NAGASHREE1/ViDo`
 - Fork: `https://github.com/NAGASHREE1/ViDo` (public)
-- No PR raised
+- PR: https://github.com/vicharanashala/ViDo/pull/9
 - Issues:
   - `#3 feat: Calm interactivity: reduce effort per action across the workspace`
   - `#4 feat: Today view: focused priority-aware queue with calm feedback`
