@@ -24,16 +24,6 @@ test-results/
 .env
 .env*.local
 *.env
-!.env.example
-
-# Firebase CLI & Emulator Runtime
-.firebase/
-*-debug.log*
-firebase-debug.log*
-firestore-debug.log*
-ui-debug.log*
-hub-debug.log*
-auth-debug.log*
 
 # Logs
 logs/
@@ -56,7 +46,6 @@ Thumbs.db
 # Editor and IDE directories
 .vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json
 .idea/
 *.suo
 *.ntvs*

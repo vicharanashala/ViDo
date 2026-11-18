@@ -9,11 +9,9 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "emulators": "firebase emulators:start --only auth"
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "firebase": "^13.4.0",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -34,3 +32,4 @@
     "vitest": "^3.0.5"
   }
 }
+

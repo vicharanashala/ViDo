@@ -24,8 +24,8 @@ describe('StyleLab', () => {
       </BrowserRouter>
     );
 
-    // Initial default is blue
-    expect(document.documentElement.getAttribute('data-accent')).toBe('blue');
+    // Initial default is clay
+    expect(document.documentElement.getAttribute('data-accent')).toBe('clay');
 
     // Click Deep Indigo
     const indigoCard = screen.getByTestId('accent-card-indigo');

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80" role="img" aria-label="Person on a treadmill">
+  <rect x="6" y="4" width="108" height="72" rx="28" fill="#e6f1f6"/>
+  <ellipse cx="60" cy="68" rx="30" ry="4" fill="#2f2a24" opacity=".08"/>
+  <g transform="translate(24 4) scale(3)" fill="none" stroke="#3b342c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2">
+    <path d="M10 3a1 1 0 1 0 2 0a1 1 0 0 0-2 0"/>
+    <path d="M3 14l4 1l.5-.5"/>
+    <path d="M12 18v-3l-3-2.923L9.75 7"/>
+    <path d="M6 10V8l4-1l2.5 2.5l2.5.5"/>
+    <path d="M20 21a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1"/>
+    <path d="M18 20l1-11l2-1"/>
+  </g>
+  <path d="M28 24h6 M92 28h6" stroke="#c9975e" stroke-width="3" stroke-linecap="round"/>
+</svg>

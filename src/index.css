@@ -1,40 +1,62 @@
 @import "tailwindcss";
 
+/*
+  ViDo colour psychology
+  ----------------------
+  Sage canvas      low arousal, calm, reduces visual stress
+  Warm white       softer than pure white, avoids glare
+  Muted clay       primary action; warm, human, urgent without alarm
+  Green            progress and completion; growth and competence
+  Amber            attention only; a signal, never a wall of warning
+  Muted clay-red   overdue; consequence without panic
+  Deep forest ink  text and brand; softer than pure black
+*/
+
 :root {
-  --ink: #16181d;
-  --muted: #676c76;
-  --faint: #9297a1;
-  --line: #e3e5e9;
-  --surface: #ffffff;
-  --canvas: #f5f6f8;
-  --dark: #1c2028;
-  --accent: #305fdd;
-  --accent-soft: #eef3ff;
-  --green: #247a56;
-  --green-soft: #eaf6f0;
-  --amber: #936019;
-  --amber-soft: #fff5df;
-  --red: #a44747;
-  --red-soft: #fff0ef;
-  --radius: 14px;
+  --ink: #26312b;
+  --muted: #66736c;
+  --faint: #95a19a;
+  --line: #dde5dc;
+  --surface: #fdfdf9;
+  --canvas: #f2f5ee;
+  --dark: #2f4a3f;
+  --accent: #c25a3d;
+  --accent-soft: #fbe7dc;
+  --sun: #eda55f;
+  --sky: #83b8a8;
+  --green: #5e9c7c;
+  --green-soft: #e6f2ea;
+  --amber: #b9823a;
+  --amber-soft: #faf0de;
+  --red: #a85d4f;
+  --red-soft: #f7e8e3;
+  --radius: 20px;
+}
+
+[data-accent="clay"] {
+  --accent: #c25a3d;
+  --accent-soft: #fbe7dc;
 }
 
 [data-accent="indigo"] {
-  --accent: #4338ca;
-  --accent-soft: #eef2ff;
+  --accent: #5b5fa8;
+  --accent-soft: #ecedf8;
 }
 
 [data-accent="green"] {
-  --accent: #247a56;
-  --accent-soft: #eaf6f0;
+  --accent: #3f7c6a;
+  --accent-soft: #e4f0ea;
 }
 
 [data-accent="blue"] {
-  --accent: #305fdd;
-  --accent-soft: #eef3ff;
+  --accent: #4a6fa5;
+  --accent-soft: #e9eff7;
 }
 
 @theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
@@ -52,8 +74,187 @@
   --color-vido-red-soft: var(--red-soft);
 }
 
-/* Global focus styling */
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 700px at 10% -14%, #fff6e7 0%, transparent 62%),
+    radial-gradient(900px 620px at 100% 0%, #eaf4ea 0%, transparent 58%),
+    linear-gradient(180deg, #fbf7ee 0%, var(--canvas) 58%, #f7efe6 100%);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.5;
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.check-pop {
+  animation: check-pop 240ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .check-pop {
+    animation: none;
+  }
+}
+
+/* The workspace uses bold sans headings so it feels like an app, not a document. */
+.workspace-studio {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(900px 560px at 8% -8%, rgba(255, 222, 184, 0.55), transparent 62%),
+    radial-gradient(760px 520px at 94% 6%, rgba(186, 226, 207, 0.52), transparent 64%),
+    radial-gradient(900px 660px at 48% 112%, rgba(246, 188, 162, 0.34), transparent 66%),
+    linear-gradient(135deg, #fbf3e7 0%, #f3f8ee 48%, #f9ece3 100%);
+  background-size: 165% 165%;
+  animation: workspace-wash 30s ease-in-out infinite alternate;
+}
+
+.workspace-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.workspace-atmosphere::before,
+.workspace-atmosphere::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(38px);
+  opacity: 0.55;
+}
+
+.workspace-atmosphere::before {
+  width: 420px;
+  height: 420px;
+  left: -120px;
+  top: 6%;
+  background: radial-gradient(circle, rgba(237, 165, 95, 0.5), transparent 70%);
+  animation: atmosphere-drift 26s ease-in-out infinite alternate;
+}
+
+.workspace-atmosphere::after {
+  width: 520px;
+  height: 520px;
+  right: -160px;
+  bottom: -8%;
+  background: radial-gradient(circle, rgba(131, 184, 168, 0.38), transparent 70%);
+  animation: atmosphere-drift 34s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes task-float {
+  0% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  100% { transform: translate3d(0, -14px, 0) rotate(3deg); }
+}
+
+.workspace-task-mark {
+  position: absolute;
+  display: block;
+  opacity: 0.12;
+  filter: saturate(0.8);
+  animation: task-float 22s ease-in-out infinite alternate;
+}
+
+@media (max-width: 900px) {
+  .workspace-task-mark {
+    display: none;
+  }
+}
+
+@keyframes workspace-wash {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 68% 26%; }
+  100% { background-position: 100% 72%; }
+}
+
+@keyframes atmosphere-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(64px, -38px, 0) scale(1.08); }
+}
+
+.workspace-studio h1,
+.workspace-studio h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+@keyframes task-done {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.12) rotate(-3deg); }
+  70% { transform: scale(0.98) rotate(2deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes task-soft {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(-4deg); }
+  60% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes task-later {
+  0% { transform: translateY(0); filter: none; }
+  100% { transform: translateY(3px); filter: grayscale(0.35); }
+}
+
+.task-reaction-done { animation: task-done 650ms ease-out; }
+.task-reaction-soft { animation: task-soft 750ms ease-in-out; }
+.task-reaction-later { animation: task-later 600ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .task-reaction-done,
+  .task-reaction-soft,
+  .task-reaction-later {
+    animation: none;
+  }
+}
+
+@keyframes task-progress {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-2px) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.task-reaction-progress { animation: task-progress 600ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .task-reaction-progress { animation: none; }
+  .workspace-studio { animation: none; }
+  .workspace-atmosphere::before,
+  .workspace-atmosphere::after,
+  .workspace-task-mark { animation: none; }
 }

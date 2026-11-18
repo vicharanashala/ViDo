@@ -1,400 +1,652 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate, Link, Navigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { SAMPLE_TASKS, SampleTask } from '../../data/sampleTasks';
-import { getFilteredTasks, getHomeDashboardTasks } from '../../data/taskFilters';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, Gamepad2, LayoutDashboard, ListChecks, PanelLeftOpen, Plus, X } from 'lucide-react';
+import type { NewTaskInput, Task } from '../../data/taskTypes';
+import {
+  applyTaskFilters,
+  EMPTY_TASK_FILTERS,
+  getFilteredTasks,
+  getHomeDashboardTasks,
+  pickFocusTask,
+  type TaskFilterState,
+} from '../../data/taskFilters';
+import { formatDateLong, relativeDayLabel, toDateKey } from '../../data/taskDates';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
 import { HomeView } from './views/HomeView';
 import { ListView } from './views/ListView';
+import { TodayQueueView } from './views/TodayQueueView';
 import { TaskDetailModal } from './TaskDetailModal';
 import { TaskCreateModal } from './TaskCreateModal';
-import { useAuth } from '../auth';
+import { QuickAdd } from './QuickAdd';
+import { FocusMode } from './FocusMode';
+import { TaskCheckInTray } from './TaskCheckInTray';
+import { HelpModal } from './HelpModal';
+import { TaskPathView } from './TaskPathView';
+import { PathsView } from './views/PathsView';
+import { TrailView } from './views/TrailView';
+import { ProfileView } from './views/ProfileView';
+import { Doodle } from './doodles/Doodles';
+import type { DoodleKind } from './doodles/doodleMap';
+import type { CheckInKind } from './checkInTypes';
+import { useTaskStore } from './useTaskStore';
+import { useWelcome } from './useWelcome';
+import { SystemClock } from './SystemClock';
+import { clearSession, loadSession, updateAccount, type Account } from '../../lib/accountStore';
 
-export interface WorkspaceLayoutProps {
-  isPreview?: boolean;
+const MOBILE_NAV = [
+  { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
+  { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
+  { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
+  { to: '/app/paths', label: 'Paths', icon: <ListChecks className="w-3.5 h-3.5" /> },
+  { to: '/app/trail', label: 'Trail', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
+  { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
+];
+
+function deliveryNotice(task: Task): string {
+  return task.priority === 'high' ? 'Important thing done. That counts.' : 'Done. That counts.';
 }
 
-export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
-  isPreview: explicitIsPreview,
-}) => {
+const ATMOSPHERE_TASKS: { kind: DoodleKind; style: React.CSSProperties }[] = [
+  { kind: 'laundry', style: { top: '10%', left: '23%', width: 62, height: 62, animationDelay: '-2s' } },
+  { kind: 'reading', style: { top: '16%', right: '7%', width: 54, height: 54, animationDelay: '-7s' } },
+  { kind: 'groceries', style: { top: '38%', left: '4%', width: 58, height: 58, animationDelay: '-12s' } },
+  { kind: 'writing', style: { top: '44%', right: '12%', width: 60, height: 60, animationDelay: '-5s' } },
+  { kind: 'run', style: { top: '68%', left: '24%', width: 66, height: 66, animationDelay: '-16s' } },
+  { kind: 'cooking', style: { top: '72%', right: '20%', width: 52, height: 52, animationDelay: '-9s' } },
+  { kind: 'plants', style: { top: '84%', left: '6%', width: 48, height: 48, animationDelay: '-20s' } },
+  { kind: 'cricket', style: { top: '88%', right: '5%', width: 56, height: 56, animationDelay: '-13s' } },
+  { kind: 'travel', style: { top: '30%', left: '76%', width: 48, height: 48, animationDelay: '-18s' } },
+  { kind: 'basketball', style: { top: '58%', right: '3%', width: 46, height: 46, animationDelay: '-3s' } },
+];
+
+export const WorkspaceLayout: React.FC = () => {
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    setProgress,
+    toggleComplete,
+    addCheckpoint,
+    archiveTask,
+    restoreTask,
+    deleteTask,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    shareTask,
+    unshareTask,
+  } = useTaskStore();
+  const welcome = useWelcome();
+  const [account, setAccount] = useState<Account | null>(() => loadSession());
+
+  const [filters, setFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTERS);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const [checkInTaskId, setCheckInTaskId] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
   const location = useLocation();
   const navigate = useNavigate();
-  const { user: authUser, loading, signOut, authMode } = useAuth();
-
-  const isPreview =
-    explicitIsPreview !== undefined
-      ? explicitIsPreview
-      : location.pathname.startsWith('/preview');
-
-  if (!isPreview && loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--canvas)] text-[var(--muted)] text-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-4 h-4 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
-          <span>Verifying authentication...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isPreview && !authUser) {
-    return <Navigate to="/" replace />;
-  }
-
-  const basePath = isPreview ? '/preview' : '/workspace';
-
-  const user = isPreview
-    ? { name: 'Demo User', email: 'demo@vido.app' }
-    : {
-        name: authUser?.displayName || 'Authenticated User',
-        email: authUser?.email || 'user@vido.app',
-      };
-
-  // Task state: for preview, use SAMPLE_TASKS. For authenticated users, scope to user ID.
-  const userStorageKey = authUser ? `vido_tasks_${authUser.uid}` : 'vido_live_workspace_tasks';
-
-  const [tasks, setTasks] = useState<SampleTask[]>(() => {
-    if (isPreview) {
-      return SAMPLE_TASKS;
-    }
-    try {
-      const saved = localStorage.getItem(userStorageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {
-      // Fallback
-    }
-    // New users start with a clean, empty personal workspace
-    return [];
-  });
-
-  // Re-sync tasks if active user changes
-  useEffect(() => {
-    if (!isPreview && authUser) {
-      try {
-        const saved = localStorage.getItem(`vido_tasks_${authUser.uid}`);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            setTasks(parsed);
-            return;
-          }
-        }
-      } catch (e) {
-        // Ignore
-      }
-      setTasks([]);
-    }
-  }, [authUser?.uid, isPreview]);
-
-  useEffect(() => {
-    if (!isPreview && authUser) {
-      try {
-        localStorage.setItem(`vido_tasks_${authUser.uid}`, JSON.stringify(tasks));
-      } catch (e) {
-        // Ignore quota errors
-      }
-    }
-  }, [tasks, isPreview, authUser?.uid]);
-
-  const [selectedTask, setSelectedTask] = useState<SampleTask | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const views = getFilteredTasks(tasks);
-  const dashboard = getHomeDashboardTasks(tasks);
-
-  const handleTaskClick = (task: SampleTask) => {
-    setSelectedTask(task);
-    setIsDetailOpen(true);
+  const now = new Date();
+  const todayLabel = formatDateLong(now);
+  const todayKey = toDateKey(now);
+  const visibleTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (!task.ownerId) return true;
+      if (!account) return false;
+      return task.ownerId === account.email || Boolean(task.sharedWith?.includes(account.email));
+    });
+  }, [tasks, account]);
+  const todayTasks = visibleTasks.filter((task) => task.dueDate === todayKey && !task.archivedAt);
+  const todayMomentum = {
+    completed: todayTasks.filter((task) => task.state === 'completed').length,
+    total: todayTasks.length,
   };
 
-  const handleCreateTask = (newTask: SampleTask) => {
-    setTasks((prev) => [newTask, ...prev]);
-    setToastMessage(`Task "${newTask.title}" added to your workspace.`);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
+  const filteredTasks = useMemo(() => applyTaskFilters(visibleTasks, filters, now), [visibleTasks, filters, todayKey]);
+  const filteredViews = useMemo(() => getFilteredTasks(filteredTasks, now), [filteredTasks, todayKey]);
+  const dashboard = useMemo(() => getHomeDashboardTasks(filteredTasks, now), [filteredTasks, todayKey]);
+  const suggestedFocusTask = useMemo(() => pickFocusTask(visibleTasks, now), [visibleTasks, todayKey]);
 
-  const handleToggleTask = (taskToToggle: SampleTask) => {
-    const isNowCompleted = taskToToggle.state !== 'completed';
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskToToggle.id
-          ? {
-              ...t,
-              state: isNowCompleted ? 'completed' : 'active',
-              completedAt: isNowCompleted ? '2026-11-17T12:00:00Z' : undefined,
-              checkpoints: [
-                ...(t.checkpoints || []),
-                {
-                  id: `cp-${Date.now()}`,
-                  timestamp: '2026-11-17T12:00:00Z',
-                  note: isNowCompleted
-                    ? 'Task marked as completed.'
-                    : 'Task reopened in workspace.',
-                },
-              ],
-            }
-          : t
-      )
-    );
-    if (selectedTask && selectedTask.id === taskToToggle.id) {
-      setSelectedTask((prev) =>
-        prev
-          ? {
-              ...prev,
-              state: isNowCompleted ? 'completed' : 'active',
-              completedAt: isNowCompleted ? '2026-11-17T12:00:00Z' : undefined,
-            }
-          : null
+  const selectedTask = visibleTasks.find((task) => task.id === selectedTaskId) ?? null;
+  const activeFocusTask = visibleTasks.find((task) => task.id === focusTaskId) ?? null;
+  const checkInTask = visibleTasks.find((task) => task.id === checkInTaskId) ?? null;
+  const filtersActive =
+    filters.query.trim().length > 0 ||
+    filters.priority !== 'all' ||
+    filters.category !== 'all' ||
+    filters.deadline !== 'all';
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
+  useEffect(() => {
+    const checkReminders = () => {
+      const nowMs = Date.now();
+      const due = visibleTasks.filter(
+        (task) =>
+          task.state === 'active' &&
+          !task.archivedAt &&
+          task.reminderAt &&
+          !task.reminderSentAt &&
+          new Date(task.reminderAt).getTime() <= nowMs
       );
-    }
-    setToastMessage(
-      isNowCompleted
-        ? `Task "${taskToToggle.title}" marked as completed!`
-        : `Task "${taskToToggle.title}" reopened.`
-    );
-    setTimeout(() => setToastMessage(null), 3000);
+      if (due.length === 0) return;
+      due.forEach((task) => {
+        setNotice(`Reminder: ${task.title}`);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification('ViDo reminder', { body: task.title });
+        }
+        updateTask(task.id, { reminderSentAt: new Date().toISOString() });
+      });
+    };
+    checkReminders();
+    const timer = window.setInterval(checkReminders, 30000);
+    return () => window.clearInterval(timer);
+  }, [visibleTasks, updateTask]);
+
+  const handleTaskClick = (task: Task) => {
+    setSidebarOpen(false);
+    setSelectedTaskId(task.id);
   };
 
-  const handleSignOut = () => {
-    if (!isPreview) {
-      void signOut();
+  const handleStartFocus = (task: Task) => {
+    setSidebarOpen(false);
+    setSelectedTaskId(null);
+    setFocusTaskId(task.id);
+  };
+
+  const handleOpenPath = (taskId: string) => {
+    setSelectedTaskId(null);
+    navigate(`/app/tasks/${taskId}/path`);
+  };
+
+  const handleSaveProfile = (profile: { prefix: string; name: string; email: string; dob: string; phone: string }) => {
+    welcome.saveProfile(profile);
+    if (account) {
+      const updated = updateAccount(account.email, {
+        name: profile.name,
+        prefix: profile.prefix,
+        dob: profile.dob,
+        phone: profile.phone,
+      });
+      if (updated) setAccount(updated);
     }
-    navigate('/');
+    setNotice('Profile updated.');
+  };
+
+  const handleQuickAdd = (input: NewTaskInput) => {
+    const task = addTask(input);
+    if (account) updateTask(task.id, { ownerId: account.email });
+    setNotice(`Added "${input.title}".`);
+  };
+
+  const handleCreate = (input: NewTaskInput) => {
+    const task = addTask(input);
+    if (account) updateTask(task.id, { ownerId: account.email });
+    setNotice(`Created "${input.title}".`);
+  };
+
+  const handleShareTask = (taskId: string, identifier: string) => {
+    if (!account) {
+      setNotice('Sign in to share tasks.');
+      return;
+    }
+    shareTask(taskId, identifier, account.email);
+    setNotice(`Shared with ${identifier}.`);
+  };
+
+  const handleUnshareTask = (taskId: string, identifier: string) => {
+    unshareTask(taskId, identifier);
+    setNotice(`Removed ${identifier}.`);
+  };
+
+  const handleToggleComplete = (task: Task) => {
+    toggleComplete(task.id);
+    setNotice(task.state === 'completed' ? `Reopened "${task.title}".` : deliveryNotice(task));
+  };
+
+  const handleCheckInStart = (task: Task) => {
+    setSidebarOpen(false);
+    if (task.state === 'completed') {
+      handleToggleComplete(task);
+      return;
+    }
+    setCheckInTaskId(task.id);
+  };
+
+  const handleBringToToday = (task: Task) => {
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const keepTime = task.dueTime && task.dueTime > nowTime ? task.dueTime : undefined;
+    updateTask(task.id, {
+      dueDate: todayKey,
+      dueTime: keepTime,
+      deadlineDate: undefined,
+      parkedAt: undefined,
+    });
+    addCheckpoint(task.id, 'Chosen for today.');
+    setNotice(`"${task.title}" is on today's list.`);
+  };
+
+  const handleScheduleTask = (task: Task, dateKey: string) => {
+    if (!dateKey) return;
+    updateTask(task.id, {
+      dueDate: dateKey,
+      dueTime: undefined,
+      deadlineDate: undefined,
+      parkedAt: undefined,
+    });
+    addCheckpoint(task.id, `Moved to ${relativeDayLabel(dateKey, now)}.`);
+    setNotice(`Moved to ${relativeDayLabel(dateKey, now)}.`);
+  };
+
+  const handleCheckIn = (task: Task, kind: CheckInKind, progress?: number) => {
+    if (kind === 'done') {
+      toggleComplete(task.id);
+      setNotice('That counts.');
+      return;
+    }
+
+    if (kind === 'progress') {
+      const value = Math.max(0, Math.min(99, progress ?? task.progress + 25));
+      addCheckpoint(task.id, `Worked on it — now at ${value}%.`, value);
+      setNotice(`Now at ${value}%. That counts.`);
+      return;
+    }
+
+    updateTask(task.id, {
+      parkedAt: new Date().toISOString(),
+      dueTime: undefined,
+      deadlineDate: undefined,
+      priority: kind === 'not-important' ? 'low' : task.priority,
+    });
+    addCheckpoint(
+      task.id,
+      kind === 'not-today' ? 'Set aside to pick up again.' : 'Set aside for later — not urgent.'
+    );
+    setNotice(
+      kind === 'not-today'
+        ? 'Set aside. Pick it up whenever you choose.'
+        : 'Set aside for later. No pressure.'
+    );
+  };
+
+  const handleArchive = (id: string) => {
+    const task = tasks.find((item) => item.id === id);
+    archiveTask(id);
+    setSelectedTaskId(null);
+    if (focusTaskId === id) setFocusTaskId(null);
+    setNotice(task ? `Archived "${task.title}".` : 'Task archived.');
+  };
+
+  const handleDelete = (id: string) => {
+    const task = tasks.find((item) => item.id === id);
+    deleteTask(id);
+    setSelectedTaskId(null);
+    if (focusTaskId === id) setFocusTaskId(null);
+    setNotice(task ? `Deleted "${task.title}".` : 'Task deleted.');
   };
 
   const getHeaderInfo = () => {
     const path = location.pathname;
-    if (path.endsWith('/tasks')) {
-      return { title: 'Tasks', subtitle: 'Manage, filter, and track all your active responsibilities' };
-    }
     if (path.endsWith('/today')) {
-      return { title: 'Today', subtitle: 'Responsibilities due on 17 November 2026' };
+      return { title: 'Today', subtitle: 'A few things for today, no rush' };
     }
     if (path.endsWith('/upcoming')) {
-      return { title: 'Upcoming', subtitle: 'Scheduled responsibilities for future dates' };
+      return { title: 'Upcoming', subtitle: 'For when you have room — also called Later' };
+    }
+    if (path.endsWith('/paths')) {
+      return { title: 'Paths', subtitle: 'Choose a task and shape its steps' };
+    }
+    if (path.endsWith('/trail')) {
+      return { title: 'Momentum trail', subtitle: 'A gentle snake-and-ladder of completed work' };
+    }
+    if (path.endsWith('/profile')) {
+      return { title: 'Profile', subtitle: 'Edit how ViDo addresses you' };
+    }
+    if (path.includes('/tasks/') && path.endsWith('/path')) {
+      return { title: 'Task path', subtitle: 'Shape the next small moves' };
     }
     if (path.endsWith('/needs-attention')) {
-      return { title: 'Needs Attention', subtitle: 'Overdue or urgent items requiring action' };
+      return { title: 'Past', subtitle: 'Earlier tasks — pick what to do today, or leave them' };
     }
     if (path.endsWith('/completed')) {
-      return { title: 'Completed', subtitle: 'All finished work with completion timings' };
+      return { title: 'Completed', subtitle: 'What you finished — also called Done' };
     }
     if (path.endsWith('/archived')) {
-      return { title: 'Archived', subtitle: 'Shelved and preserved task history' };
+      return { title: 'Archived', subtitle: 'Kept out of the way — also called Put away' };
     }
-    return {
-      title: 'Dashboard',
-      subtitle: isPreview
-        ? 'Calm snapshot of today, urgent work, and upcoming items'
-        : `Personal overview for ${user.name}`,
-    };
+    return { title: 'Home' };
   };
 
   const headerInfo = getHeaderInfo();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--canvas)] text-[var(--ink)] antialiased">
-      {/* 1. Global Persistent Demo Preview Notice Bar - ONLY in Preview mode */}
-      {isPreview && (
-        <aside
-          aria-label="Demo environment announcement"
-          className="sticky top-0 z-50 bg-[var(--dark)] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 border-b border-white/10 shadow-sm"
+    <div className="workspace-studio flex min-h-screen text-[var(--ink)] antialiased">
+      <div className="workspace-atmosphere" aria-hidden="true">
+        {ATMOSPHERE_TASKS.map(({ kind, style }) => (
+          <span key={kind} className="workspace-task-mark" style={style}>
+            <Doodle kind={kind} />
+          </span>
+        ))}
+      </div>
+      {!sidebarOpen && (
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+          title="Open sidebar"
+          className="hidden md:flex fixed left-0 top-24 z-40 items-center justify-center rounded-r-xl border border-l-0 border-[var(--line)] bg-[var(--surface)] px-2 py-3 text-[var(--muted)] shadow-sm hover:text-[var(--ink)] cursor-pointer"
         >
-          <div className="flex items-center gap-3 min-w-0">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--accent)] hover:opacity-90 text-white font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Landing Page</span>
-            </Link>
+          <PanelLeftOpen className="h-4 w-4" />
+        </button>
+      )}
+      {sidebarOpen && (
+        <WorkspaceSidebar
+          userName={welcome.name}
+          userPrefix={welcome.prefix}
+          onNewTaskClick={() => setIsCreateOpen(true)}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
 
-            <span className="h-4 w-px bg-white/20 hidden sm:inline-block" />
+      <div className="flex-1 flex flex-col min-w-0">
+        <WorkspaceTopBar
+          title={headerInfo.title}
+          subtitle={headerInfo.subtitle}
+          searchQuery={filters.query}
+          onSearchChange={(query) => setFilters((current) => ({ ...current, query }))}
+          priority={filters.priority}
+          onPriorityChange={(priority) => setFilters((current) => ({ ...current, priority }))}
+          deadline={filters.deadline}
+          onDeadlineChange={(deadline) => setFilters((current) => ({ ...current, deadline }))}
+          filtersActive={filtersActive}
+          onClearFilters={() => setFilters(EMPTY_TASK_FILTERS)}
+          onHelpClick={() => setIsHelpOpen(true)}
+          onProfileClick={() => navigate('/app/profile')}
+        />
 
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-amber-950 font-mono shadow-xs shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-700 animate-pulse" />
-                DEMO PREVIEW
-              </span>
-              <p className="text-xs text-gray-200 truncate hidden md:block">
-                <span className="font-semibold text-white">Interactive Demo:</span> You are exploring ViDo with mock data. Real account sync is disabled.
-              </p>
+        <main
+          className="flex-1 overflow-y-auto pb-24 md:pb-0"
+          onClick={(event) => {
+            if (!sidebarOpen) return;
+            const target = event.target as HTMLElement;
+            if (target.closest('input, textarea, select, button, a, summary')) return;
+            setSidebarOpen(false);
+          }}
+        >
+          <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 max-w-3xl mx-auto">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <QuickAdd onAdd={handleQuickAdd} />
+              </div>
+              <div className="pt-1">
+                <SystemClock />
+              </div>
             </div>
           </div>
 
-          <div className="text-[11px] font-mono text-gray-400 hidden sm:block shrink-0">
-            Preview Mode
-          </div>
-        </aside>
-      )}
-
-      {/* Main Workspace Body */}
-      <div className="flex flex-1 min-h-0">
-        {/* Persistent Left Desktop Sidebar */}
-        <WorkspaceSidebar
-          isPreview={isPreview}
-          basePath={basePath}
-          user={user}
-          counts={{
-            total: tasks.filter((t) => t.state === 'active').length,
-            today: views.today.length,
-            needsAttention: views.needsAttention.length,
-            upcoming: views.upcoming.length,
-            completed: views.completed.length,
-            archived: views.archived.length,
-          }}
-          onNewTaskClick={() => setIsCreateOpen(true)}
-          onSignOut={handleSignOut}
-        />
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <WorkspaceTopBar
-            title={headerInfo.title}
-            subtitle={headerInfo.subtitle}
-            isPreview={isPreview}
-            user={user}
-            authMode={authMode}
-            onSignOut={handleSignOut}
-          />
-
-          <main className="flex-1 overflow-y-auto">
-            <Routes>
-              <Route
-                index
-                element={
-                  <HomeView
-                    isPreview={isPreview}
-                    basePath={basePath}
-                    user={user}
-                    tasks={tasks}
-                    dashboard={dashboard}
-                    initialTab="dashboard"
-                    onTaskClick={handleTaskClick}
-                    onToggleTask={handleToggleTask}
-                    onNewTaskClick={() => setIsCreateOpen(true)}
-                  />
-                }
-              />
-              <Route
-                path="tasks"
-                element={
-                  <HomeView
-                    isPreview={isPreview}
-                    basePath={basePath}
-                    user={user}
-                    tasks={tasks}
-                    dashboard={dashboard}
-                    initialTab="tasks"
-                    onTaskClick={handleTaskClick}
-                    onToggleTask={handleToggleTask}
-                    onNewTaskClick={() => setIsCreateOpen(true)}
-                  />
-                }
-              />
-              <Route
-                path="today"
-                element={
-                  <ListView
-                    title="Today's Work"
-                    description="Tasks targeted for completion by end of day 17 November 2026."
-                    tasks={views.today}
-                    onTaskClick={handleTaskClick}
-                    onNewTaskClick={() => setIsCreateOpen(true)}
-                  />
-                }
-              />
-              <Route
-                path="upcoming"
-                element={
-                  <ListView
-                    title="Upcoming Schedule"
-                    description="Planned tasks due beyond today's horizon."
-                    tasks={views.upcoming}
-                    onTaskClick={handleTaskClick}
-                    onNewTaskClick={() => setIsCreateOpen(true)}
-                  />
-                }
-              />
-              <Route
-                path="needs-attention"
-                element={
-                  <ListView
-                    title="Needs Attention"
-                    description="Tasks past their target deadline or requiring urgent intervention."
-                    tasks={views.needsAttention}
-                    onTaskClick={handleTaskClick}
-                    onNewTaskClick={() => setIsCreateOpen(true)}
-                  />
-                }
-              />
-              <Route
-                path="completed"
-                element={
-                  <ListView
-                    title="Completed Tasks"
-                    description="Full historical record of delivered responsibilities."
-                    tasks={views.completed}
-                    onTaskClick={handleTaskClick}
-                  />
-                }
-              />
-              <Route
-                path="archived"
-                element={
-                  <ListView
-                    title="Archived Tasks"
-                    description="Shelved tasks preserved with their complete checkpoint history."
-                    tasks={views.archived}
-                    onTaskClick={handleTaskClick}
-                  />
-                }
-              />
-            </Routes>
-          </main>
-        </div>
+          <Routes>
+            <Route
+              index
+              element={
+                <HomeView
+                  todayTasks={dashboard.today}
+                  todayLabel={todayLabel}
+                  todayMomentum={todayMomentum}
+                  focusTask={suggestedFocusTask}
+                  allTasks={tasks}
+                  onTaskClick={handleTaskClick}
+                  onToggleComplete={handleToggleComplete}
+                  onFocusTask={handleStartFocus}
+                  userName={welcome.name}
+                  userPrefix={welcome.prefix}
+                  welcomed={welcome.welcomed}
+                  onSaveProfile={welcome.saveProfile}
+                  intention={welcome.intention}
+                  onIntentionChange={welcome.updateIntention}
+                  onCheckInStart={handleCheckInStart}
+                  onOpenPath={handleOpenPath}
+                />
+              }
+            />
+            <Route
+              path="today"
+              element={
+                <TodayQueueView
+                  tasks={filteredTasks}
+                  onTaskClick={handleTaskClick}
+                  onNewTaskClick={() => setIsCreateOpen(true)}
+                  onToggleComplete={handleToggleComplete}
+                  onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
+                  onBringToToday={handleBringToToday}
+                  onScheduleTask={handleScheduleTask}
+                  onOpenPath={handleOpenPath}
+                />
+              }
+            />
+            <Route
+              path="upcoming"
+              element={
+                <ListView
+                  title="Upcoming"
+                  description="For when you have room — also called Later."
+                  tasks={filteredViews.upcoming}
+                  onTaskClick={handleTaskClick}
+                  onNewTaskClick={() => setIsCreateOpen(true)}
+                  onToggleComplete={handleToggleComplete}
+                  onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
+                  onOpenPath={handleOpenPath}
+                />
+              }
+            />
+            <Route path="paths" element={<PathsView tasks={tasks} />} />
+            <Route
+              path="profile"
+              element={
+                <ProfileView
+                  prefix={welcome.prefix}
+                  name={welcome.name}
+                  email={welcome.email}
+                  dob={welcome.dob}
+                  phone={welcome.phone}
+                  signedIn={Boolean(account)}
+                  onSave={handleSaveProfile}
+                  onSignOut={() => {
+                    clearSession();
+                    setAccount(null);
+                    setNotice('Signed out.');
+                  }}
+                />
+              }
+            />
+            <Route path="trail" element={<TrailView tasks={tasks} />} />
+            <Route
+              path="tasks/:taskId/path"
+              element={
+                <TaskPathView
+                  tasks={tasks}
+                  onAddSubtask={addSubtask}
+                  onToggleSubtask={toggleSubtask}
+                  onDeleteSubtask={deleteSubtask}
+                />
+              }
+            />
+            <Route
+              path="needs-attention"
+              element={
+                <ListView
+                  title="Past"
+                  description="Earlier tasks. Pick what to do today, or leave them here."
+                  tasks={filteredViews.needsAttention}
+                  onTaskClick={handleTaskClick}
+                  onNewTaskClick={() => setIsCreateOpen(true)}
+                  onToggleComplete={handleToggleComplete}
+                  onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
+                  onBringToToday={handleBringToToday}
+                  onScheduleTask={handleScheduleTask}
+                  onOpenPath={handleOpenPath}
+                />
+              }
+            />
+            <Route
+              path="completed"
+              element={
+                <ListView
+                  title="Completed"
+                  description="What you finished — also called Done."
+                  tasks={filteredViews.completed}
+                  onTaskClick={handleTaskClick}
+                  onToggleComplete={handleToggleComplete}
+                  onCheckInStart={handleCheckInStart}
+                />
+              }
+            />
+            <Route
+              path="archived"
+              element={
+                <ListView
+                  title="Archived"
+                  description="Kept out of the way — also called Put away."
+                  tasks={filteredViews.archived}
+                  onTaskClick={handleTaskClick}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/app" replace />} />
+          </Routes>
+        </main>
       </div>
 
-      {/* Modals */}
       <TaskDetailModal
         task={selectedTask}
-        isOpen={isDetailOpen}
-        onClose={() => {
-          setIsDetailOpen(false);
-          setSelectedTask(null);
+        isOpen={Boolean(selectedTask)}
+        onClose={() => setSelectedTaskId(null)}
+        onUpdate={updateTask}
+        onDelete={handleDelete}
+        onArchive={handleArchive}
+        onRestore={(id) => {
+          restoreTask(id);
+          setNotice('Task restored.');
         }}
-        onToggleTask={handleToggleTask}
+        onSetProgress={(id, value) => {
+          setProgress(id, value);
+          setNotice(value >= 100 ? 'Task completed.' : 'Progress updated.');
+        }}
+        onToggleComplete={(id) => {
+          const task = tasks.find((item) => item.id === id);
+          toggleComplete(id);
+            if (task) {
+              setNotice(task.state === 'completed' ? `Reopened "${task.title}".` : deliveryNotice(task));
+            }
+        }}
+        onAddCheckpoint={(id, note) => {
+          addCheckpoint(id, note);
+          setNotice('Checkpoint logged.');
+        }}
+        onFocus={() => {
+          if (selectedTask) handleStartFocus(selectedTask);
+        }}
+        onOpenPath={handleOpenPath}
+        onToggleSubtask={toggleSubtask}
+        currentUser={account?.email ?? null}
+        onShare={handleShareTask}
+        onUnshare={handleUnshareTask}
       />
 
       <TaskCreateModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        onCreateTask={handleCreateTask}
+        onCreate={handleCreate}
+        defaultDate={todayKey}
       />
 
-      {/* Floating Confirmation Toast */}
-      {toastMessage && (
+      <nav
+        aria-label="Mobile views"
+        className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--surface)]/95 backdrop-blur border-t border-[var(--line)] px-1 py-1.5 flex items-center justify-around"
+      >
+        {MOBILE_NAV.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            aria-label={item.label}
+            className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[9px] font-medium text-[var(--muted)] hover:text-[var(--ink)]"
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <button
+        type="button"
+        onClick={() => setIsCreateOpen(true)}
+        aria-label="New task"
+        className="md:hidden fixed bottom-20 right-5 z-30 w-12 h-12 rounded-full bg-[var(--accent)] text-white shadow-xl shadow-[var(--accent)]/20 flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <Plus className="w-5 h-5" />
+      </button>
+
+      {activeFocusTask && (
+        <FocusMode
+          task={activeFocusTask}
+          onClose={() => setFocusTaskId(null)}
+          onSetProgress={(id, value) => {
+            setProgress(id, value);
+            setNotice(value >= 100 ? 'Task completed.' : 'Progress updated.');
+          }}
+          onAddCheckpoint={(id, note) => {
+            addCheckpoint(id, note);
+            setNotice('Checkpoint logged.');
+          }}
+          onToggleComplete={(id) => {
+            const task = tasks.find((item) => item.id === id);
+            toggleComplete(id);
+            if (task) {
+              setNotice(task.state === 'completed' ? `Reopened "${task.title}".` : deliveryNotice(task));
+            }
+          }}
+          onOpenDetails={() => {
+            setFocusTaskId(null);
+            setSelectedTaskId(activeFocusTask.id);
+          }}
+        />
+      )}
+
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+
+      {checkInTask && (
+        <TaskCheckInTray
+          task={checkInTask}
+          onSelect={(kind, progress) => handleCheckIn(checkInTask, kind, progress)}
+          onClose={() => setCheckInTaskId(null)}
+        />
+      )}
+
+      {notice && (
         <div
           role="status"
-          aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 bg-[var(--dark)] text-white px-4 py-3 rounded-xl shadow-2xl border border-white/20 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-5 right-5 z-[60] flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--ink)] px-4 py-2.5 text-xs font-medium text-white shadow-xl"
         >
-          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
-            ✓
-          </div>
-          <p className="text-xs font-medium text-gray-100">{toastMessage}</p>
+          <span>{notice}</span>
           <button
-            onClick={() => setToastMessage(null)}
-            className="text-gray-400 hover:text-white text-xs ml-2 cursor-pointer"
+            onClick={() => setNotice(null)}
             aria-label="Dismiss notification"
+            className="text-white/60 hover:text-white cursor-pointer"
           >
-            ✕
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}

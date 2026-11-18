@@ -8,15 +8,13 @@ export interface NoticeModalProps {
   onClose: () => void;
   title?: string;
   description?: string;
-  onSignIn?: () => void;
 }
 
 export const NoticeModal: React.FC<NoticeModalProps> = ({
   isOpen,
   onClose,
-  title = 'Sign In to ViDo',
-  description = 'You can enter and explore your workspace directly right now without needing to configure Google authentication.',
-  onSignIn,
+  title = 'Welcome to ViDo',
+  description = 'Your workspace is ready. Tasks are saved on this device, with no account required.',
 }) => {
   const navigate = useNavigate();
 
@@ -64,33 +62,19 @@ export const NoticeModal: React.FC<NoticeModalProps> = ({
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-end gap-2.5">
-          <Button variant="ghost" size="sm" onClick={onClose}>
+        <div className="mt-6 pt-4 border-t border-[var(--line)] flex items-center justify-end gap-3">
+          <Button variant="secondary" size="sm" onClick={onClose}>
             Back
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              onClose();
-              navigate('/preview');
-            }}
-          >
-            Enter Live Preview <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={() => {
               onClose();
-              if (onSignIn) {
-                onSignIn();
-              } else {
-                navigate('/workspace');
-              }
+              navigate('/app');
             }}
           >
-            Sign In to Dashboard <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            Enter Workspace <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </div>
       </div>

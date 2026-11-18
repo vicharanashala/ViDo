@@ -4,50 +4,34 @@ import { MemoryRouter } from 'react-router-dom';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 
 describe('WorkspaceSidebar', () => {
-  const mockCounts = {
-    today: 6,
-    needsAttention: 4,
-    upcoming: 5,
-    completed: 5,
-    archived: 2,
-  };
-
-  it('renders the two primary tabs: Dashboard and Tasks with count badge, and omits sub-views', () => {
+  it('renders the brand, new task action, and gentle views', () => {
     render(
-      <MemoryRouter initialEntries={['/preview']}>
-        <WorkspaceSidebar counts={mockCounts} />
+      <MemoryRouter initialEntries={['/app']}>
+        <WorkspaceSidebar />
       </MemoryRouter>
     );
 
-    expect(screen.getByText('DEMO')).toBeInTheDocument();
-    expect(screen.getByText('Logged-in demo preview')).toBeInTheDocument();
-    
-    // Exactly TWO primary tabs in the navigation panel: Dashboard and Tasks
-    expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /tasks 15/i })).toBeInTheDocument();
-
-    // Verify the 5 individual options are removed from the left panel
-    expect(screen.queryByRole('link', { name: /^today/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /^needs attention/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /^upcoming/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /^completed/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /^archived/i })).not.toBeInTheDocument();
-
-    // Footer links remain
+    expect(screen.getByRole('link', { name: /vido/i })).toHaveAttribute('href', '/app');
+    expect(screen.getByRole('link', { name: /home base/i })).toHaveAttribute('href', '/app');
+    expect(screen.getByRole('link', { name: /today's move/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /pick up again/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /what's next/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /your paths/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /wins so far/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /resting/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
+    expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });
 
-  it('triggers new task callback when button is clicked', () => {
+  it('triggers the new task callback', () => {
     const handleNewTask = vi.fn();
     render(
-      <MemoryRouter initialEntries={['/preview']}>
-        <WorkspaceSidebar counts={mockCounts} onNewTaskClick={handleNewTask} />
+      <MemoryRouter initialEntries={['/app']}>
+        <WorkspaceSidebar onNewTaskClick={handleNewTask} />
       </MemoryRouter>
     );
 
-    const btn = screen.getByRole('button', { name: /new task/i });
-    fireEvent.click(btn);
+    fireEvent.click(screen.getByRole('button', { name: /new task/i }));
     expect(handleNewTask).toHaveBeenCalledTimes(1);
   });
 });
-

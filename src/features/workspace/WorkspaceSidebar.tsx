@@ -1,173 +1,185 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, CheckSquare, Palette, Plus, LogOut } from 'lucide-react';
-import { Button } from '../../components/ui';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import {
+  Archive,
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Gamepad2,
+  LayoutDashboard,
+  Leaf,
+  ListChecks,
+  PanelLeftClose,
+  Palette,
+  Pencil,
+  Plus,
+} from 'lucide-react';
 
 export interface WorkspaceSidebarProps {
-  isPreview?: boolean;
-  basePath?: string;
-  user?: {
-    name: string;
-    email?: string;
-  };
-  counts: {
-    total?: number;
-    today: number;
-    needsAttention: number;
-    upcoming: number;
-    completed: number;
-    archived: number;
-  };
+  userName?: string;
+  userPrefix?: string;
   onNewTaskClick?: () => void;
-  onSignOut?: () => void;
+  onClose?: () => void;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
-  isPreview = true,
-  basePath = '/preview',
-  user,
-  counts,
+  userName,
+  userPrefix,
   onNewTaskClick,
-  onSignOut,
+  onClose,
 }) => {
-  const totalTasks =
-    counts.total ?? (counts.today + counts.upcoming + counts.needsAttention);
+  const displayName = [userPrefix, userName].filter(Boolean).join(' ');
+  const location = useLocation();
 
-  const dashboardPath = basePath;
-  const tasksPath = `${basePath}/tasks`;
+  const navItems = [
+    {
+      to: '/app',
+      end: true,
+      label: 'Home base',
+      hint: 'Overview',
+      icon: <LayoutDashboard className="w-4 h-4" />,
+    },
+    {
+      to: '/app/today',
+      label: "Today's move",
+      hint: 'Today',
+      icon: <Clock className="w-4 h-4" />,
+    },
+    {
+      to: '/app/upcoming',
+      label: "What's next",
+      hint: 'Upcoming',
+      icon: <Calendar className="w-4 h-4" />,
+    },
+    {
+      to: '/app/paths',
+      label: 'Your paths',
+      hint: 'Task steps',
+      icon: <ListChecks className="w-4 h-4" />,
+    },
+    {
+      to: '/app/trail',
+      label: 'Momentum trail',
+      hint: 'Game board',
+      icon: <Gamepad2 className="w-4 h-4" />,
+    },
+    {
+      to: '/app/needs-attention',
+      label: 'Pick up again',
+      hint: 'Past',
+      icon: <AlertCircle className="w-4 h-4" />,
+    },
+    {
+      to: '/app/completed',
+      label: 'Wins so far',
+      hint: 'Completed',
+      icon: <CheckCircle2 className="w-4 h-4" />,
+    },
+    {
+      to: '/app/archived',
+      label: 'Resting',
+      hint: 'Archived',
+      icon: <Archive className="w-4 h-4" />,
+    },
+  ];
 
   return (
     <aside
       aria-label="Workspace navigation"
-      className={`w-64 bg-[var(--dark)] text-gray-200 flex flex-col justify-between shrink-0 sticky ${
-        isPreview ? 'top-[45px] h-[calc(100vh-45px)]' : 'top-0 h-screen'
-      } overflow-y-auto p-5 select-none`}
+      className="hidden md:flex w-[220px] shrink-0 flex-col justify-between border-r border-[var(--line)] bg-[var(--surface)]/80 p-3 sticky top-0 h-screen overflow-y-auto"
     >
       <div>
-        {/* Brand Header */}
-        <div className="flex items-center gap-3 mb-6 px-1">
-          <div className="w-9 h-9 rounded-xl bg-white text-[var(--dark)] flex items-center justify-center font-black text-base shadow-sm">
-            V
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base text-white tracking-tight block">ViDo</span>
-              {isPreview ? (
-                <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
-                  DEMO
-                </span>
-              ) : (
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/20 text-white border border-white/20">
-                  WORKSPACE
-                </span>
-              )}
-            </div>
-            <span className="text-[10px] text-amber-300/90 font-medium tracking-wide block">
-              {isPreview ? 'Logged-in demo preview' : user?.name || 'Personal Workspace'}
+        <div className="mb-4 flex items-center justify-between gap-1">
+          <Link to="/app" className="flex items-center gap-2.5 px-2 py-1.5" aria-label="ViDo">
+            <span className="w-8 h-8 rounded-xl bg-[var(--dark)] text-white flex items-center justify-center font-display font-semibold text-base shadow-sm">
+              V
             </span>
-          </div>
+            <span>
+              <span className="font-display font-semibold text-lg text-[var(--ink)] block leading-tight">
+                ViDo
+              </span>
+              <span className="text-[10px] text-[var(--muted)] block">Personal workspace</span>
+            </span>
+          </Link>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close sidebar"
+              title="Close sidebar"
+              className="rounded-lg p-1.5 text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] cursor-pointer"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
-        {/* Quick New Task Button */}
         {onNewTaskClick && (
-          <div className="mb-6">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onNewTaskClick}
-              className="w-full justify-center gap-1.5 shadow-sm"
-            >
-              <Plus className="w-4 h-4" /> New Task
-            </Button>
-          </div>
+          <button
+            type="button"
+            onClick={onNewTaskClick}
+            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--accent)] text-white text-xs font-semibold py-2 mb-4 shadow-sm hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> New task
+          </button>
         )}
 
-        {/* Navigation Section: Two Tabs (Dashboard & Tasks) */}
-        <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2 px-2.5">
-          Workspace
+        <div className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1.5 px-2.5">
+          Views
         </div>
-        <nav className="space-y-1">
-          <NavLink
-            to={dashboardPath}
-            end
-            className={({ isActive }) =>
-              `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-white/15 text-white shadow-xs'
-                  : 'text-gray-300 hover:bg-white/8 hover:text-white'
-              }`
-            }
-          >
-            <div className="flex items-center gap-2.5">
-              <LayoutDashboard className="w-4 h-4 text-[var(--accent)]" />
-              <span>Dashboard</span>
-            </div>
-          </NavLink>
-
-          <NavLink
-            to={tasksPath}
-            className={({ isActive }) =>
-              `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-white/15 text-white shadow-xs'
-                  : 'text-gray-300 hover:bg-white/8 hover:text-white'
-              }`
-            }
-          >
-            <div className="flex items-center gap-2.5">
-              <CheckSquare className="w-4 h-4 text-emerald-400" />
-              <span>Tasks</span>
-            </div>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-gray-200 font-bold">
-              {totalTasks}
-            </span>
-          </NavLink>
+        <nav aria-label="Views" className="space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => {
+                const pathActive =
+                  item.to === '/app/paths' && location.pathname.includes('/tasks/');
+                return `flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors ${
+                  isActive || pathActive
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+                    : 'text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)]'
+                }`;
+              }}
+            >
+              <span className="shrink-0">{item.icon}</span>
+              <span className="min-w-0">
+                <span className="text-xs font-semibold block leading-tight">{item.label}</span>
+                {item.hint && (
+                  <span className="text-[10px] text-[var(--faint)] block leading-tight">{item.hint}</span>
+                )}
+              </span>
+            </NavLink>
+          ))}
         </nav>
       </div>
 
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-white/10 space-y-2 text-xs">
-        {!isPreview && (
-          <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-full bg-[var(--accent)] text-white font-bold text-xs flex items-center justify-center shrink-0">
-                {(user?.name || 'Alex Morgan')
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-semibold text-white block truncate">
-                  {user?.name || 'Alex Morgan'}
-                </span>
-                <span className="text-[10px] text-gray-400 block truncate">
-                  {user?.email || 'alex.morgan@gmail.com'}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
+      <div className="pt-3 border-t border-[var(--line)] space-y-1">
         <Link
           to="/style-lab"
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors"
         >
           <Palette className="w-4 h-4" />
           <span>Themes</span>
         </Link>
-
-        {onSignOut && (
-          <button
-            type="button"
-            onClick={onSignOut}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-red-300 hover:bg-white/5 transition-colors cursor-pointer text-left"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
-        )}
+        <Link
+          to="/app/profile"
+          aria-label="Edit profile"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[var(--muted)] transition-colors hover:bg-[var(--canvas)] hover:text-[var(--ink)]"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent)]">
+            {userName ? userName.trim().charAt(0).toUpperCase() : <Leaf className="w-4 h-4" />}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-xs font-semibold leading-tight text-[var(--ink)]">
+              {displayName || 'You'}
+            </span>
+            <span className="block text-[10px] leading-tight text-[var(--muted)]">Edit profile</span>
+          </span>
+          <Pencil className="h-3.5 w-3.5 shrink-0" />
+        </Link>
       </div>
     </aside>
   );

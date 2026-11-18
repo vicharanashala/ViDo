@@ -10,7 +10,7 @@ export const LandingFooter: React.FC = () => {
             <div className="w-6 h-6 rounded bg-[var(--dark)] text-white flex items-center justify-center font-bold text-xs">
               V
             </div>
-            <span className="font-bold text-base text-[var(--ink)]">ViDo</span>
+            <span className="font-display font-semibold text-lg text-[var(--ink)]">ViDo</span>
           </div>
           <p className="text-xs text-[var(--muted)] max-w-sm">
             Simple enough for anyone. Structured enough for serious work.
@@ -18,8 +18,8 @@ export const LandingFooter: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-6 text-xs text-[var(--muted)] font-medium">
-          <Link to="/preview" className="hover:text-[var(--ink)] transition-colors">
-            Live Preview
+          <Link to="/app" className="hover:text-[var(--ink)] transition-colors">
+            Workspace
           </Link>
           <Link to="/style-lab" className="hover:text-[var(--ink)] transition-colors">
             Themes
