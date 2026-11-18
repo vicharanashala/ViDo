@@ -15,9 +15,9 @@ describe('SystemClock', () => {
   it('shows the current system time', () => {
     render(<SystemClock />);
     expect(screen.getByText('21:42')).toBeInTheDocument();
-    expect(screen.getByText('18 Nov')).toBeInTheDocument();
-    expect(screen.getByText(/system time/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/system time: 18 Nov 21:42/i)).toBeInTheDocument();
+    expect(screen.getByText('Wednesday, 18 November 2026')).toBeInTheDocument();
+    expect(screen.getByText(/right now/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/system time: Wednesday, 18 November 2026 21:42/i)).toBeInTheDocument();
   });
 
   it('updates when the clock moves forward', () => {

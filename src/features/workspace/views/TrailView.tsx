@@ -102,6 +102,15 @@ export const TrailView: React.FC<TrailViewProps> = ({ tasks }) => {
   const simulation = trailMoves(completedTasks);
   const position = allDone ? BOARD_MAX : simulation.position;
   const movementLog = simulation.moves.filter((move) => move.kind !== 'step').reverse();
+  const movementLabels = movementLog.map((move, index) => {
+    const a = centerFor(move.landed);
+    const b = centerFor(move.to);
+    return {
+      ...move,
+      x: Math.min(86, Math.max(14, (a.x + b.x) / 2)),
+      y: Math.min(88, Math.max(12, (a.y + b.y) / 2 + (index % 2 === 0 ? -3 : 3))),
+    };
+  });
   const token = centerFor(position);
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
@@ -204,6 +213,21 @@ export const TrailView: React.FC<TrailViewProps> = ({ tasks }) => {
             })}
           </svg>
 
+          {movementLabels.map((move) => (
+            <span
+              key={`move-label-${move.key}`}
+              title={`${move.kind === 'ladder' ? 'Ladder' : 'Gentle reset'} because of ${move.task.title}`}
+              style={{ left: `${move.x}%`, top: `${move.y}%` }}
+              className={`pointer-events-none absolute z-40 max-w-[42%] -translate-x-1/2 -translate-y-1/2 truncate rounded-full border px-1.5 py-0.5 text-[8px] font-bold shadow-sm ${
+                move.kind === 'ladder'
+                  ? 'border-[var(--green)]/30 bg-[var(--green-soft)] text-[var(--green)]'
+                  : 'border-[var(--amber)]/30 bg-[var(--amber-soft)] text-[var(--amber)]'
+              }`}
+            >
+              {move.kind === 'ladder' ? '↑' : '↓'} {move.task.title}
+            </span>
+          ))}
+
           <span
             className="absolute z-30 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--dark)] text-white shadow-lg ring-2 ring-[var(--surface)]"
             style={{ left: `${token.x}%`, top: `${token.y}%` }}
@@ -218,64 +242,6 @@ export const TrailView: React.FC<TrailViewProps> = ({ tasks }) => {
         </div>
       </section>
 
-      <section className="space-y-2.5">
-        <div>
-          <h2 className="text-lg font-bold text-[var(--ink)]">Trail log</h2>
-          <p className="text-[11px] text-[var(--muted)]">
-            Every ladder lift and gentle reset, with the task that caused it.
-          </p>
-        </div>
-        {movementLog.length > 0 ? (
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            {movementLog.map((move) => (
-              <div
-                key={move.key}
-                className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-3.5 shadow-xs"
-              >
-                <div className="flex items-start gap-2">
-                  <span
-                    className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                      move.kind === 'ladder'
-                        ? 'bg-[var(--green-soft)] text-[var(--green)]'
-                        : 'bg-[var(--amber-soft)] text-[var(--amber)]'
-                    }`}
-                  >
-                    {move.kind === 'ladder' ? (
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    ) : (
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    )}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-[var(--ink)]">
-                      {move.kind === 'ladder' ? 'Ladder' : 'Gentle reset'} · {move.landed} → {move.to}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                      From completing “{move.task.title}”
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--surface)] p-6 text-center">
-            <p className="text-xs text-[var(--muted)]">
-              No ladder or snake landings yet. Complete a task and the trail will tell you what moved
-              you.
-            </p>
-          </div>
-        )}
-        {allDone && (
-          <div className="rounded-2xl border border-[var(--green)]/30 bg-[var(--green-soft)] p-4 text-center">
-            <p className="text-sm font-bold text-[var(--green)]">Goal reached</p>
-            <p className="mt-1 text-[11px] text-[var(--green)]/80">
-              Every task is done. The trail ends here — you can add a new task whenever you want a new
-              board.
-            </p>
-          </div>
-        )}
-      </section>
     </div>
   );
 };

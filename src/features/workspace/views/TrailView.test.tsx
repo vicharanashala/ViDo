@@ -18,7 +18,7 @@ describe('TrailView', () => {
     expect(screen.getByRole('heading', { name: /little game of progress/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/your token on square 11/i)).toBeInTheDocument();
     expect(screen.getByText(/2 completed tasks/i)).toBeInTheDocument();
-    expect(screen.getByText(/from completing/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/ladder because of/i)).toBeInTheDocument();
   });
 
   it('reaches the goal when every task is done', () => {
