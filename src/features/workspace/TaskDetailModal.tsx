@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { Task, TaskCategory, TaskPriority } from '../../data/taskTypes';
 import { Badge, Button } from '../../components/ui';
 import { DoodleTitle } from './doodles/DoodleTitle';
+import { CustomImageEditor } from './CustomImageEditor';
+import { detectDoodle } from './doodles/doodleMap';
+import {
+  findCustomImageForTitle,
+  removeCustomImageRule,
+  saveCustomImageRule,
+} from '../../lib/customImages';
 import {
   AlertCircle,
   Archive,
@@ -20,6 +27,8 @@ import {
   completionTiming,
   formatDateTime,
   getTaskPace,
+  isDueTimePassed,
+  isPastDay,
   paceTone,
 } from '../../data/taskDates';
 
@@ -94,7 +103,12 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const pace = getTaskPace(task);
   const isCompleted = task.state === 'completed';
   const timing = completionTiming(task);
-  const isOverdue = !isCompleted && new Date(`${task.dueDate}T${task.dueTime || '23:59'}:00`).getTime() < Date.now();
+  const parked = Boolean(task.parkedAt);
+  const pastDay = !parked && isPastDay(task);
+  const deadlinePassed = !parked && !pastDay && isDueTimePassed(task);
+  const pending = pastDay || deadlinePassed;
+  const builtInImage = detectDoodle(task.title) ?? (task.category === 'work' ? 'project' : null);
+  const customImage = findCustomImageForTitle(task.title, task.customImageKey);
 
   const handleSaveDetails = (event: React.FormEvent) => {
     event.preventDefault();
@@ -162,8 +176,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               {task.priority === 'high' ? 'Important' : task.priority}
             </Badge>
           )}
-          <Badge size="sm" variant={isCompleted ? 'success' : isOverdue ? 'danger' : 'accent'}>
-            {isCompleted ? 'Done' : isOverdue ? 'Carried over' : 'Active'}
+          <Badge
+            size="sm"
+            variant={isCompleted ? 'success' : pending ? 'warning' : parked ? 'neutral' : 'accent'}
+          >
+            {isCompleted ? 'Done' : parked ? 'Pick up again' : pending ? 'Pending' : 'Active'}
           </Badge>
           <Badge size="sm" variant={paceTone(pace.status)}>
             {pace.label}
@@ -196,7 +213,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">Due date</label>
+                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">Planned date</label>
                 <input
                   type="date"
                   value={dueDate}
@@ -205,7 +222,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">Due time</label>
+                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
+                  Deadline time (optional)
+                </label>
                 <input
                   type="time"
                   value={dueTime}
@@ -253,7 +272,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         ) : (
           <>
             <h2 id="task-detail-title" className="text-base font-bold text-[var(--ink)] leading-snug pr-8">
-              <DoodleTitle title={task.title} size="lg" />
+              <DoodleTitle title={task.title} category={task.category} customImageKey={task.customImageKey} size="lg" />
             </h2>
             {task.description && (
               <p className="mt-3 text-sm text-[var(--muted)] leading-relaxed bg-[var(--canvas)] p-3.5 rounded-xl border border-[var(--line)]">
@@ -267,19 +286,35 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               Edit details
             </button>
 
+            {(!builtInImage || customImage) && (
+              <CustomImageEditor
+                title={task.title}
+                customImageKey={task.customImageKey}
+                onSave={(keyword, dataUrl) => {
+                  saveCustomImageRule(keyword, dataUrl);
+                  onUpdate?.(task.id, { customImageKey: keyword });
+                }}
+                onRemove={() => {
+                  const rule = findCustomImageForTitle(task.title, task.customImageKey);
+                  if (rule) removeCustomImageRule(rule.keyword);
+                  onUpdate?.(task.id, { customImageKey: undefined });
+                }}
+              />
+            )}
+
             <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
-                <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Due Date</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Planned date</span>
                 <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
                   <Calendar className="w-3.5 h-3.5 text-[var(--muted)]" />
-                  {task.dueDate}
+                  {parked ? 'Pick up again' : task.dueDate}
                 </span>
               </div>
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
-                <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Due Time</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Deadline</span>
                 <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
                   <Clock className="w-3.5 h-3.5 text-[var(--muted)]" />
-                  {task.dueTime || '23:59'}
+                  {parked ? 'No set time' : task.dueTime || 'No deadline'}
                 </span>
               </div>
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)] col-span-2 sm:col-span-1">
@@ -422,9 +457,20 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </div>
         </div>
 
-        {isOverdue && (
+        {parked && (
+          <p className="mt-3 text-[11px] text-[var(--muted)] flex items-center gap-1">
+            <RotateCcw className="w-3.5 h-3.5" /> Set aside. Pick it up again whenever you choose.
+          </p>
+        )}
+        {deadlinePassed && (
           <p className="mt-3 text-[11px] text-[var(--amber)] flex items-center gap-1">
-            <AlertCircle className="w-3.5 h-3.5" /> This one is still here. Move it or leave it for today.
+            <AlertCircle className="w-3.5 h-3.5" /> The deadline has passed. You can still update it
+            until midnight.
+          </p>
+        )}
+        {pastDay && (
+          <p className="mt-3 text-[11px] text-[var(--amber)] flex items-center gap-1">
+            <AlertCircle className="w-3.5 h-3.5" /> This one is pending. Move it or leave it for later.
           </p>
         )}
       </div>

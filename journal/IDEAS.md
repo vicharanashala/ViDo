@@ -43,7 +43,7 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-031 | Issue naming convention | `feat:` for features; `Issue:` for general work. Added to `AGENTS.md`. |
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
 | I-033 | Image + title task labels | Recognised tasks show an open-source image next to the task title, so the image is never the only meaning. |
-| I-034 | Doodle coverage | 20 images: laundry, groceries, dishes, dentist, doctor, medicine, cleaning, cooking, call, meeting, run, exercise, reading, plants, car, heatpump, washer, bill, repair, travel. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
+| I-034 | Task image catalog | 36 task image kinds in `taskImageCatalog.ts`, grouped by sport, learning, home, health, work, and life. Different sports have their own Twemoji image; reading uses an open book; writing composes paper + pencil; work/study tasks fall back to the desk image. Laundry and dishes share a basket composition. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
 | I-035 | Cartoon-sticker doodles | Early image experiment; replaced by open-source images. |
 | I-036 | Personal welcome card | Optional name, saved on this device, or skip. |
 | I-037 | Daily intention | One optional line per day, explicitly not a task. |
@@ -52,6 +52,7 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-043 | “That's enough for today” rest state | Collapses the Today list into a calm rest state with an undo. |
 | I-044 | Small-win focus selection | Prefers a task already in progress on today’s list. |
 | I-045 | Calm carried-over language and colours | `Carried over`, amber cues, no red progress bars, no pressure counts. |
+| I-046 | Partial progress check-in | “Worked on it — a little further” adds 25% and writes a checkpoint. |
 | I-041 | Specific HVAC, hose, and laundry images | Heat pump photo for HVAC; rubber washer/O-ring photo for hose repair; laundromat photo for high-priority laundry. |
 
 ---

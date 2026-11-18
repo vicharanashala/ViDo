@@ -27,6 +27,8 @@ const CATEGORY_TOKENS: Record<string, TaskCategory> = {
 };
 
 const DATE_PATTERN = /\b(today|tomorrow|next week)\b/i;
+const RELATIVE_TIME_PATTERN =
+  /\b(?:in|after|within)\s+(\d+(?:\.\d+)?|an?|one)\s*(minutes|minute|mins|min|hours|hour|hrs|hr|h|m)\b/i;
 const TWELVE_HOUR_PATTERN = /\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i;
 const TWENTY_FOUR_HOUR_PATTERN = /\b(?:at\s+)?([01]?\d|2[0-3]):([0-5]\d)\b/;
 
@@ -48,6 +50,14 @@ function cleanTitle(value: string): string {
     .trim();
 }
 
+function addMinutes(date: Date, minutes: number): Date {
+  return new Date(date.getTime() + minutes * 60_000);
+}
+
+function formatTime(date: Date): string {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
 export function parseQuickAdd(input: string, reference: Date = new Date()): ParsedQuickAdd {
   let working = input;
   const meta: QuickAddMeta = {};
@@ -61,19 +71,33 @@ export function parseQuickAdd(input: string, reference: Date = new Date()): Pars
   }
 
   let dueTime: string | undefined;
-  const twelveHourMatch = working.match(TWELVE_HOUR_PATTERN);
-  if (twelveHourMatch) {
-    dueTime = normalizeTime(
-      Number(twelveHourMatch[1]),
-      Number(twelveHourMatch[2] ?? 0),
-      twelveHourMatch[3]
-    );
-    working = working.replace(twelveHourMatch[0], ' ');
+  let relativeDueDate: string | undefined;
+  const relativeMatch = working.match(RELATIVE_TIME_PATTERN);
+  if (relativeMatch) {
+    const amountText = relativeMatch[1].toLowerCase();
+    const amount =
+      amountText === 'a' || amountText === 'an' || amountText === 'one' ? 1 : Number(amountText);
+    const unit = relativeMatch[2].toLowerCase();
+    const minutes = unit.startsWith('h') ? Math.round(amount * 60) : Math.round(amount);
+    const target = addMinutes(reference, minutes);
+    dueTime = formatTime(target);
+    relativeDueDate = toDateKey(target);
+    working = working.replace(relativeMatch[0], ' ');
   } else {
-    const twentyFourHourMatch = working.match(TWENTY_FOUR_HOUR_PATTERN);
-    if (twentyFourHourMatch) {
-      dueTime = normalizeTime(Number(twentyFourHourMatch[1]), Number(twentyFourHourMatch[2]));
-      working = working.replace(twentyFourHourMatch[0], ' ');
+    const twelveHourMatch = working.match(TWELVE_HOUR_PATTERN);
+    if (twelveHourMatch) {
+      dueTime = normalizeTime(
+        Number(twelveHourMatch[1]),
+        Number(twelveHourMatch[2] ?? 0),
+        twelveHourMatch[3]
+      );
+      working = working.replace(twelveHourMatch[0], ' ');
+    } else {
+      const twentyFourHourMatch = working.match(TWENTY_FOUR_HOUR_PATTERN);
+      if (twentyFourHourMatch) {
+        dueTime = normalizeTime(Number(twentyFourHourMatch[1]), Number(twentyFourHourMatch[2]));
+        working = working.replace(twentyFourHourMatch[0], ' ');
+      }
     }
   }
 
@@ -93,8 +117,13 @@ export function parseQuickAdd(input: string, reference: Date = new Date()): Pars
     working = working.replace(categoryMatch[0], ' ');
   }
 
-  const dueDate = toDateKey(addDays(reference, dayOffset));
+  const dueDate =
+    relativeDueDate && !dateMatch
+      ? relativeDueDate
+      : toDateKey(addDays(reference, dayOffset));
   if (dateMatch) {
+    meta.dateLabel = relativeDayLabel(dueDate, reference);
+  } else if (relativeDueDate && relativeDueDate !== toDateKey(reference)) {
     meta.dateLabel = relativeDayLabel(dueDate, reference);
   }
   if (dueTime) {

@@ -21,7 +21,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(today);
-  const [dueTime, setDueTime] = useState('17:00');
+  const [dueTime, setDueTime] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('medium');
   const [category, setCategory] = useState<TaskCategory>('personal');
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +35,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       setTitle('');
       setDescription('');
       setDueDate(defaultDate ?? toDateKey(new Date()));
-      setDueTime('17:00');
+      setDueTime('');
       setPriority('medium');
       setCategory('personal');
       setTimeout(() => titleInputRef.current?.focus(), 50);
@@ -111,18 +111,18 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              label="Target Due Date *"
+              label="Planned Date *"
               type="date"
               required
               value={dueDate}
               onChange={(event) => setDueDate(event.target.value)}
             />
             <Input
-              label="Due Time (Optional)"
+              label="Deadline (Optional)"
               type="time"
               value={dueTime}
               onChange={(event) => setDueTime(event.target.value)}
-              helperText="Defaults to end of day"
+              helperText="Leave blank if there is no hard deadline"
             />
           </div>
 

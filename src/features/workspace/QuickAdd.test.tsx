@@ -1,57 +1,36 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QuickAdd } from './QuickAdd';
 
 describe('QuickAdd', () => {
-  it('captures a plain task with one field and clears the input', () => {
-    const handleAdd = vi.fn();
-    render(<QuickAdd onAdd={handleAdd} />);
+  it('lets the user choose priority while adding a task', () => {
+    const onAdd = vi.fn();
+    render(<QuickAdd onAdd={onAdd} />);
 
-    const input = screen.getByLabelText(/new task title/i);
-    fireEvent.change(input, { target: { value: 'Buy milk' } });
-    fireEvent.submit(input.closest('form')!);
-
-    expect(handleAdd).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Buy milk',
-        priority: 'medium',
-        category: 'personal',
-      })
-    );
-    expect(input).toHaveValue('');
-  });
-
-  it('parses a natural-language sentence and previews the result', () => {
-    const handleAdd = vi.fn();
-    render(<QuickAdd onAdd={handleAdd} />);
-
-    const input = screen.getByLabelText(/new task title/i);
-    fireEvent.change(input, {
-      target: { value: 'Renew insurance tomorrow 5pm !high #home' },
+    fireEvent.change(screen.getByLabelText(/new task title/i), {
+      target: { value: 'Buy milk' },
     });
+    fireEvent.change(screen.getByLabelText(/priority/i), {
+      target: { value: 'high' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
 
-    expect(screen.getByText('Tomorrow')).toBeInTheDocument();
-    expect(screen.getByText('17:00')).toBeInTheDocument();
-    expect(screen.getByText('high')).toBeInTheDocument();
-    expect(screen.getByText('home')).toBeInTheDocument();
-
-    fireEvent.submit(input.closest('form')!);
-
-    expect(handleAdd).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Renew insurance',
-        dueTime: '17:00',
-        priority: 'high',
-        category: 'home',
-      })
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Buy milk', priority: 'high' })
     );
   });
 
-  it('does not submit an empty title', () => {
-    const handleAdd = vi.fn();
-    render(<QuickAdd onAdd={handleAdd} />);
+  it('still reads priority from the sentence when set to auto', () => {
+    const onAdd = vi.fn();
+    render(<QuickAdd onAdd={onAdd} />);
 
-    fireEvent.submit(screen.getByLabelText(/new task title/i).closest('form')!);
-    expect(handleAdd).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText(/new task title/i), {
+      target: { value: 'Buy milk !low' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Buy milk', priority: 'low' })
+    );
   });
 });

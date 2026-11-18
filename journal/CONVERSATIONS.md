@@ -319,6 +319,8 @@ Status: implemented.
 - Laundry uses a basket; groceries uses a cart; gym uses a person lifting weights; running uses a treadmill; vehicle registration uses a car; dentist uses a literal CC0 dentist illustration; HVAC uses a heat pump photo; hose repair uses a rubber washer/O-ring photo.
 - The priority-based image-style system was reverted in the main workspace because changing styles made the images harder to read.
 - Every recognised task now shows the image **and the task title**; the image is a visual anchor, not the only label.
+- Laundry and dishes use the same basket composition: clothes for laundry, plates/cups for dishes.
+- Partial check-in adds 25% and a checkpoint without completing the task.
 - High-priority laundry uses a CC0 laundromat photo; seed `Do the laundry` is high priority so it is visible.
 - The style lab now shows a single image library, not a priority-style switcher.
 - The user approved the **image + title** direction as the default; keep it.

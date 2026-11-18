@@ -59,7 +59,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
             isCompleted ? 'line-through opacity-70' : ''
           }`}
         >
-          <DoodleTitle title={task.title} size="md" />
+          <DoodleTitle title={task.title} category={task.category} customImageKey={task.customImageKey} size="md" />
         </h4>
 
         {task.description && (

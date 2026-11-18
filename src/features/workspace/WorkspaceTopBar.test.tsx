@@ -7,6 +7,7 @@ describe('WorkspaceTopBar', () => {
   it('renders a calm header and reveals filters on demand', () => {
     const handleSearch = vi.fn();
     const handlePriority = vi.fn();
+    const handleHelp = vi.fn();
 
     render(
       <MemoryRouter>
@@ -17,6 +18,7 @@ describe('WorkspaceTopBar', () => {
           onSearchChange={handleSearch}
           priority="all"
           onPriorityChange={handlePriority}
+          onHelpClick={handleHelp}
         />
       </MemoryRouter>
     );
@@ -31,5 +33,8 @@ describe('WorkspaceTopBar', () => {
     fireEvent.click(screen.getByRole('button', { name: /toggle filters/i }));
     fireEvent.change(screen.getByLabelText(/filter by priority/i), { target: { value: 'high' } });
     expect(handlePriority).toHaveBeenCalledWith('high');
+
+    fireEvent.click(screen.getByRole('button', { name: /how vido works/i }));
+    expect(handleHelp).toHaveBeenCalled();
   });
 });

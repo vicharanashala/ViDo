@@ -9,11 +9,12 @@ describe('WelcomeCard', () => {
 
     expect(screen.getByRole('heading', { name: /make yourself at home/i })).toBeInTheDocument();
 
+    fireEvent.change(screen.getByLabelText(/prefix/i), { target: { value: 'Ms.' } });
     fireEvent.change(screen.getByLabelText(/your name/i), { target: { value: 'Asha' } });
-    fireEvent.click(screen.getByRole('button', { name: /save name/i }));
-    expect(onSave).toHaveBeenCalledWith('Asha');
+    fireEvent.click(screen.getByRole('button', { name: /^save$/i }));
+    expect(onSave).toHaveBeenCalledWith({ prefix: 'Ms.', name: 'Asha' });
 
     fireEvent.click(screen.getByRole('button', { name: /skip for now/i }));
-    expect(onSave).toHaveBeenCalledWith('');
+    expect(onSave).toHaveBeenCalledWith({ prefix: '', name: '' });
   });
 });

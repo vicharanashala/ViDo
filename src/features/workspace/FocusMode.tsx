@@ -133,7 +133,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </div>
 
             <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-[var(--ink)] mt-3 leading-tight">
-              <DoodleTitle title={task.title} size="xl" />
+              <DoodleTitle title={task.title} category={task.category} customImageKey={task.customImageKey} size="xl" />
             </h1>
             {task.description && (
               <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed">{task.description}</p>

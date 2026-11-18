@@ -52,6 +52,18 @@ export function isDueToday(task: Pick<Task, 'dueDate'>, now = new Date()): boole
   return task.dueDate === toDateKey(now);
 }
 
+export function isPastDay(task: Pick<Task, 'dueDate' | 'state'>, now = new Date()): boolean {
+  return task.state === 'active' && task.dueDate < toDateKey(now);
+}
+
+export function isDueTimePassed(
+  task: Pick<Task, 'dueDate' | 'dueTime' | 'state'>,
+  now = new Date()
+): boolean {
+  if (task.state !== 'active' || task.dueDate !== toDateKey(now) || !task.dueTime) return false;
+  return dueAt(task).getTime() < now.getTime();
+}
+
 export function completionTiming(task: Pick<Task, 'completedAt' | 'dueDate' | 'dueTime'>): 'on-time' | 'late' | null {
   if (!task.completedAt) return null;
   return new Date(task.completedAt).getTime() <= dueAt(task).getTime() ? 'on-time' : 'late';
@@ -114,6 +126,16 @@ export function getTaskPace(task: Task, now = new Date()): TaskPace {
 
   if (task.state === 'completed') {
     return { expected: 100, actual: 100, delta: 0, status: 'done', label: PACE_EFFICIENCY_LABELS.done };
+  }
+
+  if (task.parkedAt) {
+    return {
+      expected: actual,
+      actual,
+      delta: 0,
+      status: 'no-deadline',
+      label: PACE_EFFICIENCY_LABELS['no-deadline'],
+    };
   }
 
   const created = new Date(task.createdAt).getTime();

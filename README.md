@@ -33,17 +33,22 @@ ViDo gives every responsibility a precise deadline, measurable progress, and a c
 - **Real task lifecycle** — create, edit, complete, reopen, archive, restore, and delete.
 - **Progress 0–100%** with a **pace vs deadline** signal.
 - **Checkpoint timeline** — every update can carry a note, blocker, or decision.
-- **Today priority-aware queue** — carried-over work first, then today by time.
+- **Today-only queue** — due-today tasks, plus a few optional suggestions from earlier.
 - **Focus mode** — one task, a progress ring, quick progress updates, and a note to yourself.
-- **Calm views** — Home, Today, Later, Still here, Done, Put away.
+- **Clear, motivating views** — Home base, Today's move, What's next, Pick up again, Wins so far, Resting; the standard names stay underneath as hints.
 - **Search and filters** — keyword, priority, deadline.
 - **Welcome card and daily intention** — optional name and a one-line intention that is not a task.
+- **Professional address** — optional prefix (Mr., Ms., Dr., etc.) plus name for the greeting and sidebar.
+- **Pick up again** — deferring a task no longer forces tomorrow; it is set aside without a date until you choose to bring it back.
 - **Momentum strip** — a gentle seven-day view of what was finished.
 - **“That’s enough for today”** — puts the Today list away with an undo.
 - **Small-win focus** — prefers a task you are already moving forward.
-- **Gentle carried-over language** — `Carried over`, amber cues, and no red progress bars.
+- **Partial progress check-in** — “Worked on it — a little further” adds 25% and keeps it in Today.
+- **Optional deadline, midnight grace** — leave the deadline time blank if there is no hard time. If you set one, the task shows Pending after it passes but stays editable until midnight.
+- **Past list** — earlier tasks live there; choose what to do today instead of seeing all of them in Today.
+- **Custom task images** — when no built-in image matches, add one from the task detail view; ViDo remembers the keyword and reuses it for similar tasks on that device.
 - **Gentler navigation** — icon rail, mobile bottom nav, no numeric backlog counts.
-- **Keyboard actions** — `Enter`, `Space`, `F`, `Esc`.
+- **Keyboard actions** — `Enter`, `Space`, `C`, `F`, `Esc`.
 - **Persistence** — tasks are saved in the browser (`localStorage`) and survive refresh.
 - **Landing page, theme lab, and image library**.
 
@@ -57,6 +62,8 @@ Task images are **visual anchors**, not the only label.
 
 - If a task is recognised, the image and the task title appear together.
 - If no image fits, the task stays as plain text.
+- The keyword-to-image directory lives in `src/features/workspace/doodles/taskImageCatalog.ts`; it covers sports, reading, writing, home, health, work, and life tasks.
+- Custom images are local to the browser: each device keeps its own library, so different users do not overwrite each other. Sharing a library across users would need a backend/account layer.
 - The main workspace does **not** change image style by priority; that experiment was reverted because it made tasks harder to read.
 - The style lab remains a design sandbox; it does not drive the workspace.
 
@@ -76,9 +83,9 @@ Image sources and attribution live in [`public/doodles/README.md`](./public/dood
 |---|---|
 | `/` | Landing page |
 | `/app` | Home: greeting, focus card, momentum, and today’s list |
-| `/app/today` | Priority-aware queue: carried over, then due today |
+| `/app/today` | Only tasks due today, plus a few suggestions from earlier |
 | `/app/upcoming` | Later |
-| `/app/needs-attention` | Still here |
+| `/app/needs-attention` | Past: earlier tasks; choose what to do today |
 | `/app/completed` | Done |
 | `/app/archived` | Put away |
 | `/style-lab` | Accent palettes, components, and image library |
@@ -126,12 +133,12 @@ Task {
 Views are derived from the data:
 
 - **Today**: active and due today.
-- **Still here**: active and past the due date.
-- **Later**: active and due after today.
-- **Done**: completed and not archived.
-- **Put away**: has an `archivedAt` timestamp.
+- **Past**: active and past the due date.
+- **Upcoming**: active and due after today.
+- **Completed**: completed and not archived.
+- **Archived**: has an `archivedAt` timestamp.
 
-The Today queue orders carried-over work by priority, then earliest deadline. Due-today work is ordered by time; priority breaks ties.
+The Today queue only includes tasks due today, ordered by time; priority breaks ties. Earlier tasks are suggested in small numbers, and you can move one into Today with **Do today**.
 
 ---
 

@@ -168,5 +168,63 @@ describe('Workspace views and modals', () => {
         expect(screen.getAllByText(/buy milk for the week/i).length).toBeGreaterThan(0);
       });
     });
+
+    it('opens the check-in tray from the checkbox and defers a task', async () => {
+      render(
+        <MemoryRouter initialEntries={['/app/today']}>
+          <Routes>
+            <Route path="/app/*" element={<WorkspaceLayout />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      fireEvent.click(screen.getByLabelText(/check in review q4 budget/i));
+      expect(screen.getByText(/what happened with this one/i)).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /not today/i }));
+      await waitFor(() => {
+        expect(screen.getAllByText(/set aside/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('adds progress from a partial check-in', async () => {
+      render(
+        <MemoryRouter initialEntries={['/app/today']}>
+          <Routes>
+            <Route path="/app/*" element={<WorkspaceLayout />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      fireEvent.click(screen.getByLabelText(/check in review q4 budget/i));
+      fireEvent.click(screen.getByRole('button', { name: /worked on it/i }));
+      fireEvent.click(screen.getByRole('button', { name: '75%' }));
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/now at 75%/i).length).toBeGreaterThan(0);
+      });
+      expect(screen.getAllByText('75%').length).toBeGreaterThan(0);
+    });
+
+    it('opens the check-in tray when a task image is dragged', () => {
+      render(
+        <MemoryRouter initialEntries={['/app/today']}>
+          <Routes>
+            <Route path="/app/*" element={<WorkspaceLayout />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const draggable = screen.getAllByTitle(/drag to check in/i)[0];
+      fireEvent.dragStart(draggable, {
+        dataTransfer: { setData: vi.fn(), effectAllowed: 'move' },
+      });
+      expect(screen.getByText(/what happened with this one/i)).toBeInTheDocument();
+
+      const zone = screen.getByRole('button', { name: /not important/i });
+      fireEvent.dragOver(zone);
+      fireEvent.drop(zone);
+      expect(screen.getAllByText(/set aside/i).length).toBeGreaterThan(0);
+    });
   });
 });

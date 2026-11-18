@@ -97,20 +97,12 @@ describe('taskFilters', () => {
     expect(focus?.progress).toBeGreaterThan(0);
   });
 
-  it('builds an ordered Today queue with priority feedback', () => {
+  it('keeps only due-today tasks in the Today queue with priority feedback', () => {
     const queue = getTodayQueue(tasks, reference);
 
-    expect(queue.overdue).toHaveLength(4);
     expect(queue.today).toHaveLength(6);
-    expect(queue.all).toHaveLength(10);
+    expect(queue.all).toHaveLength(6);
 
-    expect(queue.overdue.map((task) => task.priority)).toEqual([
-      'high',
-      'high',
-      'medium',
-      'low',
-    ]);
-    expect(queue.overdue[0].title).toMatch(/property insurance/i);
     expect(queue.today.map((task) => task.dueTime)).toEqual([
       '16:00',
       '17:00',
@@ -119,9 +111,25 @@ describe('taskFilters', () => {
       '20:00',
       '21:00',
     ]);
-
-    expect(queue.highOverdue).toBe(2);
+    expect(queue.today.every((task) => task.dueDate === toDateKey(reference))).toBe(true);
     expect(queue.highToday).toBe(3);
+  });
+
+  it('keeps parked tasks out of Today and Upcoming but in Past', () => {
+    const parked = {
+      ...tasks.find((task) => task.dueDate === todayKey)!,
+      id: 'parked-task',
+      parkedAt: new Date(2026, 10, 17, 9, 0, 0).toISOString(),
+    };
+    const withParked = tasks.filter((task) => task.id !== parked.id).concat(parked);
+
+    const views = getFilteredTasks(withParked, reference);
+    const queue = getTodayQueue(withParked, reference);
+
+    expect(views.today.some((task) => task.id === parked.id)).toBe(false);
+    expect(views.upcoming.some((task) => task.id === parked.id)).toBe(false);
+    expect(views.needsAttention.some((task) => task.id === parked.id)).toBe(true);
+    expect(queue.today.some((task) => task.id === parked.id)).toBe(false);
   });
 });
 

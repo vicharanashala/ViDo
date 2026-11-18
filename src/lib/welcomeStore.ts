@@ -5,6 +5,7 @@ const INTENTION_PREFIX = 'vido.intention.';
 const REST_PREFIX = 'vido.rest.';
 
 export interface Profile {
+  prefix: string;
   name: string;
   welcomed: boolean;
 }
@@ -20,17 +21,18 @@ function storage(): Storage | null {
 
 export function loadProfile(): Profile {
   const store = storage();
-  if (!store) return { name: '', welcomed: false };
+  if (!store) return { prefix: '', name: '', welcomed: false };
   try {
     const raw = store.getItem(PROFILE_KEY);
-    if (!raw) return { name: '', welcomed: false };
+    if (!raw) return { prefix: '', name: '', welcomed: false };
     const parsed = JSON.parse(raw) as Partial<Profile>;
     return {
+      prefix: typeof parsed.prefix === 'string' ? parsed.prefix : '',
       name: typeof parsed.name === 'string' ? parsed.name : '',
       welcomed: Boolean(parsed.welcomed),
     };
   } catch {
-    return { name: '', welcomed: false };
+    return { prefix: '', name: '', welcomed: false };
   }
 }
 

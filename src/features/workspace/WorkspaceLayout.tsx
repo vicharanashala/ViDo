@@ -20,21 +20,39 @@ import { TaskDetailModal } from './TaskDetailModal';
 import { TaskCreateModal } from './TaskCreateModal';
 import { QuickAdd } from './QuickAdd';
 import { FocusMode } from './FocusMode';
+import { TaskCheckInTray } from './TaskCheckInTray';
+import { HelpModal } from './HelpModal';
+import { Doodle } from './doodles/Doodles';
+import type { DoodleKind } from './doodles/doodleMap';
+import type { CheckInKind } from './checkInTypes';
 import { useTaskStore } from './useTaskStore';
 import { useWelcome } from './useWelcome';
 
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
   { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
-  { to: '/app/upcoming', label: 'Later', icon: <Calendar className="w-3.5 h-3.5" /> },
-  { to: '/app/needs-attention', label: 'Still here', icon: <AlertCircle className="w-3.5 h-3.5" /> },
-  { to: '/app/completed', label: 'Done', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  { to: '/app/archived', label: 'Put away', icon: <Archive className="w-3.5 h-3.5" /> },
+  { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
+  { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
 ];
 
 function deliveryNotice(task: Task): string {
   return task.priority === 'high' ? 'Important thing done. That counts.' : 'Done. That counts.';
 }
+
+const ATMOSPHERE_TASKS: { kind: DoodleKind; style: React.CSSProperties }[] = [
+  { kind: 'laundry', style: { top: '10%', left: '23%', width: 62, height: 62, animationDelay: '-2s' } },
+  { kind: 'reading', style: { top: '16%', right: '7%', width: 54, height: 54, animationDelay: '-7s' } },
+  { kind: 'groceries', style: { top: '38%', left: '4%', width: 58, height: 58, animationDelay: '-12s' } },
+  { kind: 'writing', style: { top: '44%', right: '12%', width: 60, height: 60, animationDelay: '-5s' } },
+  { kind: 'run', style: { top: '68%', left: '24%', width: 66, height: 66, animationDelay: '-16s' } },
+  { kind: 'cooking', style: { top: '72%', right: '20%', width: 52, height: 52, animationDelay: '-9s' } },
+  { kind: 'plants', style: { top: '84%', left: '6%', width: 48, height: 48, animationDelay: '-20s' } },
+  { kind: 'cricket', style: { top: '88%', right: '5%', width: 56, height: 56, animationDelay: '-13s' } },
+  { kind: 'travel', style: { top: '30%', left: '76%', width: 48, height: 48, animationDelay: '-18s' } },
+  { kind: 'basketball', style: { top: '58%', right: '3%', width: 46, height: 46, animationDelay: '-3s' } },
+];
 
 export const WorkspaceLayout: React.FC = () => {
   const {
@@ -53,7 +71,9 @@ export const WorkspaceLayout: React.FC = () => {
   const [filters, setFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTERS);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const [checkInTaskId, setCheckInTaskId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const location = useLocation();
@@ -73,6 +93,7 @@ export const WorkspaceLayout: React.FC = () => {
 
   const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
   const activeFocusTask = tasks.find((task) => task.id === focusTaskId) ?? null;
+  const checkInTask = tasks.find((task) => task.id === checkInTaskId) ?? null;
   const filtersActive =
     filters.query.trim().length > 0 ||
     filters.priority !== 'all' ||
@@ -109,6 +130,52 @@ export const WorkspaceLayout: React.FC = () => {
     setNotice(task.state === 'completed' ? `Reopened "${task.title}".` : deliveryNotice(task));
   };
 
+  const handleCheckInStart = (task: Task) => {
+    if (task.state === 'completed') {
+      handleToggleComplete(task);
+      return;
+    }
+    setCheckInTaskId(task.id);
+  };
+
+  const handleBringToToday = (task: Task) => {
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const keepTime = task.dueTime && task.dueTime > nowTime ? task.dueTime : undefined;
+    updateTask(task.id, { dueDate: todayKey, dueTime: keepTime, parkedAt: undefined });
+    addCheckpoint(task.id, 'Chosen for today.');
+    setNotice(`"${task.title}" is on today's list.`);
+  };
+
+  const handleCheckIn = (task: Task, kind: CheckInKind, progress?: number) => {
+    if (kind === 'done') {
+      toggleComplete(task.id);
+      setNotice('That counts.');
+      return;
+    }
+
+    if (kind === 'progress') {
+      const value = Math.max(0, Math.min(99, progress ?? task.progress + 25));
+      addCheckpoint(task.id, `Worked on it — now at ${value}%.`, value);
+      setNotice(`Now at ${value}%. That counts.`);
+      return;
+    }
+
+    updateTask(task.id, {
+      parkedAt: new Date().toISOString(),
+      dueTime: undefined,
+      priority: kind === 'not-important' ? 'low' : task.priority,
+    });
+    addCheckpoint(
+      task.id,
+      kind === 'not-today' ? 'Set aside to pick up again.' : 'Set aside for later — not urgent.'
+    );
+    setNotice(
+      kind === 'not-today'
+        ? 'Set aside. Pick it up whenever you choose.'
+        : 'Set aside for later. No pressure.'
+    );
+  };
+
   const handleArchive = (id: string) => {
     const task = tasks.find((item) => item.id === id);
     archiveTask(id);
@@ -131,16 +198,16 @@ export const WorkspaceLayout: React.FC = () => {
       return { title: 'Today', subtitle: 'A few things for today, no rush' };
     }
     if (path.endsWith('/upcoming')) {
-      return { title: 'Later', subtitle: 'For when you have room' };
+      return { title: 'Upcoming', subtitle: 'For when you have room — also called Later' };
     }
     if (path.endsWith('/needs-attention')) {
-      return { title: 'Still here', subtitle: 'Things you can move to tomorrow' };
+      return { title: 'Past', subtitle: 'Earlier tasks — pick what to do today, or leave them' };
     }
     if (path.endsWith('/completed')) {
-      return { title: 'Done', subtitle: 'What you finished' };
+      return { title: 'Completed', subtitle: 'What you finished — also called Done' };
     }
     if (path.endsWith('/archived')) {
-      return { title: 'Put away', subtitle: 'Kept, out of the way' };
+      return { title: 'Archived', subtitle: 'Kept out of the way — also called Put away' };
     }
     return { title: 'Home' };
   };
@@ -149,8 +216,16 @@ export const WorkspaceLayout: React.FC = () => {
 
   return (
     <div className="workspace-studio flex min-h-screen text-[var(--ink)] antialiased">
+      <div className="workspace-atmosphere" aria-hidden="true">
+        {ATMOSPHERE_TASKS.map(({ kind, style }) => (
+          <span key={kind} className="workspace-task-mark" style={style}>
+            <Doodle kind={kind} />
+          </span>
+        ))}
+      </div>
       <WorkspaceSidebar
         userName={welcome.name}
+        userPrefix={welcome.prefix}
         onNewTaskClick={() => setIsCreateOpen(true)}
       />
 
@@ -166,6 +241,7 @@ export const WorkspaceLayout: React.FC = () => {
           onDeadlineChange={(deadline) => setFilters((current) => ({ ...current, deadline }))}
           filtersActive={filtersActive}
           onClearFilters={() => setFilters(EMPTY_TASK_FILTERS)}
+          onHelpClick={() => setIsHelpOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
@@ -187,10 +263,12 @@ export const WorkspaceLayout: React.FC = () => {
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   userName={welcome.name}
+                  userPrefix={welcome.prefix}
                   welcomed={welcome.welcomed}
-                  onSaveName={welcome.saveName}
+                  onSaveProfile={welcome.saveProfile}
                   intention={welcome.intention}
                   onIntentionChange={welcome.updateIntention}
+                  onCheckInStart={handleCheckInStart}
                 />
               }
             />
@@ -203,6 +281,8 @@ export const WorkspaceLayout: React.FC = () => {
                   onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
+                  onBringToToday={handleBringToToday}
                 />
               }
             />
@@ -210,13 +290,14 @@ export const WorkspaceLayout: React.FC = () => {
               path="upcoming"
               element={
                 <ListView
-                  title="Later"
-                  description="For when you have room."
+                  title="Upcoming"
+                  description="For when you have room — also called Later."
                   tasks={filteredViews.upcoming}
                   onTaskClick={handleTaskClick}
                   onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
                 />
               }
             />
@@ -224,13 +305,15 @@ export const WorkspaceLayout: React.FC = () => {
               path="needs-attention"
               element={
                 <ListView
-                  title="Still here"
-                  description="Carried over. Move them, or leave them."
+                  title="Past"
+                  description="Earlier tasks. Pick what to do today, or leave them here."
                   tasks={filteredViews.needsAttention}
                   onTaskClick={handleTaskClick}
                   onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
+                  onCheckInStart={handleCheckInStart}
+                  onBringToToday={handleBringToToday}
                 />
               }
             />
@@ -238,11 +321,12 @@ export const WorkspaceLayout: React.FC = () => {
               path="completed"
               element={
                 <ListView
-                  title="Done"
-                  description="What you finished."
+                  title="Completed"
+                  description="What you finished — also called Done."
                   tasks={filteredViews.completed}
                   onTaskClick={handleTaskClick}
                   onToggleComplete={handleToggleComplete}
+                  onCheckInStart={handleCheckInStart}
                 />
               }
             />
@@ -250,8 +334,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="archived"
               element={
                 <ListView
-                  title="Put away"
-                  description="Kept, out of the way."
+                  title="Archived"
+                  description="Kept out of the way — also called Put away."
                   tasks={filteredViews.archived}
                   onTaskClick={handleTaskClick}
                 />
@@ -349,6 +433,16 @@ export const WorkspaceLayout: React.FC = () => {
             setFocusTaskId(null);
             setSelectedTaskId(activeFocusTask.id);
           }}
+        />
+      )}
+
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+
+      {checkInTask && (
+        <TaskCheckInTray
+          task={checkInTask}
+          onSelect={(kind, progress) => handleCheckIn(checkInTask, kind, progress)}
+          onClose={() => setCheckInTaskId(null)}
         />
       )}
 

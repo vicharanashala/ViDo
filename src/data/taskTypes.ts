@@ -13,6 +13,7 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
+  customImageKey?: string;
   dueDate: string;
   dueTime?: string;
   priority?: TaskPriority;
@@ -23,6 +24,7 @@ export interface Task {
   updatedAt: string;
   completedAt?: string;
   archivedAt?: string;
+  parkedAt?: string;
   checkpoints: TaskCheckpoint[];
 }
 

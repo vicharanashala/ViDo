@@ -13,8 +13,12 @@ export function useWelcome() {
   const todayKey = toDateKey(new Date());
   const [intention, setIntention] = useState(() => loadIntention(todayKey));
 
-  const saveName = useCallback((name: string) => {
-    const next: Profile = { name: name.trim().slice(0, 40), welcomed: true };
+  const saveProfileDetails = useCallback((input: { prefix: string; name: string }) => {
+    const next: Profile = {
+      prefix: input.prefix.trim().slice(0, 12),
+      name: input.name.trim().slice(0, 40),
+      welcomed: true,
+    };
     setProfile(next);
     saveProfile(next);
   }, []);
@@ -28,10 +32,11 @@ export function useWelcome() {
   );
 
   return {
+    prefix: profile.prefix,
     name: profile.name,
     welcomed: profile.welcomed,
     intention,
-    saveName,
+    saveProfile: saveProfileDetails,
     updateIntention,
   };
 }

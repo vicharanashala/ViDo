@@ -12,6 +12,8 @@ export interface ListViewProps {
   onNewTaskClick?: () => void;
   onToggleComplete?: (task: Task) => void;
   onFocusTask?: (task: Task) => void;
+  onCheckInStart?: (task: Task) => void;
+  onBringToToday?: (task: Task) => void;
 }
 
 export const ListView: React.FC<ListViewProps> = ({
@@ -22,6 +24,8 @@ export const ListView: React.FC<ListViewProps> = ({
   onNewTaskClick,
   onToggleComplete,
   onFocusTask,
+  onCheckInStart,
+  onBringToToday,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -69,6 +73,8 @@ export const ListView: React.FC<ListViewProps> = ({
               onClick={onTaskClick}
               onToggleComplete={onToggleComplete}
               onFocus={onFocusTask}
+              onCheckInStart={onCheckInStart}
+              onBringToToday={onBringToToday}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Filter, Search, X } from 'lucide-react';
+import { CircleHelp, Filter, Search, X } from 'lucide-react';
 import { Badge } from '../../components/ui';
 import type { TaskPriority } from '../../data/taskTypes';
 import type { DeadlineFilter } from '../../data/taskFilters';
@@ -15,6 +15,7 @@ export interface WorkspaceTopBarProps {
   onDeadlineChange?: (deadline: DeadlineFilter) => void;
   filtersActive?: boolean;
   onClearFilters?: () => void;
+  onHelpClick?: () => void;
 }
 
 export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
@@ -28,11 +29,20 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   onDeadlineChange,
   filtersActive = false,
   onClearFilters,
+  onHelpClick,
 }) => {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 bg-[var(--surface)]/95 backdrop-blur-xs border-b border-[var(--line)] px-4 sm:px-8 py-3.5">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px]"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent, rgba(194, 90, 61, 0.38), rgba(131, 184, 168, 0.3), transparent)',
+        }}
+      />
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-xl font-bold tracking-tight text-[var(--ink)] truncate">{title}</h1>
@@ -40,6 +50,18 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onHelpClick && (
+            <button
+              type="button"
+              onClick={onHelpClick}
+              aria-label="How ViDo works"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-xs font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+            >
+              <CircleHelp className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Help</span>
+            </button>
+          )}
+
           <div className="relative hidden sm:block w-48 lg:w-64">
             <Search className="w-4 h-4 text-[var(--faint)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
@@ -92,7 +114,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
             <option value="all">Any deadline</option>
             <option value="today">Today</option>
             <option value="upcoming">Upcoming</option>
-            <option value="overdue">Overdue</option>
+            <option value="overdue">Past</option>
             <option value="completed">Completed</option>
           </select>
           {filtersActive && (

@@ -24,6 +24,7 @@ function normalizeTask(raw: Partial<Task>): Task | null {
     id: raw.id,
     title: raw.title,
     description: raw.description,
+    customImageKey: typeof raw.customImageKey === 'string' ? raw.customImageKey : undefined,
     dueDate: raw.dueDate,
     dueTime: raw.dueTime,
     priority: raw.priority,
@@ -34,6 +35,7 @@ function normalizeTask(raw: Partial<Task>): Task | null {
     updatedAt: raw.updatedAt ?? now,
     completedAt: raw.completedAt,
     archivedAt: raw.archivedAt,
+    parkedAt: typeof raw.parkedAt === 'string' ? raw.parkedAt : undefined,
     checkpoints: Array.isArray(raw.checkpoints)
       ? raw.checkpoints.map((checkpoint, index) => ({
           id: checkpoint.id ?? `checkpoint-${index}`,

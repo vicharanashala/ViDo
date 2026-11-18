@@ -17,8 +17,9 @@ describe('welcomeStore', () => {
   it('starts unwelcomed and persists a profile', () => {
     expect(loadProfile().welcomed).toBe(false);
 
-    saveProfile({ name: 'Asha', welcomed: true });
+    saveProfile({ prefix: 'Ms.', name: 'Asha', welcomed: true });
     const profile = loadProfile();
+    expect(profile.prefix).toBe('Ms.');
     expect(profile.name).toBe('Asha');
     expect(profile.welcomed).toBe(true);
   });
@@ -39,7 +40,7 @@ describe('welcomeStore', () => {
   });
 
   it('clears only personal data', () => {
-    saveProfile({ name: 'Asha', welcomed: true });
+    saveProfile({ prefix: 'Ms.', name: 'Asha', welcomed: true });
     saveIntention('2026-11-17', 'Move slowly.');
     saveRested('2026-11-17', true);
 

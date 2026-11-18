@@ -14,3 +14,11 @@ They are used as task illustrations in ViDo. The text of each task remains avail
 `heatpump.png` and `washer.png` come from Wikimedia Commons and are CC0.
 
 `laundry-pro.jpg` is a CC0 laundromat photo from Flickr via Openverse.
+
+Laundry and dishes are composed from the Twemoji basket plus clothes or plates/cups.
+
+Sporting images (`cricket`, `football`, `basketball`, `tennis`, `badminton`, `volleyball`, `swimming`, `cycling`, `hockey`, `baseball`, `tabletennis`, `boxing`, `golf`, and `sport`) are Twemoji under the same CC-BY 4.0 licence.
+
+Writing tasks are composed in the app from `memo.svg` and `pencil.svg`, so they show paper and a pencil.
+
+The keyword-to-image catalog lives in `src/features/workspace/doodles/taskImageCatalog.ts`.

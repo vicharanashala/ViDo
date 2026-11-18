@@ -1,6 +1,8 @@
 import React from 'react';
 import { detectDoodle } from './doodleMap';
 import { Doodle } from './Doodles';
+import type { TaskCategory } from '../../../data/taskTypes';
+import { findCustomImageForTitle } from '../../../lib/customImages';
 
 const IMAGE_SIZES = {
   sm: 'h-6 w-6',
@@ -11,21 +13,48 @@ const IMAGE_SIZES = {
 
 export interface DoodleTitleProps {
   title: string;
+  category?: TaskCategory;
   size?: keyof typeof IMAGE_SIZES;
   className?: string;
+  customImageKey?: string;
+  onImageClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
-export const DoodleTitle: React.FC<DoodleTitleProps> = ({ title, size = 'md', className = '' }) => {
-  const kind = detectDoodle(title);
+export const DoodleTitle: React.FC<DoodleTitleProps> = ({
+  title,
+  category,
+  size = 'md',
+  className = '',
+  customImageKey,
+  onImageClick,
+}) => {
+  const customImage = findCustomImageForTitle(title, customImageKey);
+  const kind = detectDoodle(title) ?? (category === 'work' ? 'project' : null);
 
-  if (!kind) {
+  if (!customImage && !kind) {
     return <span className={className}>{title}</span>;
   }
 
   return (
     <span className="inline-flex items-center gap-2 min-w-0">
-      <span aria-hidden="true" className={`inline-flex shrink-0 ${IMAGE_SIZES[size]}`}>
-        <Doodle kind={kind} style="cartoon" />
+      <span
+        aria-hidden="true"
+        onClick={onImageClick}
+        className={`inline-flex shrink-0 overflow-hidden rounded-md ${IMAGE_SIZES[size]} ${
+          onImageClick ? 'cursor-pointer' : ''
+        }`}
+      >
+        {customImage ? (
+          <img
+            src={customImage.dataUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Doodle kind={kind!} style="cartoon" />
+        )}
       </span>
       <span className={`truncate ${className}`}>{title}</span>
     </span>

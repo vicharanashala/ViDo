@@ -31,9 +31,11 @@ export interface HomeViewProps {
   onTaskClick: (task: Task) => void;
   onToggleComplete?: (task: Task) => void;
   onFocusTask: (task: Task) => void;
+  onCheckInStart?: (task: Task) => void;
   userName?: string;
+  userPrefix?: string;
   welcomed?: boolean;
-  onSaveName?: (name: string) => void;
+  onSaveProfile?: (profile: { prefix: string; name: string }) => void;
   intention?: string;
   onIntentionChange?: (text: string) => void;
 }
@@ -46,7 +48,7 @@ function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string 
 }
 
 const HERO_GRADIENT =
-  'linear-gradient(135deg, #eaf2e8 0%, #fbfdf8 55%, #f4e9dc 100%)';
+  'linear-gradient(135deg, #fff1df 0%, #f8fbf1 48%, #f8e1d3 100%)';
 
 export const HomeView: React.FC<HomeViewProps> = ({
   todayTasks,
@@ -57,14 +59,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onTaskClick,
   onToggleComplete,
   onFocusTask,
+  onCheckInStart,
   userName,
+  userPrefix,
   welcomed = true,
-  onSaveName,
+  onSaveProfile,
   intention = '',
   onIntentionChange,
 }) => {
   const focusPace = focusTask ? getTaskPace(focusTask) : null;
-  const greetingText = userName ? `${greeting()}, ${userName}` : greeting();
+  const displayName = [userPrefix, userName].filter(Boolean).join(' ');
+  const greetingText = displayName ? `${greeting()}, ${displayName}` : greeting();
   const todayKey = toDateKey(new Date());
   const [rested, setRested] = useState(() => loadRested(todayKey));
 
@@ -85,13 +90,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {!welcomed && onSaveName && <WelcomeCard onSave={onSaveName} />}
+      {!welcomed && onSaveProfile && <WelcomeCard onSave={onSaveProfile} />}
 
       <section
         className="relative overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
         style={{ background: HERO_GRADIENT }}
       >
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[rgba(131,184,168,0.18)] blur-3xl" />
 
         <div className="relative flex items-start justify-between gap-4">
           <div>
@@ -122,7 +128,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 One small thing
               </span>
               <h2 className="text-base sm:text-lg font-extrabold text-[var(--ink)] mt-1 leading-snug">
-                <DoodleTitle title={focusTask.title} size="lg" />
+                <DoodleTitle title={focusTask.title} category={focusTask.category} customImageKey={focusTask.customImageKey} size="lg" />
               </h2>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-[var(--muted)]">
                 <span className="inline-flex items-center gap-1">
@@ -183,6 +189,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </Link>
         </div>
 
+        {!rested && todayTasks.items.length > 0 && (
+          <p className="text-[11px] text-[var(--muted)]">
+            Tip: drag a task image into a check-in zone — or tap the circle.
+          </p>
+        )}
+
         {rested ? (
           <div className="p-8 text-center border border-[var(--line)] rounded-xl bg-[var(--surface)]">
             <div className="w-12 h-12 mx-auto mb-3">
@@ -204,6 +216,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={onTaskClick}
                   onToggleComplete={onToggleComplete}
                   onFocus={onFocusTask}
+                  onCheckInStart={onCheckInStart}
                 />
               ))}
             </div>

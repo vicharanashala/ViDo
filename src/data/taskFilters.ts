@@ -81,11 +81,11 @@ export function applyTaskFilters(
 
     switch (filters.deadline) {
       case 'today':
-        return task.state === 'active' && task.dueDate === todayKey;
+        return task.state === 'active' && !task.parkedAt && task.dueDate === todayKey;
       case 'upcoming':
-        return task.state === 'active' && task.dueDate > todayKey;
+        return task.state === 'active' && !task.parkedAt && task.dueDate > todayKey;
       case 'overdue':
-        return task.state === 'active' && task.dueDate < todayKey;
+        return task.state === 'active' && (Boolean(task.parkedAt) || task.dueDate < todayKey);
       case 'completed':
         return task.state === 'completed' && !isArchived(task);
       default:
@@ -107,9 +107,15 @@ export function getFilteredTasks(
   const active = nonArchived.filter((task) => task.state === 'active');
   const completed = nonArchived.filter((task) => task.state === 'completed').sort(byCompletedDesc);
 
-  const today = active.filter((task) => task.dueDate === todayKey).sort(byDueTime);
-  const needsAttention = active.filter((task) => task.dueDate < todayKey).sort(byDateAsc);
-  const upcoming = active.filter((task) => task.dueDate > todayKey).sort(byDateAsc);
+  const today = active
+    .filter((task) => !task.parkedAt && task.dueDate === todayKey)
+    .sort(byDueTime);
+  const needsAttention = active
+    .filter((task) => Boolean(task.parkedAt) || task.dueDate < todayKey)
+    .sort(byDateAsc);
+  const upcoming = active
+    .filter((task) => !task.parkedAt && task.dueDate > todayKey)
+    .sort(byDateAsc);
 
   const recentlyCompleted = completed.filter((task) => {
     if (!task.completedAt) return false;
@@ -157,9 +163,33 @@ export function getHomeDashboardTasks(
   };
 }
 
+export function pickTodayRecommendations(
+  tasks: Task[],
+  reference: Date = new Date(),
+  limit = 3
+): Task[] {
+  const todayKey = toDateKey(reference);
+
+  return tasks
+    .filter(
+      (task) =>
+        task.state === 'active' &&
+        !isArchived(task) &&
+        (Boolean(task.parkedAt) || task.dueDate < todayKey)
+    )
+    .sort((a, b) => {
+      const priority = priorityRank(b) - priorityRank(a);
+      if (priority !== 0) return priority;
+      return dueAt(a).getTime() - dueAt(b).getTime();
+    })
+    .slice(0, limit);
+}
+
 export function pickFocusTask(tasks: Task[], reference: Date = new Date()): Task | null {
   const todayKey = toDateKey(reference);
-  const candidates = tasks.filter((task) => task.state === 'active' && !isArchived(task));
+  const candidates = tasks.filter(
+    (task) => task.state === 'active' && !isArchived(task) && !task.parkedAt
+  );
   if (candidates.length === 0) return null;
 
   const todayCandidates = candidates.filter((task) => task.dueDate === todayKey);
@@ -187,29 +217,18 @@ function priorityRank(task: Task): number {
 }
 
 export interface TodayQueue {
-  overdue: Task[];
   today: Task[];
   all: Task[];
-  highOverdue: number;
   highToday: number;
 }
 
 export function getTodayQueue(tasks: Task[], reference: Date = new Date()): TodayQueue {
   const todayKey = toDateKey(reference);
-  const queue = tasks.filter(
-    (task) => task.state === 'active' && !isArchived(task) && task.dueDate <= todayKey
-  );
-
-  const overdue = queue
-    .filter((task) => task.dueDate < todayKey)
-    .sort((a, b) => {
-      const priority = priorityRank(b) - priorityRank(a);
-      if (priority !== 0) return priority;
-      return dueAt(a).getTime() - dueAt(b).getTime();
-    });
-
-  const today = queue
-    .filter((task) => task.dueDate === todayKey)
+  const today = tasks
+    .filter(
+      (task) =>
+        task.state === 'active' && !isArchived(task) && !task.parkedAt && task.dueDate === todayKey
+    )
     .sort((a, b) => {
       const due = dueAt(a).getTime() - dueAt(b).getTime();
       if (due !== 0) return due;
@@ -217,10 +236,8 @@ export function getTodayQueue(tasks: Task[], reference: Date = new Date()): Toda
     });
 
   return {
-    overdue,
     today,
-    all: [...overdue, ...today],
-    highOverdue: overdue.filter((task) => task.priority === 'high').length,
+    all: today,
     highToday: today.filter((task) => task.priority === 'high').length,
   };
 }
