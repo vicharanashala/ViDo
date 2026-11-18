@@ -44,7 +44,11 @@ ViDo gives responsibilities an optional deadline, measurable progress, and a chr
 - **Task board** — tasks and path steps sit in a disciplined two-column card grid, not a long list.
 - **Quest path** — Task Path highlights the current step, gives completed steps a stamp, and celebrates a complete quest without points or streaks.
 - **Momentum trail** — a snake-and-ladder board moves your token with completed tasks, logs every ladder lift and gentle reset, and reaches the goal when all tasks are done.
-- **Profile** — edit your prefix and name from the sidebar footer or the profile button in the top bar.
+- **Profile** — edit prefix, name, email, date of birth, and phone from the sidebar footer or the profile button in the top bar.
+- **Local account** — register with name, email, and date of birth; sign in with email + a one-time code. No password is stored.
+- **Reminders** — optional reminder date/time; an in-app reminder fires while ViDo is open.
+- **Task sharing** — share a task with an email address or phone number, see collaborators, and remove access. Sharing is local to this browser for now.
+- **System clock** — live date and time beside the quick-add row, using the device clock.
 - **Task paths** — open **Your paths** from the sidebar, choose a today/future task, add subtask steps, and check them off; each task also links to its path from Task details. Steps also appear inside Task details.
 - **Automatic completion** — when every path step is done, the task is completed and a completion checkpoint is logged. Adding a new step reopens it.
 - **Move a pending task** — Past tasks have **Will do it today** and a date picker to push them to the right day; pending cards also link straight to **Break into steps**.
@@ -103,6 +107,7 @@ Image sources and attribution live in [`public/doodles/README.md`](./public/dood
 | `/app/trail` | Momentum trail: snake-and-ladder productivity board |
 | `/app/profile` | Edit prefix and name |
 | `/app/archived` | Put away |
+| `/auth` | Email + OTP sign-in and registration |
 | `/style-lab` | Accent palettes, components, and image library |
 
 Old `/preview/*` links redirect to `/app/*`.
@@ -126,7 +131,7 @@ npm test
 npm run build
 ```
 
-Last verified: **118 tests across 31 suites**, typecheck pass, production build pass.
+Last verified: **124 tests across 32 suites**, typecheck pass, production build pass.
 
 ---
 
@@ -153,7 +158,7 @@ Views are derived from the data:
 
 - **Today**: due-today tasks, plus non-recurring work with a future deadline; recurring tasks appear on their scheduled days.
 - **Past**: active tasks whose effective deadline has passed.
-- **Upcoming**: active, non-deadline tasks due after today.
+- **Upcoming**: all active tasks due after today, including work with a future deadline.
 - **Completed**: completed and not archived.
 - **Archived**: has an `archivedAt` timestamp.
 
@@ -196,7 +201,7 @@ If the request fails or the variable is empty, ViDo falls back to the local assi
 - Deleting all tasks keeps the workspace empty; it does not re-seed.
 - Clearing browser storage restores the seed on the next load.
 
-Supabase authentication and shared workspaces are planned, not built.
+Local authentication exists. Supabase cross-device auth and shared workspaces are still planned.
 
 ---
 
@@ -221,6 +226,7 @@ vido-app/
 ├── AGENTS.md
 ├── FOLDER_STRUCTURE.md
 ├── README.md
+├── REVIEW_FEEDBACK.md
 └── context.md
 ```
 

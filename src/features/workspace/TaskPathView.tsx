@@ -58,7 +58,7 @@ export const TaskPathView: React.FC<TaskPathViewProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
@@ -168,11 +168,11 @@ export const TaskPathView: React.FC<TaskPathViewProps> = ({
         </form>
 
         {subtasks.length > 0 ? (
-          <ol className="grid gap-2.5 sm:grid-cols-2">
+          <ol className="grid gap-4 sm:grid-cols-2">
             {subtasks.map((subtask, index) => (
               <li
                 key={subtask.id}
-                className={`flex items-center gap-2.5 rounded-[22px] border p-3.5 shadow-xs transition-all ${
+                className={`flex items-center gap-2.5 rounded-2xl border p-3 shadow-xs transition-all ${
                   subtask.done
                     ? 'border-[var(--green)]/30 bg-[var(--green-soft)]/45'
                     : index === currentIndex

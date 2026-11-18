@@ -94,7 +94,8 @@ export function applyTaskFilters(
         return (
           task.state === 'active' &&
           !task.parkedAt &&
-          (task.recurrence ? task.dueDate > todayKey : !task.deadlineDate && task.dueDate > todayKey)
+          (task.dueDate > todayKey ||
+            Boolean(task.deadlineDate && task.deadlineDate > todayKey))
         );
       case 'overdue':
         return (
@@ -137,8 +138,11 @@ export function getFilteredTasks(
     .filter((task) => Boolean(task.parkedAt) || effectiveDeadlineDate(task) < todayKey)
     .sort(byDateAsc);
   const upcoming = active
-    .filter((task) =>
-      task.recurrence ? task.dueDate > todayKey : !task.deadlineDate && task.dueDate > todayKey
+    .filter(
+      (task) =>
+        !task.parkedAt &&
+        (task.dueDate > todayKey ||
+          Boolean(task.deadlineDate && task.deadlineDate > todayKey))
     )
     .sort(byDateAsc);
 

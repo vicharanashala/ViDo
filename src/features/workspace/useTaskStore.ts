@@ -251,6 +251,40 @@ export function useTaskStore() {
     );
   }, []);
 
+  const shareTask = useCallback((taskId: string, identifier: string, sharedBy?: string) => {
+    const clean = identifier.trim().toLowerCase();
+    if (!clean) return;
+    const timestamp = new Date().toISOString();
+    setTasks((previous) =>
+      previous.map((task) => {
+        if (task.id !== taskId) return task;
+        const sharedWith = task.sharedWith ?? [];
+        return {
+          ...task,
+          sharedWith: sharedWith.includes(clean) ? sharedWith : [...sharedWith, clean],
+          sharedBy: sharedBy ?? task.sharedBy,
+          ownerId: task.ownerId ?? sharedBy,
+          updatedAt: timestamp,
+        };
+      })
+    );
+  }, []);
+
+  const unshareTask = useCallback((taskId: string, identifier: string) => {
+    const clean = identifier.trim().toLowerCase();
+    const timestamp = new Date().toISOString();
+    setTasks((previous) =>
+      previous.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          sharedWith: (task.sharedWith ?? []).filter((item) => item !== clean),
+          updatedAt: timestamp,
+        };
+      })
+    );
+  }, []);
+
   const archiveTask = useCallback((id: string) => {
     updateTask(id, { archivedAt: new Date().toISOString() });
   }, [updateTask]);
@@ -281,6 +315,8 @@ export function useTaskStore() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    shareTask,
+    unshareTask,
     resetTasks,
   };
 }

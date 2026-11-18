@@ -64,7 +64,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       }}
       aria-label={`Task: ${task.title}`}
       aria-keyshortcuts="Enter Space F C"
-      className="group flex h-full flex-col gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)]/95 p-3.5 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/25 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] motion-reduce:transform-none cursor-pointer select-none"
+      className="group flex h-full flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/25 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] motion-reduce:transform-none cursor-pointer select-none"
     >
       <div className="flex items-start gap-2.5">
         <button

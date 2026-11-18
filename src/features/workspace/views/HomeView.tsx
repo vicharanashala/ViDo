@@ -91,7 +91,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : 0;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       {!welcomed && onSaveProfile && <WelcomeCard onSave={onSaveProfile} />}
 
       <section
@@ -210,7 +210,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         ) : todayTasks.items.length > 0 ? (
           <>
-            <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {todayTasks.items.map((task) => (
                 <TaskRow
                   key={task.id}

@@ -13,7 +13,7 @@ const VIEWS = [
   ['Upcoming', 'Later, when you have room.'],
   ['Your paths', 'Choose a task and shape its steps.'],
   ['Momentum trail', 'A gentle snake-and-ladder of completed work.'],
-  ['Profile', 'Edit how ViDo addresses you.'],
+  ['Profile', 'Edit name, email, date of birth, and phone.'],
   ['Past', 'Earlier tasks. Pick what to do today, or leave them.'],
   ['Completed', 'What you finished.'],
   ['Archived', 'Put away, still kept.'],
@@ -98,6 +98,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
             To repeat a task until its deadline, open Calendar and choose Daily, Weekdays, or Weekly.
             Finishing one occurrence schedules the next one automatically.
+          </p>
+          <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
+            Reminders are set in Create task or Task details and appear while ViDo is open. To share a
+            task with an email or phone number, sign in from Profile, then open the task details.
           </p>
           <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
             For a bigger task, open its Task path and add small steps. Pending cards also offer

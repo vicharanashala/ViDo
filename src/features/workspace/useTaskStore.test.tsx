@@ -6,6 +6,32 @@ import { addDays, toDateKey } from '../../data/taskDates';
 const reference = new Date(2026, 10, 17, 12, 0, 0);
 const todayKey = toDateKey(reference);
 
+describe('useTaskStore sharing', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('shares and unshares a task by email', () => {
+    const { result } = renderHook(() => useTaskStore());
+    let taskId = '';
+
+    act(() => {
+      taskId = result.current.addTask({ title: 'Shared task', dueDate: todayKey }).id;
+      result.current.shareTask(taskId, 'friend@example.com', 'me@example.com');
+    });
+
+    let task = result.current.tasks.find((item) => item.id === taskId);
+    expect(task?.sharedWith).toContain('friend@example.com');
+    expect(task?.ownerId).toBe('me@example.com');
+
+    act(() => {
+      result.current.unshareTask(taskId, 'friend@example.com');
+    });
+    task = result.current.tasks.find((item) => item.id === taskId);
+    expect(task?.sharedWith).not.toContain('friend@example.com');
+  });
+});
+
 describe('useTaskStore subtasks', () => {
   beforeEach(() => {
     window.localStorage.clear();

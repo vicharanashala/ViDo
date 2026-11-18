@@ -36,6 +36,7 @@ ViDo/
 ├── FOLDER_STRUCTURE.md      # This file: Directory layout and placement rules
 ├── MILESTONES.md            # Product milestones and evolution roadmap
 ├── README.md                # Public project documentation and quickstart
+├── REVIEW_FEEDBACK.md       # Reviewer diagnosis and professionalism fix list
 ├── context.md               # Product requirements and agent constraints
 ├── index.html               # Vite HTML entry point (root of web application)
 ├── package.json             # Scripts and dependency declarations
@@ -74,7 +75,8 @@ ViDo/
 - **Purpose**: Side-effectful infrastructure such as the localStorage task repository.
 - **Current Contents**:
   - `taskRepository.ts`: load, save, normalize, and clear tasks under `vido.tasks.v1`.
-  - `welcomeStore.ts`: prefix/name, welcome state, and per-day intention.
+  - `welcomeStore.ts`: prefix/name/email/DOB/phone, welcome state, and per-day intention.
+  - `accountStore.ts`: local registration, session, and email OTP prototype.
   - `customImages.ts`: user-uploaded image rules keyed by keyword.
   - `readImageFile.ts`: resize/encode uploaded task images.
   - `taskRepository.test.ts`, `welcomeStore.test.ts`, and `customImages.test.ts`: persistence tests.
@@ -103,6 +105,7 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
   - `TaskPathView.tsx`: Per-task path page with step board and assistant entry point.
   - `PathAssistantModal.tsx`: Conversational step drafting with approval.
   - `CustomImageEditor.tsx`: Upload and keyword-reuse editor for unmatched task images.
+  - `views/AuthView.tsx`: Registration and email + OTP sign-in page.
   - `TaskCard.tsx`: Older card representation retained for compatibility.
   - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Working modals for editing and creating tasks.
   - `doodles/`: `DoodleTitle`, `Doodle`, image detection, and image assets mapping.

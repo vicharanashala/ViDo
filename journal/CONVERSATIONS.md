@@ -472,10 +472,10 @@ Last build at time of writing:
 - Data persists in localStorage.
 - Branch `feat/local-first-vido` pushed to fork `NAGASHREE1/ViDo`; PR #9 was closed. Latest committed state: `889280d` plus later uncommitted work.
 - Commit author: `Nagashree Venkatesh <nagu95@gmail.com>` under `NAGASHREE1`.
-- Current version includes labelled motivating navigation, drag/tap/C check-in, optional deadlines, pick-up-again parking, recurrence until deadline, task card boards, task paths, the path assistant, custom images, walking/sport images, prefix-aware welcome, the collapsible sidebar, the Momentum trail, an editable profile, and the workspace atmosphere.
+- Current version includes labelled motivating navigation, drag/tap/C check-in, optional deadlines, pick-up-again parking, recurrence until deadline, task card boards, task paths, the path assistant, custom images, walking/sport images, prefix-aware welcome, local email + OTP auth, profile fields, reminders, local-browser task sharing, the collapsible sidebar, the Momentum trail, and the workspace atmosphere.
 - Open issues: #3, #4, #6, #7, #8, #10, #11. PR #9: https://github.com/vicharanashala/ViDo/pull/9
 - Image + title labels cover 37 task kinds; unmatched tasks get a custom-image option.
-- Verification: typecheck pass, 118 tests pass, production build pass.
+- Verification: typecheck pass, 124 tests pass, production build pass.
 - Dev server runs at `http://127.0.0.1:5173`.
 
 ## 9. Open questions for next session

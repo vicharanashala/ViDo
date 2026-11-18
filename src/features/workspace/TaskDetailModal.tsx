@@ -47,6 +47,14 @@ export interface TaskDetailModalProps {
   onFocus?: () => void;
   onOpenPath?: (id: string) => void;
   onToggleSubtask?: (taskId: string, subtaskId: string) => void;
+  currentUser?: string | null;
+  onShare?: (taskId: string, identifier: string) => void;
+  onUnshare?: (taskId: string, identifier: string) => void;
+}
+
+function isValidShareTarget(value: string): boolean {
+  const clean = value.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) || /^\+?\d{7,15}$/.test(clean.replace(/\s+/g, ''));
 }
 
 function progressColor(task: Task): string {
@@ -67,6 +75,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onFocus,
   onOpenPath,
   onToggleSubtask,
+  currentUser,
+  onShare,
+  onUnshare,
 }) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -76,6 +87,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [deadlineDate, setDeadlineDate] = useState('');
   const [recurrence, setRecurrence] = useState<TaskRecurrence | ''>('');
   const [dueTime, setDueTime] = useState('');
+  const [reminderAt, setReminderAt] = useState('');
+  const [shareInput, setShareInput] = useState('');
+  const [shareError, setShareError] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('');
   const [category, setCategory] = useState<TaskCategory>('personal');
   const [progress, setProgress] = useState(0);
@@ -101,6 +115,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setDeadlineDate(task.deadlineDate ?? '');
     setRecurrence(task.recurrence ?? '');
     setDueTime(task.dueTime ?? '');
+    setReminderAt(task.reminderAt ? task.reminderAt.slice(0, 16) : '');
+    setShareInput('');
+    setShareError('');
     setPriority(task.priority ?? '');
     setCategory(task.category);
     setProgress(task.progress);
@@ -129,6 +146,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       recurrence: (recurrence || undefined) as TaskRecurrence | undefined,
       dueDate,
       dueTime: dueTime || undefined,
+      reminderAt: reminderAt || undefined,
+      reminderSentAt: undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       category,
     });
@@ -279,6 +298,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 </select>
               </div>
             </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
+                Reminder (optional)
+              </label>
+              <input
+                type="datetime-local"
+                value={reminderAt}
+                onChange={(event) => setReminderAt(event.target.value)}
+                className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">Category</label>
@@ -423,6 +453,83 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   {formatDateTime(task.createdAt)}
                 </span>
               </div>
+            </div>
+
+            {task.reminderAt && (
+              <p className="mt-3 rounded-lg border border-[var(--line)] bg-[var(--canvas)] px-3 py-2 text-[11px] text-[var(--muted)]">
+                Reminder: <span className="font-semibold text-[var(--ink)]">{formatDateTime(task.reminderAt)}</span>
+              </p>
+            )}
+
+            <div className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--canvas)] p-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  Shared with
+                </h3>
+                {task.sharedBy && (
+                  <span className="text-[10px] text-[var(--muted)]">Shared by {task.sharedBy}</span>
+                )}
+              </div>
+              {currentUser ? (
+                <>
+                  <form
+                    className="mt-2 flex gap-2"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      if (!isValidShareTarget(shareInput)) {
+                        setShareError('Use a valid email or phone number.');
+                        return;
+                      }
+                      onShare?.(task.id, shareInput);
+                      setShareInput('');
+                      setShareError('');
+                    }}
+                  >
+                    <input
+                      value={shareInput}
+                      onChange={(event) => {
+                        setShareInput(event.target.value);
+                        setShareError('');
+                      }}
+                      placeholder="Email or phone number"
+                      aria-label="Share with email or phone"
+                      className="min-w-0 flex-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-xs text-[var(--ink)]"
+                    />
+                    <Button type="submit" size="sm" variant="secondary" disabled={!shareInput.trim()}>
+                      Share
+                    </Button>
+                  </form>
+                  {shareError && <p className="mt-1 text-[10px] font-semibold text-[var(--amber)]">{shareError}</p>}
+                  {(task.sharedWith ?? []).length > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {(task.sharedWith ?? []).map((identifier) => (
+                        <span
+                          key={identifier}
+                          className="inline-flex items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-2 py-0.5 text-[10px] text-[var(--muted)]"
+                        >
+                          {identifier}
+                          {onUnshare && (
+                            <button
+                              type="button"
+                              onClick={() => onUnshare(task.id, identifier)}
+                              aria-label={`Remove ${identifier}`}
+                              className="text-[var(--faint)] hover:text-[var(--red)]"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-[10px] text-[var(--faint)]">Only you can see this task.</p>
+                  )}
+                </>
+              ) : (
+                <p className="mt-2 text-[10px] text-[var(--muted)]">
+                  Sign in from Profile to share this task with an email or phone number.
+                </p>
+              )}
             </div>
 
             {task.completedAt && (

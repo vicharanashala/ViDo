@@ -26,6 +26,7 @@ export interface Task {
   recurrence?: TaskRecurrence;
   dueDate: string;
   dueTime?: string;
+  reminderAt?: string;
   priority?: TaskPriority;
   category: TaskCategory;
   state: TaskState;
@@ -37,6 +38,10 @@ export interface Task {
   parkedAt?: string;
   checkpoints: TaskCheckpoint[];
   subtasks?: Subtask[];
+  reminderSentAt?: string;
+  sharedWith?: string[];
+  sharedBy?: string;
+  ownerId?: string;
 }
 
 export interface NewTaskInput {
@@ -46,6 +51,7 @@ export interface NewTaskInput {
   recurrence?: TaskRecurrence;
   dueDate: string;
   dueTime?: string;
+  reminderAt?: string;
   priority?: TaskPriority;
   category?: TaskCategory;
 }

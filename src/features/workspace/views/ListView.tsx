@@ -44,7 +44,7 @@ export const ListView: React.FC<ListViewProps> = ({
   ];
 
   return (
-    <div className="space-y-6 p-6 sm:p-8 max-w-6xl mx-auto">
+    <div className="space-y-6 p-6 sm:p-8 max-w-3xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--line)]">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-[var(--ink)]">{title}</h2>
@@ -69,7 +69,7 @@ export const ListView: React.FC<ListViewProps> = ({
       </div>
 
       {filteredTasks.length > 0 ? (
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {filteredTasks.map((task) => (
             <TaskRow
               key={task.id}

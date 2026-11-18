@@ -30,6 +30,9 @@ export const LandingHeader: React.FC = () => {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Link to="/auth" className="text-sm font-semibold text-[var(--muted)] hover:text-[var(--ink)]">
+            Sign in
+          </Link>
           <Button variant="secondary" size="sm" onClick={() => navigate('/app')}>
             Open App
           </Button>

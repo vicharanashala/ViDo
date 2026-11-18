@@ -144,7 +144,7 @@ describe('taskFilters', () => {
 
     const views = getFilteredTasks(withDeadline, reference);
     expect(views.today.some((task) => task.id === deadlineTask.id)).toBe(true);
-    expect(views.upcoming.some((task) => task.id === deadlineTask.id)).toBe(false);
+    expect(views.upcoming.some((task) => task.id === deadlineTask.id)).toBe(true);
     expect(views.needsAttention.some((task) => task.id === deadlineTask.id)).toBe(false);
 
     const after = getFilteredTasks(withDeadline, addDays(reference, 3));

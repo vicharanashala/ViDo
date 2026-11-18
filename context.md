@@ -152,7 +152,6 @@ Do not introduce these unless a new issue or explicit user decision adds them:
 - Tags
 - Manual drag-and-drop ordering
 - Saved filters
-- Reminders or notifications
 - Dark mode
 - Shared tasks
 - Invitations and team workspaces
@@ -187,13 +186,15 @@ Built:
 - Walking and expanding task image catalog plus user-uploaded images
 - Path assistant drafts steps for user approval; hosted model support is optional
 - Momentum trail: a snake-and-ladder board driven by completed tasks, with a log of ladder/reset causes
-- Editable profile with prefix/name, linked from the sidebar and top bar
+- Editable profile with prefix, name, email, DOB, and phone, linked from the sidebar and top bar
+- Local email + OTP auth, optional reminders, and local-browser task sharing
+- `REVIEW_FEEDBACK.md` records the professionalism diagnosis and fix list
 - Real dates and derived views
 - Search and priority/deadline filters
 - localStorage persistence
 - Project journal and image prompt guide
 
-Supabase, Google OAuth, teams, and reminders are not part of this build. The path assistant has a local fallback and can use a hosted endpoint when configured.
+Supabase, Google OAuth, and teams are not part of this build. Local auth, reminders, and local-browser sharing exist. The path assistant has a local fallback and can use a hosted endpoint when configured.
 
 ## Development Workflow
 
@@ -264,6 +265,6 @@ At the time this context was updated:
 - Tasks persist in `localStorage` under `vido.tasks.v1`.
 - Progress, checkpoints, pace, search, filters, Today queue, Focus mode, welcome, intention, and archive are implemented.
 - Recognised tasks show an image **and** their title; unrecognised tasks stay as text.
-- The verification gates are typecheck, 118 tests, and production build.
+- The verification gates are typecheck, 124 tests, and production build.
 - PR #9 was closed; current work is committed on `NAGASHREE1:feat/local-first-vido`.
 - Supabase Auth, shared workspaces, reminders, mood/vent analysis, calm rewards, and the broader AI agent remain future work.

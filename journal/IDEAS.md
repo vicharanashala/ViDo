@@ -38,7 +38,7 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-027 | Local persistence | `localStorage` key `vido.tasks.v1`; delete-all stays empty; seed restores only when storage is cleared. |
 | I-028 | Relative seed data | Demo workspace dates are generated relative to today. |
 | I-029 | Empty-state handling | Calm empty states for views and queues. |
-| I-030 | Tests for core logic | Filters, queue ordering, pace, repository, parser, path assistant, components, layout. 118 tests at last run. |
+| I-030 | Tests for core logic | Filters, queue ordering, pace, repository, parser, path assistant, components, layout. 124 tests at last run. |
 | I-031 | Issue naming convention | `feat:` for features; `Issue:` for general work. Added to `AGENTS.md`. |
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
 | I-033 | Image + title task labels | Recognised tasks show an open-source image next to the task title, so the image is never the only meaning. |
@@ -71,6 +71,10 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-115 | Quest path treatment | Current step, completed-step stamps, segmented progress, and a calm complete state. |
 | I-116 | Momentum trail game | Completed tasks move a token on a snake-and-ladder board; the log names the task behind each ladder/reset; all-done reaches the goal. |
 | I-117 | Editable profile | Prefix and name are editable from a profile page linked in the sidebar and top bar. |
+| I-122 | Local registration and OTP auth | Register with required name, email, and DOB; sign in with email and a one-time code. Profile stores name, email, DOB, and phone. No passwords. |
+| I-123 | Local reminders | Optional reminder date/time stored on the task; in-app reminder while ViDo is open, with optional browser notification. |
+| I-124 | Local task sharing | Task owner plus shared-with email/phone list; remove access from Task details. Local-browser collaboration prototype. |
+| I-125 | Professionalism review | Separate `REVIEW_FEEDBACK.md` with reviewer diagnosis and the full visual/trust fix list. |
 
 ---
 
@@ -99,7 +103,7 @@ None at the moment.
 | I-082 | Cross-device sync | Requires Supabase or another backend. |
 | I-083 | Shared workspaces | Teams, invitations, assignment, membership management. |
 | I-084 | Comments / threaded replies | On task checkpoints. |
-| I-085 | Reminders | One calm reminder per task at a chosen lead time. |
+| I-085 | Reminders | Implemented in I-123: optional reminder date/time with in-app delivery while ViDo is open. |
 | I-087 | Tags / custom lists | Deferred until canonical types or grouping prove insufficient. |
 | I-088 | Drag-and-drop ordering | Manual queue order; conflicts with computed priority ordering, so needs a model. |
 | I-089 | Command palette | `Cmd/Ctrl+K` for create, search, views, focus. Only if it reduces steps. |

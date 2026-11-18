@@ -13,15 +13,18 @@ export function useWelcome() {
   const todayKey = toDateKey(new Date());
   const [intention, setIntention] = useState(() => loadIntention(todayKey));
 
-  const saveProfileDetails = useCallback((input: { prefix: string; name: string }) => {
+  const saveProfileDetails = useCallback((input: { prefix: string; name: string; email?: string; dob?: string; phone?: string }) => {
     const next: Profile = {
       prefix: input.prefix.trim().slice(0, 12),
       name: input.name.trim().slice(0, 40),
+      email: (input.email ?? profile.email).trim(),
+      dob: input.dob ?? profile.dob,
+      phone: (input.phone ?? profile.phone).trim(),
       welcomed: true,
     };
     setProfile(next);
     saveProfile(next);
-  }, []);
+  }, [profile.email, profile.dob, profile.phone]);
 
   const updateIntention = useCallback(
     (text: string) => {
@@ -34,6 +37,9 @@ export function useWelcome() {
   return {
     prefix: profile.prefix,
     name: profile.name,
+    email: profile.email,
+    dob: profile.dob,
+    phone: profile.phone,
     welcomed: profile.welcomed,
     intention,
     saveProfile: saveProfileDetails,

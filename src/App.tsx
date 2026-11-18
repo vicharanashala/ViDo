@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { LandingPage } from './features/landing/LandingPage';
 import { StyleLab } from './features/style-lab/StyleLab';
 import { WorkspaceLayout } from './features/workspace/WorkspaceLayout';
+import { AuthView } from './features/workspace/views/AuthView';
 
 function LegacyRedirect({ from }: { from: string }) {
   const location = useLocation();
@@ -15,6 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/style-lab" element={<StyleLab />} />
+        <Route path="/auth" element={<AuthView />} />
         <Route path="/app/*" element={<WorkspaceLayout />} />
         <Route path="/preview/*" element={<LegacyRedirect from="preview" />} />
         <Route path="/workspace/*" element={<LegacyRedirect from="workspace" />} />

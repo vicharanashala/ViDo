@@ -31,6 +31,8 @@ import type { DoodleKind } from './doodles/doodleMap';
 import type { CheckInKind } from './checkInTypes';
 import { useTaskStore } from './useTaskStore';
 import { useWelcome } from './useWelcome';
+import { SystemClock } from './SystemClock';
+import { clearSession, loadSession, updateAccount, type Account } from '../../lib/accountStore';
 
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
@@ -74,8 +76,11 @@ export const WorkspaceLayout: React.FC = () => {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    shareTask,
+    unshareTask,
   } = useTaskStore();
   const welcome = useWelcome();
+  const [account, setAccount] = useState<Account | null>(() => loadSession());
 
   const [filters, setFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTERS);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -91,20 +96,27 @@ export const WorkspaceLayout: React.FC = () => {
   const now = new Date();
   const todayLabel = formatDateLong(now);
   const todayKey = toDateKey(now);
-  const todayTasks = tasks.filter((task) => task.dueDate === todayKey && !task.archivedAt);
+  const visibleTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (!task.ownerId) return true;
+      if (!account) return false;
+      return task.ownerId === account.email || Boolean(task.sharedWith?.includes(account.email));
+    });
+  }, [tasks, account]);
+  const todayTasks = visibleTasks.filter((task) => task.dueDate === todayKey && !task.archivedAt);
   const todayMomentum = {
     completed: todayTasks.filter((task) => task.state === 'completed').length,
     total: todayTasks.length,
   };
 
-  const filteredTasks = useMemo(() => applyTaskFilters(tasks, filters, now), [tasks, filters, todayKey]);
+  const filteredTasks = useMemo(() => applyTaskFilters(visibleTasks, filters, now), [visibleTasks, filters, todayKey]);
   const filteredViews = useMemo(() => getFilteredTasks(filteredTasks, now), [filteredTasks, todayKey]);
   const dashboard = useMemo(() => getHomeDashboardTasks(filteredTasks, now), [filteredTasks, todayKey]);
-  const suggestedFocusTask = useMemo(() => pickFocusTask(tasks, now), [tasks, todayKey]);
+  const suggestedFocusTask = useMemo(() => pickFocusTask(visibleTasks, now), [visibleTasks, todayKey]);
 
-  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
-  const activeFocusTask = tasks.find((task) => task.id === focusTaskId) ?? null;
-  const checkInTask = tasks.find((task) => task.id === checkInTaskId) ?? null;
+  const selectedTask = visibleTasks.find((task) => task.id === selectedTaskId) ?? null;
+  const activeFocusTask = visibleTasks.find((task) => task.id === focusTaskId) ?? null;
+  const checkInTask = visibleTasks.find((task) => task.id === checkInTaskId) ?? null;
   const filtersActive =
     filters.query.trim().length > 0 ||
     filters.priority !== 'all' ||
@@ -116,6 +128,31 @@ export const WorkspaceLayout: React.FC = () => {
     const timer = window.setTimeout(() => setNotice(null), 2600);
     return () => window.clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => {
+    const checkReminders = () => {
+      const nowMs = Date.now();
+      const due = visibleTasks.filter(
+        (task) =>
+          task.state === 'active' &&
+          !task.archivedAt &&
+          task.reminderAt &&
+          !task.reminderSentAt &&
+          new Date(task.reminderAt).getTime() <= nowMs
+      );
+      if (due.length === 0) return;
+      due.forEach((task) => {
+        setNotice(`Reminder: ${task.title}`);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification('ViDo reminder', { body: task.title });
+        }
+        updateTask(task.id, { reminderSentAt: new Date().toISOString() });
+      });
+    };
+    checkReminders();
+    const timer = window.setInterval(checkReminders, 30000);
+    return () => window.clearInterval(timer);
+  }, [visibleTasks, updateTask]);
 
   const handleTaskClick = (task: Task) => {
     setSidebarOpen(false);
@@ -133,19 +170,44 @@ export const WorkspaceLayout: React.FC = () => {
     navigate(`/app/tasks/${taskId}/path`);
   };
 
-  const handleSaveProfile = (profile: { prefix: string; name: string }) => {
+  const handleSaveProfile = (profile: { prefix: string; name: string; email: string; dob: string; phone: string }) => {
     welcome.saveProfile(profile);
+    if (account) {
+      const updated = updateAccount(account.email, {
+        name: profile.name,
+        prefix: profile.prefix,
+        dob: profile.dob,
+        phone: profile.phone,
+      });
+      if (updated) setAccount(updated);
+    }
     setNotice('Profile updated.');
   };
 
   const handleQuickAdd = (input: NewTaskInput) => {
-    addTask(input);
+    const task = addTask(input);
+    if (account) updateTask(task.id, { ownerId: account.email });
     setNotice(`Added "${input.title}".`);
   };
 
   const handleCreate = (input: NewTaskInput) => {
-    addTask(input);
+    const task = addTask(input);
+    if (account) updateTask(task.id, { ownerId: account.email });
     setNotice(`Created "${input.title}".`);
+  };
+
+  const handleShareTask = (taskId: string, identifier: string) => {
+    if (!account) {
+      setNotice('Sign in to share tasks.');
+      return;
+    }
+    shareTask(taskId, identifier, account.email);
+    setNotice(`Shared with ${identifier}.`);
+  };
+
+  const handleUnshareTask = (taskId: string, identifier: string) => {
+    unshareTask(taskId, identifier);
+    setNotice(`Removed ${identifier}.`);
   };
 
   const handleToggleComplete = (task: Task) => {
@@ -322,8 +384,15 @@ export const WorkspaceLayout: React.FC = () => {
             setSidebarOpen(false);
           }}
         >
-          <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 max-w-6xl mx-auto">
-            <QuickAdd onAdd={handleQuickAdd} />
+          <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 max-w-3xl mx-auto">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <QuickAdd onAdd={handleQuickAdd} />
+              </div>
+              <div className="pt-1">
+                <SystemClock />
+              </div>
+            </div>
           </div>
 
           <Routes>
@@ -389,7 +458,16 @@ export const WorkspaceLayout: React.FC = () => {
                 <ProfileView
                   prefix={welcome.prefix}
                   name={welcome.name}
+                  email={welcome.email}
+                  dob={welcome.dob}
+                  phone={welcome.phone}
+                  signedIn={Boolean(account)}
                   onSave={handleSaveProfile}
+                  onSignOut={() => {
+                    clearSession();
+                    setAccount(null);
+                    setNotice('Signed out.');
+                  }}
                 />
               }
             />
@@ -483,6 +561,9 @@ export const WorkspaceLayout: React.FC = () => {
         }}
         onOpenPath={handleOpenPath}
         onToggleSubtask={toggleSubtask}
+        currentUser={account?.email ?? null}
+        onShare={handleShareTask}
+        onUnshare={handleUnshareTask}
       />
 
       <TaskCreateModal

@@ -18,7 +18,7 @@ const PathCard: React.FC<{ task: Task }> = ({ task }) => {
   return (
     <Link
       to={`/app/tasks/${task.id}/path`}
-      className="group flex h-full flex-col gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)]/95 p-3.5 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/30 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group flex h-full flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/30 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
     >
       <div className="flex items-start gap-2">
         <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--accent)]">
@@ -69,7 +69,7 @@ const PathGroup: React.FC<{ title: string; description: string; tasks: Task[] }>
         <h2 className="text-lg font-bold text-[var(--ink)]">{title}</h2>
         <p className="text-[11px] text-[var(--muted)]">{description}</p>
       </div>
-      <div className="grid gap-2.5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {tasks.map((task) => (
           <PathCard key={task.id} task={task} />
         ))}
@@ -84,7 +84,7 @@ export const PathsView: React.FC<PathsViewProps> = ({ tasks, reference = new Dat
   const upcoming = views.upcoming;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       <section className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">

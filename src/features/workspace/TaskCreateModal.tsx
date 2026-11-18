@@ -26,6 +26,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const [deadlineDate, setDeadlineDate] = useState('');
   const [recurrence, setRecurrence] = useState<TaskRecurrence | ''>('');
   const [dueTime, setDueTime] = useState('');
+  const [reminderAt, setReminderAt] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('medium');
   const [category, setCategory] = useState<TaskCategory>('personal');
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +44,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       setDeadlineDate('');
       setRecurrence('');
       setDueTime('');
+      setReminderAt('');
       setPriority('medium');
       setCategory('personal');
       setTimeout(() => titleInputRef.current?.focus(), 50);
@@ -65,6 +67,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       recurrence: (recurrence || undefined) as TaskRecurrence | undefined,
       dueDate: dueDateTouched ? dueDate : parsed.dueDate,
       dueTime: dueTime || parsed.dueTime,
+      reminderAt: reminderAt || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       category,
     });
@@ -170,6 +173,14 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
               Set a deadline date first. Each finished occurrence schedules the next one.
             </p>
           </div>
+
+          <Input
+            label="Reminder (Optional)"
+            type="datetime-local"
+            value={reminderAt}
+            onChange={(event) => setReminderAt(event.target.value)}
+            helperText="A local reminder while ViDo is open"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>

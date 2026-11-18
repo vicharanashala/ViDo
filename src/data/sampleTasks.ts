@@ -344,6 +344,8 @@ export function createTaskFromInput(input: NewTaskInput, now: Date = new Date())
     recurrence: input.recurrence,
     dueDate: input.dueDate,
     dueTime: input.dueTime || undefined,
+    reminderAt: input.reminderAt,
+    reminderSentAt: undefined,
     priority: input.priority ?? 'medium',
     category: input.category ?? 'personal',
     state: 'active',
