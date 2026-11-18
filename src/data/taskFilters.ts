@@ -1,5 +1,5 @@
 import type { Task, TaskCategory, TaskPriority } from './taskTypes';
-import { addDays, dueAt, toDateKey } from './taskDates';
+import { addDays, dueAt, effectiveDeadlineDate, toDateKey } from './taskDates';
 
 export interface ViewFilteredTasks {
   today: Task[];
@@ -81,11 +81,26 @@ export function applyTaskFilters(
 
     switch (filters.deadline) {
       case 'today':
-        return task.state === 'active' && !task.parkedAt && task.dueDate === todayKey;
+        return (
+          task.state === 'active' &&
+          !task.parkedAt &&
+          (task.recurrence
+            ? task.dueDate === todayKey
+            : task.deadlineDate
+              ? task.deadlineDate >= todayKey
+              : task.dueDate === todayKey)
+        );
       case 'upcoming':
-        return task.state === 'active' && !task.parkedAt && task.dueDate > todayKey;
+        return (
+          task.state === 'active' &&
+          !task.parkedAt &&
+          (task.recurrence ? task.dueDate > todayKey : !task.deadlineDate && task.dueDate > todayKey)
+        );
       case 'overdue':
-        return task.state === 'active' && (Boolean(task.parkedAt) || task.dueDate < todayKey);
+        return (
+          task.state === 'active' &&
+          (Boolean(task.parkedAt) || effectiveDeadlineDate(task) < todayKey)
+        );
       case 'completed':
         return task.state === 'completed' && !isArchived(task);
       default:
@@ -108,13 +123,23 @@ export function getFilteredTasks(
   const completed = nonArchived.filter((task) => task.state === 'completed').sort(byCompletedDesc);
 
   const today = active
-    .filter((task) => !task.parkedAt && task.dueDate === todayKey)
+    .filter(
+      (task) =>
+        !task.parkedAt &&
+        (task.recurrence
+          ? task.dueDate === todayKey
+          : task.deadlineDate
+            ? task.deadlineDate >= todayKey
+            : task.dueDate === todayKey)
+    )
     .sort(byDueTime);
   const needsAttention = active
-    .filter((task) => Boolean(task.parkedAt) || task.dueDate < todayKey)
+    .filter((task) => Boolean(task.parkedAt) || effectiveDeadlineDate(task) < todayKey)
     .sort(byDateAsc);
   const upcoming = active
-    .filter((task) => !task.parkedAt && task.dueDate > todayKey)
+    .filter((task) =>
+      task.recurrence ? task.dueDate > todayKey : !task.deadlineDate && task.dueDate > todayKey
+    )
     .sort(byDateAsc);
 
   const recentlyCompleted = completed.filter((task) => {
@@ -175,7 +200,7 @@ export function pickTodayRecommendations(
       (task) =>
         task.state === 'active' &&
         !isArchived(task) &&
-        (Boolean(task.parkedAt) || task.dueDate < todayKey)
+        (Boolean(task.parkedAt) || effectiveDeadlineDate(task) < todayKey)
     )
     .sort((a, b) => {
       const priority = priorityRank(b) - priorityRank(a);
@@ -192,7 +217,13 @@ export function pickFocusTask(tasks: Task[], reference: Date = new Date()): Task
   );
   if (candidates.length === 0) return null;
 
-  const todayCandidates = candidates.filter((task) => task.dueDate === todayKey);
+  const todayCandidates = candidates.filter((task) =>
+    task.recurrence
+      ? task.dueDate === todayKey
+      : task.deadlineDate
+        ? task.deadlineDate >= todayKey
+        : task.dueDate === todayKey
+  );
   const pool = todayCandidates.length > 0 ? todayCandidates : candidates;
 
   return pool
@@ -227,7 +258,14 @@ export function getTodayQueue(tasks: Task[], reference: Date = new Date()): Toda
   const today = tasks
     .filter(
       (task) =>
-        task.state === 'active' && !isArchived(task) && !task.parkedAt && task.dueDate === todayKey
+        task.state === 'active' &&
+        !isArchived(task) &&
+        !task.parkedAt &&
+        (task.recurrence
+          ? task.dueDate === todayKey
+          : task.deadlineDate
+            ? task.deadlineDate >= todayKey
+            : task.dueDate === todayKey)
     )
     .sort((a, b) => {
       const due = dueAt(a).getTime() - dueAt(b).getTime();

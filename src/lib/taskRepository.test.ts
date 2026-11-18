@@ -30,6 +30,46 @@ describe('taskRepository', () => {
     expect(loaded[0].checkpoints).toEqual([]);
   });
 
+  it('repairs a “by date” title into a deadline on load', () => {
+    saveTasks([
+      {
+        id: 'legacy-deadline',
+        title: 'Project submission by 14th December 2026',
+        dueDate: '2026-11-18',
+        category: 'work',
+        state: 'active',
+        progress: 0,
+        createdAt: '2026-11-18T10:00:00.000Z',
+        updatedAt: '2026-11-18T10:00:00.000Z',
+        checkpoints: [],
+      } as never,
+    ]);
+
+    const [task] = loadTasks();
+    expect(task.title).toBe('Project submission');
+    expect(task.deadlineDate).toBe('2026-12-14');
+  });
+
+  it('repairs an “on date” target on load', () => {
+    saveTasks([
+      {
+        id: 'legacy-on-date',
+        title: 'Go out for a walk on 1st December 2026',
+        dueDate: '2026-11-18',
+        category: 'personal',
+        state: 'active',
+        progress: 0,
+        createdAt: '2026-11-18T10:00:00.000Z',
+        updatedAt: '2026-11-18T10:00:00.000Z',
+        checkpoints: [],
+      } as never,
+    ]);
+
+    const [task] = loadTasks(new Date(2026, 10, 18, 12));
+    expect(task.title).toBe('Go out for a walk');
+    expect(task.dueDate).toBe('2026-12-01');
+  });
+
   it('keeps an intentionally empty workspace empty', () => {
     saveTasks([]);
     expect(loadTasks()).toEqual([]);

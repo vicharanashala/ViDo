@@ -65,6 +65,49 @@ describe('parseQuickAdd', () => {
     expect(parsed.meta.dateLabel).toBe('Tomorrow');
   });
 
+  it('uses a date after “by” as the deadline', () => {
+    const parsed = parseQuickAdd('Deadline Project submission by 14th December 2026', reference);
+
+    expect(parsed.title).toBe('Project submission');
+    expect(parsed.dueDate).toBe(toDateKey(reference));
+    expect(parsed.deadlineDate).toBe('2026-12-14');
+    expect(parsed.meta.dateLabel).toBe('14 Dec 2026');
+  });
+
+  it('treats “on <date>” as the planned task date', () => {
+    const parsed = parseQuickAdd('Go out for a walk on 1st December 2026', reference);
+
+    expect(parsed.title).toBe('Go out for a walk');
+    expect(parsed.dueDate).toBe('2026-12-01');
+    expect(parsed.deadlineDate).toBeUndefined();
+    expect(parsed.meta.dateLabel).toBe('1 Dec 2026');
+  });
+
+  it('supports “on the 1st of December” and month-first dates', () => {
+    expect(parseQuickAdd('Walk on the 1st of December', reference).dueDate).toBe('2026-12-01');
+    expect(parseQuickAdd('Walk on December 1, 2026', reference).dueDate).toBe('2026-12-01');
+  });
+
+  it('treats “date is” as a deadline too', () => {
+    const parsed = parseQuickAdd('Project submission date is 14th December', reference);
+
+    expect(parsed.title).toBe('Project submission');
+    expect(parsed.deadlineDate).toBe('2026-12-14');
+  });
+
+  it('handles month-first dates and dates without a year', () => {
+    expect(parseQuickAdd('Submit report by December 14, 2026', reference).deadlineDate).toBe('2026-12-14');
+    expect(parseQuickAdd('Submit report by 14th December', reference).deadlineDate).toBe('2026-12-14');
+    expect(parseQuickAdd('Renew by 1st January', reference).deadlineDate).toBe('2027-01-01');
+  });
+
+  it('strips “by” from relative dates too', () => {
+    const parsed = parseQuickAdd('Call mom by tomorrow', reference);
+
+    expect(parsed.title).toBe('Call mom');
+    expect(parsed.dueDate).toBe(toDateKey(addDays(reference, 1)));
+  });
+
   it('returns an empty title when the input is only metadata', () => {
     const parsed = parseQuickAdd('tomorrow 5pm', reference);
     expect(parsed.title).toBe('');

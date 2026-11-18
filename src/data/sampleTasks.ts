@@ -340,6 +340,8 @@ export function createTaskFromInput(input: NewTaskInput, now: Date = new Date())
     id: `task-${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
     title: input.title.trim(),
     description: input.description?.trim() || undefined,
+    deadlineDate: input.deadlineDate,
+    recurrence: input.recurrence,
     dueDate: input.dueDate,
     dueTime: input.dueTime || undefined,
     priority: input.priority ?? 'medium',
@@ -349,5 +351,6 @@ export function createTaskFromInput(input: NewTaskInput, now: Date = new Date())
     createdAt: timestamp,
     updatedAt: timestamp,
     checkpoints: [],
+    subtasks: [],
   };
 }

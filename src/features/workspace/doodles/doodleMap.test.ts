@@ -36,6 +36,7 @@ describe('detectDoodle', () => {
     expect(detectDoodle('Cycle to the park')).toBe('cycling');
     expect(detectDoodle('Table tennis tournament')).toBe('tabletennis');
     expect(detectDoodle('Sports day')).toBe('sport');
+    expect(detectDoodle('Walk for 15 minutes')).toBe('walking');
     expect(detectDoodle('Evening 5km jog')).toBe('run');
     expect(detectDoodle('Gym workout')).toBe('exercise');
   });

@@ -30,6 +30,7 @@ ViDo/
 │   ├── index.css            # Global CSS variables, theme variables, and Tailwind v4 setup
 │   ├── main.tsx             # Application bootstrap & DOM mount
 │   └── vite-env.d.ts        # Vite TypeScript type declarations
+├── .env.example              # Optional hosted path-assistant endpoint
 ├── .gitignore               # Ignored build artifacts, dependencies, and caches
 ├── AGENTS.md                # AI Agent guidelines and execution standards
 ├── FOLDER_STRUCTURE.md      # This file: Directory layout and placement rules
@@ -62,8 +63,9 @@ ViDo/
   - `taskDates.ts`: date helpers, overdue detection, completion timing, and pace calculation.
   - `sampleTasks.ts`: relative-date seed generator and new-task factory.
   - `taskFilters.ts`: pure functions for Today, Later, Still here, Done, Put away, search, and filters.
-  - `quickAddParser.ts`: natural-language task capture parser.
-  - `taskFilters.test.ts` and `quickAddParser.test.ts`: derived-view, filter, pace, and parser tests.
+  - `quickAddParser.ts`: natural-language task capture parser, including `by`/`date is` deadlines.
+  - `pathAssistant.ts`: local step-drafting assistant plus optional hosted endpoint.
+  - `taskFilters.test.ts`, `quickAddParser.test.ts`, and `pathAssistant.test.ts`: derived-view, filter, parser, and assistant tests.
 - **Rules**:
   - Keep functions pure and side-effect free.
   - Dates are calculated from the current date; there is no fixed benchmark date.
@@ -72,8 +74,10 @@ ViDo/
 - **Purpose**: Side-effectful infrastructure such as the localStorage task repository.
 - **Current Contents**:
   - `taskRepository.ts`: load, save, normalize, and clear tasks under `vido.tasks.v1`.
-  - `welcomeStore.ts`: profile name, welcome state, and per-day intention.
-  - `taskRepository.test.ts` and `welcomeStore.test.ts`: persistence tests.
+  - `welcomeStore.ts`: prefix/name, welcome state, and per-day intention.
+  - `customImages.ts`: user-uploaded image rules keyed by keyword.
+  - `readImageFile.ts`: resize/encode uploaded task images.
+  - `taskRepository.test.ts`, `welcomeStore.test.ts`, and `customImages.test.ts`: persistence tests.
 
 ### `src/features/` — Domain Vertical Slices
 Each subfolder under `src/features/` encapsulates a complete user-facing product domain:
@@ -88,20 +92,26 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
 - **Components**:
   - `WorkspaceLayout.tsx`: Shell layout with icon rail, top bar, quick capture, focus, and subroute rendering.
   - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, and filters.
-  - `WorkspaceSidebar.tsx`: Slim icon rail with gentle view labels.
-  - `QuickAdd.tsx`: One-field, natural-language capture form.
+  - `WorkspaceSidebar.tsx`: Labelled sidebar with motivating labels and standard view hints.
+  - `QuickAdd.tsx`: Quick capture with priority, calendar, deadline, and recurrence controls.
   - `useTaskStore.ts`: Task state and lifecycle actions backed by localStorage.
   - `useWelcome.ts`: Profile name, welcome state, and daily intention.
   - `WelcomeCard.tsx` and `IntentionBar.tsx`: First-run welcome and optional daily intention.
   - `MomentumStrip.tsx`: Seven-day completion view.
   - `FocusMode.tsx`: One-task focus view with progress ring and checkpoints.
-  - `TaskRow.tsx`: Horizontal row with image + title, due cue, progress cue, and one primary action.
-  - `TaskCard.tsx`: Card representation of a task.
+  - `TaskRow.tsx`: Disciplined bubble card with image + title, deadline cue, progress cue, and actions.
+  - `TaskPathView.tsx`: Per-task path page with step board and assistant entry point.
+  - `PathAssistantModal.tsx`: Conversational step drafting with approval.
+  - `CustomImageEditor.tsx`: Upload and keyword-reuse editor for unmatched task images.
+  - `TaskCard.tsx`: Older card representation retained for compatibility.
   - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Working modals for editing and creating tasks.
   - `doodles/`: `DoodleTitle`, `Doodle`, image detection, and image assets mapping.
-  - `views/HomeView.tsx`: Greeting, focus card, momentum, and today’s list.
-  - `views/TodayQueueView.tsx`: Carried-over-first priority queue.
-  - `views/ListView.tsx`: List view for Later, Still here, Done, and Put away.
+  - `views/HomeView.tsx`: Greeting, focus card, momentum, and today’s card board.
+  - `views/TodayQueueView.tsx`: Due-today and future-deadline card board with earlier suggestions.
+  - `views/PathsView.tsx`: Today/future task selector for task paths.
+  - `views/TrailView.tsx`: Snake-and-ladder momentum board.
+  - `views/ProfileView.tsx`: Prefix and name editing.
+  - `views/ListView.tsx`: Card board for Upcoming, Past, Completed, and Archived.
 - **Rules**:
   - Data is real and persisted; there is no demo mode.
   - Views must derive from real dates and the task store.

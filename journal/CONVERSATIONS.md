@@ -455,6 +455,7 @@ Assessment:
 | Cartoon sticker doodles + welcome/intention | pass | 65 | pass |
 | Image + title clarity pass | pass | 65 | pass |
 | Gentle daily-space pass (#7) | pass | 67 | pass |
+| Navigation, check-in, images, paths, assistant | pass | 118 | pass |
 
 Last build at time of writing:
 
@@ -467,24 +468,21 @@ Last build at time of writing:
 ## 8. Current state
 
 - Working app in `vido-app/`.
-- Routes: `/`, `/app`, `/app/today`, `/app/upcoming`, `/app/needs-attention`, `/app/completed`, `/app/archived`, `/style-lab`.
+- Routes: `/`, `/app`, `/app/today`, `/app/upcoming`, `/app/paths`, `/app/trail`, `/app/profile`, `/app/needs-attention`, `/app/completed`, `/app/archived`, `/app/tasks/:taskId/path`, `/style-lab`.
 - Data persists in localStorage.
-- Branch `feat/local-first-vido` pushed to fork `NAGASHREE1/ViDo`; PR #9 is open.
+- Branch `feat/local-first-vido` pushed to fork `NAGASHREE1/ViDo`; PR #9 was closed. Latest committed state: `889280d` plus later uncommitted work.
 - Commit author: `Nagashree Venkatesh <nagu95@gmail.com>` under `NAGASHREE1`.
-- Current version includes image + title task labels, welcome card, daily intention, rest state, small-win focus, gentler navigation, smaller task titles, and Today/Focus flows.
-- Issue #7 opened for the gentle daily-space direction.
-- PR #9 open: https://github.com/vicharanashala/ViDo/pull/9
-- Issues #3, #4, and #7 open.
-- Assignment pending.
-- Image + title labels implemented for 20 task kinds; unrecognised tasks stay as text.
-- Journal folder created with conversation log, idea register, and guide.
+- Current version includes labelled motivating navigation, drag/tap/C check-in, optional deadlines, pick-up-again parking, recurrence until deadline, task card boards, task paths, the path assistant, custom images, walking/sport images, prefix-aware welcome, the collapsible sidebar, the Momentum trail, an editable profile, and the workspace atmosphere.
+- Open issues: #3, #4, #6, #7, #8, #10, #11. PR #9: https://github.com/vicharanashala/ViDo/pull/9
+- Image + title labels cover 37 task kinds; unmatched tasks get a custom-image option.
+- Verification: typecheck pass, 118 tests pass, production build pass.
 - Dev server runs at `http://127.0.0.1:5173`.
 
 ## 9. Open questions for next session
 
-1. Did the maintainers assign #3 and #4?
-2. Should the doodle system cover more task kinds?
-3. Should there be a doodle/plain-text toggle?
+1. Do we add the daily mood/vent check-in with recommendations?
+2. What is the right calm reward — a win collection, garden, or nothing?
+3. Do we connect the path assistant to a hosted model or keep the local fallback?
 4. Should the landing page be redesigned to match the workspace?
 5. Should we raise the focus-blocks design spike?
 6. Should Supabase/auth be the next foundation step?

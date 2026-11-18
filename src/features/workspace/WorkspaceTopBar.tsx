@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CircleHelp, Filter, Search, X } from 'lucide-react';
+import { CircleHelp, Filter, Search, UserRound, X } from 'lucide-react';
 import { Badge } from '../../components/ui';
 import type { TaskPriority } from '../../data/taskTypes';
 import type { DeadlineFilter } from '../../data/taskFilters';
@@ -16,6 +16,7 @@ export interface WorkspaceTopBarProps {
   filtersActive?: boolean;
   onClearFilters?: () => void;
   onHelpClick?: () => void;
+  onProfileClick?: () => void;
 }
 
 export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
@@ -30,6 +31,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   filtersActive = false,
   onClearFilters,
   onHelpClick,
+  onProfileClick,
 }) => {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -50,6 +52,16 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onProfileClick && (
+            <button
+              type="button"
+              onClick={onProfileClick}
+              aria-label="Edit profile"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+            >
+              <UserRound className="w-4 h-4" />
+            </button>
+          )}
           {onHelpClick && (
             <button
               type="button"

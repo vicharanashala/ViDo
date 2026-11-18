@@ -1,6 +1,7 @@
 export type TaskPriority = 'high' | 'medium' | 'low';
 export type TaskCategory = 'personal' | 'home' | 'work';
 export type TaskState = 'active' | 'completed';
+export type TaskRecurrence = 'daily' | 'weekdays' | 'weekly';
 
 export interface TaskCheckpoint {
   id: string;
@@ -9,11 +10,20 @@ export interface TaskCheckpoint {
   progress: number;
 }
 
+export interface Subtask {
+  id: string;
+  title: string;
+  done: boolean;
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
   customImageKey?: string;
+  deadlineDate?: string;
+  recurrence?: TaskRecurrence;
   dueDate: string;
   dueTime?: string;
   priority?: TaskPriority;
@@ -26,11 +36,14 @@ export interface Task {
   archivedAt?: string;
   parkedAt?: string;
   checkpoints: TaskCheckpoint[];
+  subtasks?: Subtask[];
 }
 
 export interface NewTaskInput {
   title: string;
   description?: string;
+  deadlineDate?: string;
+  recurrence?: TaskRecurrence;
   dueDate: string;
   dueTime?: string;
   priority?: TaskPriority;

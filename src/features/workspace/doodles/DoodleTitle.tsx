@@ -17,6 +17,7 @@ export interface DoodleTitleProps {
   size?: keyof typeof IMAGE_SIZES;
   className?: string;
   customImageKey?: string;
+  wrapTitle?: boolean;
   onImageClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
@@ -26,6 +27,7 @@ export const DoodleTitle: React.FC<DoodleTitleProps> = ({
   size = 'md',
   className = '',
   customImageKey,
+  wrapTitle = false,
   onImageClick,
 }) => {
   const customImage = findCustomImageForTitle(title, customImageKey);
@@ -56,7 +58,7 @@ export const DoodleTitle: React.FC<DoodleTitleProps> = ({
           <Doodle kind={kind!} style="cartoon" />
         )}
       </span>
-      <span className={`truncate ${className}`}>{title}</span>
+      <span className={`${wrapTitle ? 'line-clamp-2' : 'truncate'} ${className}`}>{title}</span>
     </span>
   );
 };

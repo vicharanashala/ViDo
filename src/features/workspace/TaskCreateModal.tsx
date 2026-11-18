@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Input } from '../../components/ui';
-import { NewTaskInput, TaskCategory, TaskPriority } from '../../data/taskTypes';
+import { NewTaskInput, TaskCategory, TaskPriority, TaskRecurrence } from '../../data/taskTypes';
 import { toDateKey } from '../../data/taskDates';
+import { parseQuickAdd } from '../../data/quickAddParser';
 import { Tag, X } from 'lucide-react';
 
 export interface TaskCreateModalProps {
@@ -21,6 +22,9 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(today);
+  const [dueDateTouched, setDueDateTouched] = useState(false);
+  const [deadlineDate, setDeadlineDate] = useState('');
+  const [recurrence, setRecurrence] = useState<TaskRecurrence | ''>('');
   const [dueTime, setDueTime] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('medium');
   const [category, setCategory] = useState<TaskCategory>('personal');
@@ -35,6 +39,9 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       setTitle('');
       setDescription('');
       setDueDate(defaultDate ?? toDateKey(new Date()));
+      setDueDateTouched(false);
+      setDeadlineDate('');
+      setRecurrence('');
       setDueTime('');
       setPriority('medium');
       setCategory('personal');
@@ -48,11 +55,16 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!title.trim() || !dueDate) return;
+    const parsed = parseQuickAdd(title);
+    const parsedDeadline = !deadlineDate && parsed.deadlineDate ? parsed.deadlineDate : undefined;
+    const parsedHasDateOrTime = Boolean(parsed.deadlineDate || parsed.dueTime || parsed.meta.dateLabel);
     onCreate?.({
-      title: title.trim(),
+      title: parsedHasDateOrTime ? parsed.title : title.trim(),
       description: description.trim() || undefined,
-      dueDate,
-      dueTime: dueTime || undefined,
+      deadlineDate: deadlineDate || parsedDeadline,
+      recurrence: (recurrence || undefined) as TaskRecurrence | undefined,
+      dueDate: dueDateTouched ? dueDate : parsed.dueDate,
+      dueTime: dueTime || parsed.dueTime,
       priority: (priority || undefined) as TaskPriority | undefined,
       category,
     });
@@ -109,21 +121,54 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
             />
           </div>
 
+          <Input
+            label="Planned Date *"
+            type="date"
+            required
+            value={dueDate}
+            onChange={(event) => {
+              setDueDate(event.target.value);
+              setDueDateTouched(true);
+            }}
+            helperText="When the task should appear in Today"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              label="Planned Date *"
+              label="Deadline Date (Optional)"
               type="date"
-              required
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
+              value={deadlineDate}
+              onChange={(event) => {
+                setDeadlineDate(event.target.value);
+                if (!event.target.value) setRecurrence('');
+              }}
             />
             <Input
-              label="Deadline (Optional)"
+              label="Deadline Time (Optional)"
               type="time"
               value={dueTime}
               onChange={(event) => setDueTime(event.target.value)}
               helperText="Leave blank if there is no hard deadline"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
+              Repeat until deadline
+            </label>
+            <select
+              value={recurrence}
+              onChange={(event) => setRecurrence(event.target.value as TaskRecurrence | '')}
+              disabled={!deadlineDate}
+              className="w-full px-3 py-2 text-xs bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+            >
+              <option value="">Does not repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekdays">Weekdays</option>
+              <option value="weekly">Weekly</option>
+            </select>
+            <p className="mt-1 text-[10px] text-[var(--faint)]">
+              Set a deadline date first. Each finished occurrence schedules the next one.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

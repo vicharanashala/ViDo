@@ -1,5 +1,6 @@
 import type { Task } from '../data/taskTypes';
 import { createSeedTasks } from '../data/sampleTasks';
+import { parseQuickAdd } from '../data/quickAddParser';
 
 export const TASK_STORAGE_KEY = 'vido.tasks.v1';
 
@@ -12,20 +13,29 @@ function storage(): Storage | null {
   }
 }
 
-function normalizeTask(raw: Partial<Task>): Task | null {
+function normalizeTask(raw: Partial<Task>, reference: Date = new Date()): Task | null {
   if (!raw || typeof raw.id !== 'string' || typeof raw.title !== 'string') return null;
   if (typeof raw.dueDate !== 'string') return null;
 
   const now = new Date().toISOString();
   const progress = Math.min(100, Math.max(0, Number(raw.progress) || 0));
   const state = raw.state === 'completed' || raw.completedAt ? 'completed' : 'active';
+  const repaired = parseQuickAdd(raw.title, reference);
+  const repairedDeadline = raw.deadlineDate ? undefined : repaired.deadlineDate;
+  const repairedDueDate = repaired.meta.dateKind === 'planned' ? repaired.dueDate : undefined;
 
   return {
     id: raw.id,
-    title: raw.title,
+    title: repairedDeadline || repairedDueDate ? repaired.title : raw.title,
     description: raw.description,
     customImageKey: typeof raw.customImageKey === 'string' ? raw.customImageKey : undefined,
-    dueDate: raw.dueDate,
+    deadlineDate:
+      typeof raw.deadlineDate === 'string' ? raw.deadlineDate : repairedDeadline,
+    recurrence:
+      raw.recurrence === 'daily' || raw.recurrence === 'weekdays' || raw.recurrence === 'weekly'
+        ? raw.recurrence
+        : undefined,
+    dueDate: repairedDueDate ?? raw.dueDate,
     dueTime: raw.dueTime,
     priority: raw.priority,
     category: raw.category ?? 'personal',
@@ -44,6 +54,16 @@ function normalizeTask(raw: Partial<Task>): Task | null {
           progress: Math.min(100, Math.max(0, Number(checkpoint.progress) || 0)),
         }))
       : [],
+    subtasks: Array.isArray(raw.subtasks)
+      ? raw.subtasks
+          .filter((subtask) => subtask && typeof subtask.title === 'string')
+          .map((subtask, index) => ({
+            id: subtask.id ?? `subtask-${index}`,
+            title: subtask.title,
+            done: Boolean(subtask.done),
+            createdAt: subtask.createdAt ?? now,
+          }))
+      : [],
   };
 }
 
@@ -58,7 +78,7 @@ export function loadTasks(reference: Date = new Date()): Task[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return createSeedTasks(reference);
     const tasks = parsed
-      .map((item) => normalizeTask(item as Partial<Task>))
+      .map((item) => normalizeTask(item as Partial<Task>, reference))
       .filter((task): task is Task => Boolean(task));
     return tasks;
   } catch {

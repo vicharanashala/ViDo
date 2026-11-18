@@ -32,6 +32,7 @@ export interface HomeViewProps {
   onToggleComplete?: (task: Task) => void;
   onFocusTask: (task: Task) => void;
   onCheckInStart?: (task: Task) => void;
+  onOpenPath?: (taskId: string) => void;
   userName?: string;
   userPrefix?: string;
   welcomed?: boolean;
@@ -60,6 +61,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onToggleComplete,
   onFocusTask,
   onCheckInStart,
+  onOpenPath,
   userName,
   userPrefix,
   welcomed = true,
@@ -89,7 +91,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : 0;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       {!welcomed && onSaveProfile && <WelcomeCard onSave={onSaveProfile} />}
 
       <section
@@ -208,7 +210,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         ) : todayTasks.items.length > 0 ? (
           <>
-            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               {todayTasks.items.map((task) => (
                 <TaskRow
                   key={task.id}
@@ -217,6 +219,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onToggleComplete={onToggleComplete}
                   onFocus={onFocusTask}
                   onCheckInStart={onCheckInStart}
+                  onOpenPath={onOpenPath}
                 />
               ))}
             </div>

@@ -9,6 +9,7 @@ export type DoodleKind =
   | 'cooking'
   | 'call'
   | 'meeting'
+  | 'walking'
   | 'run'
   | 'exercise'
   | 'cricket'
@@ -119,11 +120,18 @@ export const TASK_IMAGE_CATALOG: TaskImageEntry[] = [
     description: 'Cooking pot.',
   },
   {
+    kind: 'walking',
+    category: 'sport',
+    keywords: /\b(walk|walking)\b/i,
+    label: 'Walking',
+    description: 'Person walking.',
+  },
+  {
     kind: 'run',
     category: 'sport',
-    keywords: /\b(run|jog|jogging|walk|walking|5km|10km|marathon)\b/i,
+    keywords: /\b(run|jog|jogging|5km|10km|marathon)\b/i,
     label: 'Running',
-    description: 'Person on a treadmill.',
+    description: 'Person running.',
   },
   {
     kind: 'exercise',

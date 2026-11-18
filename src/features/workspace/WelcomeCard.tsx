@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '../../components/ui';
 import { Doodle } from './doodles/Doodles';
+import { PROFILE_PREFIXES } from './profileOptions';
 
 export interface WelcomeCardProps {
   onSave: (profile: { prefix: string; name: string }) => void;
 }
-
-const PREFIXES = ['', 'Mr.', 'Ms.', 'Mrs.', 'Mx.', 'Dr.', 'Prof.'];
 
 export const WelcomeCard: React.FC<WelcomeCardProps> = ({ onSave }) => {
   const [prefix, setPrefix] = useState('');
@@ -35,7 +34,7 @@ export const WelcomeCard: React.FC<WelcomeCardProps> = ({ onSave }) => {
             aria-label="Prefix"
             className="sm:w-28 px-3 py-2 text-sm bg-[var(--canvas)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
           >
-            {PREFIXES.map((value) => (
+            {PROFILE_PREFIXES.map((value) => (
               <option key={value || 'none'} value={value}>
                 {value || 'No prefix'}
               </option>

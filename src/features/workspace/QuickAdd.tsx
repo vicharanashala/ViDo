@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { CalendarDays, Plus } from 'lucide-react';
 import { Badge, Button } from '../../components/ui';
-import type { NewTaskInput, TaskPriority } from '../../data/taskTypes';
+import type { NewTaskInput, TaskPriority, TaskRecurrence } from '../../data/taskTypes';
 import { parseQuickAdd } from '../../data/quickAddParser';
 
 export interface QuickAddProps {
@@ -11,23 +11,36 @@ export interface QuickAddProps {
 export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
   const [title, setTitle] = useState('');
   const [manualPriority, setManualPriority] = useState<TaskPriority | 'auto'>('auto');
+  const [manualDueDate, setManualDueDate] = useState('');
+  const [manualDeadlineDate, setManualDeadlineDate] = useState('');
+  const [manualDeadlineTime, setManualDeadlineTime] = useState('');
+  const [manualRecurrence, setManualRecurrence] = useState<TaskRecurrence | ''>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const parsed = parseQuickAdd(title);
   const meta = parsed.meta;
   const effectivePriority = manualPriority === 'auto' ? parsed.priority : manualPriority;
+  const effectiveDueDate = manualDueDate || parsed.dueDate;
+  const effectiveDeadlineDate = manualDeadlineDate || parsed.deadlineDate;
+  const effectiveDueTime = manualDeadlineTime || parsed.dueTime;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!parsed.title.trim()) return;
     onAdd({
       title: parsed.title,
-      dueDate: parsed.dueDate,
-      dueTime: parsed.dueTime,
+      deadlineDate: effectiveDeadlineDate,
+      recurrence: manualRecurrence || undefined,
+      dueDate: effectiveDueDate,
+      dueTime: effectiveDueTime,
       priority: effectivePriority,
       category: parsed.category,
     });
     setTitle('');
     setManualPriority('auto');
+    setManualDueDate('');
+    setManualDeadlineDate('');
+    setManualDeadlineTime('');
+    setManualRecurrence('');
     inputRef.current?.focus();
   };
 
@@ -44,7 +57,7 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
             ref={inputRef}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder={'Add a task… try "in 45 min !high" or "tomorrow 6pm"'}
+            placeholder={'Add a task… try "in 45 min" or "walk on 1 Dec"'}
             aria-label="New task title"
             className="w-full bg-transparent text-sm text-[var(--ink)] placeholder-[var(--faint)] focus:outline-none py-1.5"
           />
@@ -76,6 +89,61 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
+
+          <details className="relative">
+            <summary className="inline-flex list-none items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--ink)] cursor-pointer hover:bg-[var(--canvas)]">
+              <CalendarDays className="h-3 w-3" /> Calendar
+            </summary>
+            <div className="absolute left-0 top-full z-40 mt-1 w-72 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3 shadow-xl">
+              <label className="block text-[10px] font-semibold text-[var(--muted)]">
+                Planned date
+                <input
+                  type="date"
+                  value={manualDueDate}
+                  onChange={(event) => setManualDueDate(event.target.value)}
+                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                />
+              </label>
+              <label className="mt-2 block text-[10px] font-semibold text-[var(--muted)]">
+                Deadline date
+                <input
+                  type="date"
+                  value={manualDeadlineDate}
+                  onChange={(event) => {
+                    setManualDeadlineDate(event.target.value);
+                    if (!event.target.value) setManualRecurrence('');
+                  }}
+                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                />
+              </label>
+              <label className="mt-2 block text-[10px] font-semibold text-[var(--muted)]">
+                Deadline time
+                <input
+                  type="time"
+                  value={manualDeadlineTime}
+                  onChange={(event) => setManualDeadlineTime(event.target.value)}
+                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                />
+              </label>
+              <label className="mt-2 block text-[10px] font-semibold text-[var(--muted)]">
+                Repeat until deadline
+                <select
+                  value={manualRecurrence}
+                  onChange={(event) => setManualRecurrence(event.target.value as TaskRecurrence | '')}
+                  disabled={!effectiveDeadlineDate}
+                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+                >
+                  <option value="">Does not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekdays">Weekdays</option>
+                  <option value="weekly">Weekly</option>
+                </select>
+              </label>
+              <p className="mt-2 text-[10px] text-[var(--faint)]">
+                Leave a field blank to use the dates in your sentence.
+              </p>
+            </div>
+          </details>
           {meta.dateLabel && <Badge size="sm">{meta.dateLabel}</Badge>}
           {meta.timeLabel && <Badge size="sm">{meta.timeLabel}</Badge>}
           {manualPriority === 'auto' && meta.priority && (

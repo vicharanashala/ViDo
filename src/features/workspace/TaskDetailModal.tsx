@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Task, TaskCategory, TaskPriority } from '../../data/taskTypes';
+import type { Task, TaskCategory, TaskPriority, TaskRecurrence } from '../../data/taskTypes';
 import { Badge, Button } from '../../components/ui';
 import { DoodleTitle } from './doodles/DoodleTitle';
 import { CustomImageEditor } from './CustomImageEditor';
@@ -14,6 +14,7 @@ import {
   Archive,
   Calendar,
   CheckCircle2,
+  Circle,
   Clock,
   History,
   Maximize2,
@@ -44,6 +45,8 @@ export interface TaskDetailModalProps {
   onToggleComplete?: (id: string) => void;
   onAddCheckpoint?: (id: string, note: string) => void;
   onFocus?: () => void;
+  onOpenPath?: (id: string) => void;
+  onToggleSubtask?: (taskId: string, subtaskId: string) => void;
 }
 
 function progressColor(task: Task): string {
@@ -62,12 +65,16 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onToggleComplete,
   onAddCheckpoint,
   onFocus,
+  onOpenPath,
+  onToggleSubtask,
 }) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [deadlineDate, setDeadlineDate] = useState('');
+  const [recurrence, setRecurrence] = useState<TaskRecurrence | ''>('');
   const [dueTime, setDueTime] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('');
   const [category, setCategory] = useState<TaskCategory>('personal');
@@ -91,6 +98,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setTitle(task.title);
     setDescription(task.description ?? '');
     setDueDate(task.dueDate);
+    setDeadlineDate(task.deadlineDate ?? '');
+    setRecurrence(task.recurrence ?? '');
     setDueTime(task.dueTime ?? '');
     setPriority(task.priority ?? '');
     setCategory(task.category);
@@ -116,6 +125,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     onUpdate?.(task.id, {
       title: title.trim(),
       description: description.trim() || undefined,
+      deadlineDate: deadlineDate || undefined,
+      recurrence: (recurrence || undefined) as TaskRecurrence | undefined,
       dueDate,
       dueTime: dueTime || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
@@ -176,6 +187,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               {task.priority === 'high' ? 'Important' : task.priority}
             </Badge>
           )}
+          {task.recurrence && (
+            <Badge size="sm" variant="accent">
+              Repeats {task.recurrence}
+            </Badge>
+          )}
           <Badge
             size="sm"
             variant={isCompleted ? 'success' : pending ? 'warning' : parked ? 'neutral' : 'accent'}
@@ -223,6 +239,20 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
+                  Deadline date (optional)
+                </label>
+                <input
+                  type="date"
+                  value={deadlineDate}
+                  onChange={(event) => {
+                    setDeadlineDate(event.target.value);
+                    if (!event.target.value) setRecurrence('');
+                  }}
+                  className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
                   Deadline time (optional)
                 </label>
                 <input
@@ -231,6 +261,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   onChange={(event) => setDueTime(event.target.value)}
                   className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
+                  Repeat until deadline
+                </label>
+                <select
+                  value={recurrence}
+                  onChange={(event) => setRecurrence(event.target.value as TaskRecurrence | '')}
+                  disabled={!deadlineDate}
+                  className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+                >
+                  <option value="">Does not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekdays">Weekdays</option>
+                  <option value="weekly">Weekly</option>
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -279,12 +325,56 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 {task.description}
               </p>
             )}
-            <button
-              onClick={() => setIsEditing(true)}
-              className="mt-3 text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
-            >
-              Edit details
-            </button>
+            {task.subtasks && task.subtasks.length > 0 && (
+              <div className="mt-3 rounded-xl border border-[var(--line)] bg-[var(--canvas)] p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                    Steps
+                  </h3>
+                  <span className="text-[10px] font-mono text-[var(--muted)]">
+                    {task.subtasks.filter((subtask) => subtask.done).length}/{task.subtasks.length} done
+                  </span>
+                </div>
+                <ul className="mt-2 space-y-1.5">
+                  {task.subtasks.map((subtask) => (
+                    <li key={subtask.id} className="flex items-center gap-2 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => onToggleSubtask?.(task.id, subtask.id)}
+                        aria-label={subtask.done ? `Reopen ${subtask.title}` : `Complete ${subtask.title}`}
+                        className="shrink-0 text-[var(--accent)] cursor-pointer"
+                      >
+                        {subtask.done ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-[var(--faint)]" />
+                        )}
+                      </button>
+                      <span className={subtask.done ? 'text-[var(--faint)] line-through' : 'text-[var(--ink)]'}>
+                        {subtask.title}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
+              >
+                Edit details
+              </button>
+              {onOpenPath && (
+                <button
+                  onClick={() => onOpenPath(task.id)}
+                  className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--ink)] hover:underline cursor-pointer"
+                >
+                  Open task path
+                </button>
+              )}
+            </div>
 
             {(!builtInImage || customImage) && (
               <CustomImageEditor
@@ -312,9 +402,19 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </div>
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
                 <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Deadline</span>
-                <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
-                  <Clock className="w-3.5 h-3.5 text-[var(--muted)]" />
-                  {parked ? 'No set time' : task.dueTime || 'No deadline'}
+                <span
+                  className={`flex items-center gap-1 font-mono font-bold ${
+                    task.deadlineDate || task.dueTime ? 'text-[var(--accent)]' : 'text-[var(--muted)]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  {parked
+                    ? 'No set date'
+                    : task.deadlineDate
+                      ? `${task.deadlineDate}${task.dueTime ? ` ${task.dueTime}` : ''}`
+                      : task.dueTime
+                        ? `Planned day ${task.dueTime}`
+                        : 'No deadline'}
                 </span>
               </div>
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)] col-span-2 sm:col-span-1">

@@ -37,12 +37,12 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
 ## 3. Product Presentation Rules
 
 - **Product, Not a School Project**: ViDo is presented as a high-end, distraction-free SaaS product. **Never** include references to "Milestone 1", "Milestone 2", "Student Project", "Homework", or "Review Gates" in any user-facing UI text.
-- **Workspace Route**: The working app is hosted at `/app/*` with subroutes (`/app/today`, `/app/upcoming`, `/app/needs-attention`, `/app/completed`, `/app/archived`). Legacy `/preview/*` links redirect to `/app/*`.
+- **Workspace Route**: The working app is hosted at `/app/*` with subroutes (`/app/today`, `/app/upcoming`, `/app/paths`, `/app/trail`, `/app/profile`, `/app/needs-attention`, `/app/completed`, `/app/archived`, `/app/tasks/:taskId/path`). Legacy `/preview/*` links redirect to `/app/*`.
 - **No Demo Framing**: There is no demo banner, "Demo User", or preview badge. The workspace is a real local-first app.
 - **Local-First Identity**: Tasks are stored in `localStorage` under `vido.tasks.v1`. No account is required.
 - **Real Dates**: Views are calculated from the current date. Seed data is generated relative to today by `createSeedTasks()`, never a fixed benchmark date.
 - **Progress Is Real**: Tasks carry `progress` (0–100) and a checkpoint timeline. The pace-vs-deadline signal is part of the product, not decoration.
-- **Gentle Language**: Use `Carried over`, `Still here`, `Later`, `Done`, and `Put away`. Avoid pressure counts, red progress bars, and accountability language.
+- **Gentle Language**: Use motivating sidebar labels with standard-name hints (`Today's move` / Today, `What's next` / Upcoming, `Pick up again` / Past, `Wins so far` / Completed, `Resting` / Archived). Avoid pressure counts, red progress bars, and accountability language.
 
 ---
 
@@ -65,6 +65,8 @@ Examples:
 - **Image + title**: Every recognised task must show its image **and** its task title. Never render an image-only task label.
 - **Text fallback**: If no image fits, render the task in words.
 - **No priority-based style switching**: The main workspace uses one image style. The style lab is experimental and must not drive the workspace.
+- **Custom images**: User-uploaded images are local to the browser; reuse is keyword-based and must remain optional.
+- **Path assistant**: AI may draft steps, but nothing is added until the user approves. No auto-applied changes.
 - **Assets**: Put images in `public/doodles/` (and line doodles in `public/doodles/doodle/`). Update `public/doodles/README.md` when adding or replacing assets.
 - **Components**: Use `DoodleTitle` and `Doodle`; do not hardcode image paths in feature components.
 - **Credits**: Only add assets with a clear license and attribution.
@@ -82,6 +84,7 @@ Examples:
   - `var(--ink)`, `var(--muted)`, and `var(--faint)` for text hierarchy.
   - `var(--line)` for borders and dividers.
 - **Desktop-First & Light Theme First**: Maintain clean, generous whitespace, sharp borders, and high contrast.
+- **Boards, not tables**: Task and step collections use a disciplined two-column card grid; avoid falling back to long list rows.
 
 ---
 

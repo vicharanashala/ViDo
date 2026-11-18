@@ -2,9 +2,43 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NewTaskInput, Task } from '../../data/taskTypes';
 import { createSeedTasks, createTaskFromInput } from '../../data/sampleTasks';
 import { clearStoredTasks, loadTasks, saveTasks } from '../../lib/taskRepository';
+import { nextRecurrenceDate } from '../../data/taskDates';
 
 function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function createNextOccurrence(task: Task, timestamp: string): Task | null {
+  if (!task.recurrence || !task.deadlineDate) return null;
+
+  const nextDate = nextRecurrenceDate(task.dueDate, task.recurrence);
+  if (nextDate > task.deadlineDate) return null;
+
+  return {
+    ...task,
+    id: `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    dueDate: nextDate,
+    state: 'active',
+    progress: 0,
+    completedAt: undefined,
+    archivedAt: undefined,
+    parkedAt: undefined,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    checkpoints: [],
+  };
+}
+
+function completeTask(task: Task, timestamp: string): Task[] {
+  const completed: Task = {
+    ...task,
+    state: 'completed',
+    progress: 100,
+    completedAt: task.completedAt ?? timestamp,
+    updatedAt: timestamp,
+  };
+  const next = createNextOccurrence(task, timestamp);
+  return next ? [completed, next] : [completed];
 }
 
 export function useTaskStore() {
@@ -43,24 +77,22 @@ export function useTaskStore() {
     const progress = clampProgress(value);
     const timestamp = new Date().toISOString();
     setTasks((previous) =>
-      previous.map((task) => {
-        if (task.id !== id) return task;
+      previous.flatMap((task) => {
+        if (task.id !== id) return [task];
         if (progress >= 100) {
-          return {
-            ...task,
-            progress: 100,
-            state: 'completed',
-            completedAt: task.completedAt ?? timestamp,
-            updatedAt: timestamp,
-          };
+          return task.state === 'completed'
+            ? [{ ...task, progress: 100, updatedAt: timestamp }]
+            : completeTask({ ...task, progress }, timestamp);
         }
-        return {
-          ...task,
-          progress,
-          state: 'active',
-          completedAt: undefined,
-          updatedAt: timestamp,
-        };
+        return [
+          {
+            ...task,
+            progress,
+            state: 'active',
+            completedAt: undefined,
+            updatedAt: timestamp,
+          },
+        ];
       })
     );
   }, []);
@@ -68,24 +100,20 @@ export function useTaskStore() {
   const toggleComplete = useCallback((id: string) => {
     const timestamp = new Date().toISOString();
     setTasks((previous) =>
-      previous.map((task) => {
-        if (task.id !== id) return task;
+      previous.flatMap((task) => {
+        if (task.id !== id) return [task];
         if (task.state === 'completed') {
-          return {
-            ...task,
-            state: 'active',
-            progress: Math.min(task.progress, 99),
-            completedAt: undefined,
-            updatedAt: timestamp,
-          };
+          return [
+            {
+              ...task,
+              state: 'active',
+              progress: Math.min(task.progress, 99),
+              completedAt: undefined,
+              updatedAt: timestamp,
+            },
+          ];
         }
-        return {
-          ...task,
-          state: 'completed',
-          progress: 100,
-          completedAt: timestamp,
-          updatedAt: timestamp,
-        };
+        return completeTask(task, timestamp);
       })
     );
   }, []);
@@ -95,7 +123,7 @@ export function useTaskStore() {
     if (!trimmed) return;
     const timestamp = new Date().toISOString();
     setTasks((previous) =>
-      previous.map((task) => {
+      previous.flatMap((task) => {
         if (task.id !== id) return task;
         const nextProgress = progress === undefined ? task.progress : clampProgress(progress);
         const checkpoint = {
@@ -105,22 +133,119 @@ export function useTaskStore() {
           progress: nextProgress,
         };
         if (nextProgress >= 100) {
-          return {
+          return task.state === 'completed'
+            ? [
+                {
+                  ...task,
+                  progress: 100,
+                  updatedAt: timestamp,
+                  checkpoints: [...task.checkpoints, checkpoint],
+                },
+              ]
+            : completeTask(
+                {
+                  ...task,
+                  progress: nextProgress,
+                  checkpoints: [...task.checkpoints, checkpoint],
+                },
+                timestamp
+              );
+        }
+        return [
+          {
             ...task,
-            progress: 100,
-            state: 'completed',
-            completedAt: task.completedAt ?? timestamp,
+            progress: nextProgress,
+            state: 'active',
+            completedAt: undefined,
             updatedAt: timestamp,
             checkpoints: [...task.checkpoints, checkpoint],
-          };
-        }
+          },
+        ];
+      })
+    );
+  }, []);
+
+  const addSubtask = useCallback((taskId: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    const timestamp = new Date().toISOString();
+    setTasks((previous) =>
+      previous.map((task) => {
+        if (task.id !== taskId) return task;
         return {
           ...task,
-          progress: nextProgress,
-          state: 'active',
-          completedAt: undefined,
           updatedAt: timestamp,
-          checkpoints: [...task.checkpoints, checkpoint],
+          state: task.state === 'completed' ? 'active' : task.state,
+          progress: task.state === 'completed' ? Math.min(task.progress, 99) : task.progress,
+          completedAt: task.state === 'completed' ? undefined : task.completedAt,
+          subtasks: [
+            ...(task.subtasks ?? []),
+            {
+              id: `subtask-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+              title: trimmed,
+              done: false,
+              createdAt: timestamp,
+            },
+          ],
+        };
+      })
+    );
+  }, []);
+
+  const toggleSubtask = useCallback((taskId: string, subtaskId: string) => {
+    const timestamp = new Date().toISOString();
+    setTasks((previous) =>
+      previous.flatMap((task) => {
+        if (task.id !== taskId) return [task];
+        const subtasks = (task.subtasks ?? []).map((subtask) =>
+          subtask.id === subtaskId ? { ...subtask, done: !subtask.done } : subtask
+        );
+        const allDone = subtasks.length > 0 && subtasks.every((subtask) => subtask.done);
+
+        if (allDone && task.state !== 'completed') {
+          const checkpoint = {
+            id: `checkpoint-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+            createdAt: timestamp,
+            note: 'All path steps completed.',
+            progress: 100,
+          };
+          return completeTask(
+            {
+              ...task,
+              subtasks,
+              checkpoints: [...task.checkpoints, checkpoint],
+            },
+            timestamp
+          );
+        }
+
+        if (!allDone && task.state === 'completed') {
+          return [
+            {
+              ...task,
+              subtasks,
+              state: 'active',
+              progress: Math.min(task.progress, 99),
+              completedAt: undefined,
+              updatedAt: timestamp,
+            },
+          ];
+        }
+
+        return [{ ...task, subtasks, updatedAt: timestamp }];
+      })
+    );
+  }, []);
+
+  const deleteSubtask = useCallback((taskId: string, subtaskId: string) => {
+    const timestamp = new Date().toISOString();
+    setTasks((previous) =>
+      previous.map((task) => {
+        if (task.id !== taskId) return task;
+        return {
+          ...task,
+          updatedAt: timestamp,
+          subtasks: (task.subtasks ?? []).filter((subtask) => subtask.id !== subtaskId),
         };
       })
     );
@@ -153,6 +278,9 @@ export function useTaskStore() {
     archiveTask,
     restoreTask,
     deleteTask,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
     resetTasks,
   };
 }

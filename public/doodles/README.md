@@ -17,7 +17,7 @@ They are used as task illustrations in ViDo. The text of each task remains avail
 
 Laundry and dishes are composed from the Twemoji basket plus clothes or plates/cups.
 
-Sporting images (`cricket`, `football`, `basketball`, `tennis`, `badminton`, `volleyball`, `swimming`, `cycling`, `hockey`, `baseball`, `tabletennis`, `boxing`, `golf`, and `sport`) are Twemoji under the same CC-BY 4.0 licence.
+Sporting images (`walking`, `cricket`, `football`, `basketball`, `tennis`, `badminton`, `volleyball`, `swimming`, `cycling`, `hockey`, `baseball`, `tabletennis`, `boxing`, `golf`, and `sport`) are Twemoji under the same CC-BY 4.0 licence.
 
 Writing tasks are composed in the app from `memo.svg` and `pencil.svg`, so they show paper and a pencil.
 

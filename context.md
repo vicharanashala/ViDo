@@ -41,10 +41,11 @@ Power should come from thoughtful information organization, not from placing mor
 
 - Calm, low-arousal light theme
 - Sage canvas, warm white surfaces, muted clay primary, green progress, amber attention
-- Desktop-first with a mobile bottom navigation
+- Labelled desktop sidebar with motivating labels and standard-name hints; mobile bottom navigation
 - Restrained motion with reduced-motion support
 - Clear hierarchy, generous spacing, readable contrast
-- No guilt-driven language, urgency inflation, or gamification
+- Disciplined card-grid boards rather than long table-like lists
+- No guilt-driven language, urgency inflation, points, or streaks
 - Serif only on the landing page; sans headings inside the workspace
 
 ### Public Experience
@@ -60,6 +61,7 @@ Before opening the workspace, users see a complete landing page containing:
 
 - No account is required for the current local-first build.
 - Tasks are stored in `localStorage` under `vido.tasks.v1`.
+- Tasks also store optional deadlines, recurrence, parked state, custom image keys, and subtasks.
 - Profile/welcome data uses `vido.profile.v1`.
 - The daily intention uses `vido.intention.<date>`.
 - Supabase Auth and PostgreSQL remain the planned path for cross-device sync and shared work.
@@ -73,13 +75,18 @@ The current task experience is based on:
 
 - Title — required
 - Description — optional
-- Due date — required
-- Due time — optional; when omitted, use a consistent end-of-day deadline
+- Planned date — required; decides when the task enters Today
+- Deadline date — optional; a future deadline keeps the task in Today until that day passes
+- Deadline time — optional; after it passes the task shows Pending but stays editable until midnight
+- Recurrence — optional: Daily, Weekdays, or Weekly until the deadline
 - Priority — optional: High, Medium, or Low
 - Category — Personal, Home, or Work
 - State — Active or Completed
 - Progress — 0 to 100 percent
 - Checkpoint history — timestamped note plus the progress at that moment
+- Subtasks — optional path steps with done state
+- Custom image key — optional user-provided image reuse key
+- Parked timestamp — sets a task aside without forcing a new date
 - Completion timestamp
 - Archive timestamp
 - Created and updated timestamps
@@ -108,12 +115,12 @@ Tasks have only Active and Completed states. Views are calculated from task data
 
 - Home
 - Today
-- Later
-- Still here
-- Done
-- Put away
+- Upcoming
+- Past / Pick up again
+- Completed
+- Archived
 
-The desktop application uses a slim icon rail for these views. Mobile uses a bottom navigation bar. The top bar is reserved for search and filters.
+The desktop application uses a labelled sidebar for these views. Mobile uses a bottom navigation bar. The top bar is reserved for search and filters.
 
 ### Home Shape
 
@@ -143,7 +150,6 @@ Do not introduce these unless a new issue or explicit user decision adds them:
 
 - Custom lists
 - Tags
-- Recurring or periodic tasks
 - Manual drag-and-drop ordering
 - Saved filters
 - Reminders or notifications
@@ -152,7 +158,7 @@ Do not introduce these unless a new issue or explicit user decision adds them:
 - Invitations and team workspaces
 - Comments or threaded replies
 - Real-time collaboration
-- AI recommendations or task generation
+- Unapproved AI changes (the path assistant only proposes; the user approves)
 
 These remain part of the broader vision, not the current build scope.
 
@@ -175,13 +181,19 @@ Built:
 - Image + title labels for recognised tasks; text fallback otherwise
 - Welcome card, optional daily intention, momentum strip, and rest state
 - Small-win focus selection
-- Gentle carried-over language and no red progress bars
+- Past / Pick up again language, pending grace, and no red progress bars
+- Disciplined task card grid, task paths, and optional subtasks
+- Optional deadline dates/times and recurrence until a deadline
+- Walking and expanding task image catalog plus user-uploaded images
+- Path assistant drafts steps for user approval; hosted model support is optional
+- Momentum trail: a snake-and-ladder board driven by completed tasks, with a log of ladder/reset causes
+- Editable profile with prefix/name, linked from the sidebar and top bar
 - Real dates and derived views
 - Search and priority/deadline filters
 - localStorage persistence
 - Project journal and image prompt guide
 
-Supabase, Google OAuth, teams, reminders, and AI are not part of this build.
+Supabase, Google OAuth, teams, and reminders are not part of this build. The path assistant has a local fallback and can use a hosted endpoint when configured.
 
 ## Development Workflow
 
@@ -190,7 +202,7 @@ Current work is tracked in `journal/` and GitHub issues. The `openspec/` and `.a
 ### Before Coding
 
 1. Read `journal/README.md`, `journal/CONVERSATIONS.md`, and `journal/IDEAS.md`.
-2. Check open issues (#3, #4, #7) and the current PR.
+2. Check open issues (#3, #4, #7, #10, #11) and the current branch on the fork.
 3. Read the affected source files and tests.
 4. Record the intended change and out-of-scope items.
 
@@ -252,6 +264,6 @@ At the time this context was updated:
 - Tasks persist in `localStorage` under `vido.tasks.v1`.
 - Progress, checkpoints, pace, search, filters, Today queue, Focus mode, welcome, intention, and archive are implemented.
 - Recognised tasks show an image **and** their title; unrecognised tasks stay as text.
-- The verification gates are typecheck, 67 tests, and production build.
-- PR #9 is open from `NAGASHREE1:feat/local-first-vido` to `vicharanashala/ViDo:main`.
-- Supabase Auth, shared workspaces, reminders, and the AI agent remain future work.
+- The verification gates are typecheck, 118 tests, and production build.
+- PR #9 was closed; current work is committed on `NAGASHREE1:feat/local-first-vido`.
+- Supabase Auth, shared workspaces, reminders, mood/vent analysis, calm rewards, and the broader AI agent remain future work.

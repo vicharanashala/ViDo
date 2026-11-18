@@ -14,6 +14,7 @@ const CARTOON_ASSETS: Record<DoodleKind, string> = {
   cooking: 'cooking.svg',
   call: 'call.svg',
   meeting: 'meeting.svg',
+  walking: 'walking.svg',
   run: 'run.svg',
   exercise: 'exercise.svg',
   cricket: 'cricket.svg',

@@ -13,6 +13,8 @@ export interface TodayQueueViewProps {
   onFocusTask: (task: Task) => void;
   onCheckInStart?: (task: Task) => void;
   onBringToToday?: (task: Task) => void;
+  onScheduleTask?: (task: Task, dateKey: string) => void;
+  onOpenPath?: (taskId: string) => void;
   onNewTaskClick?: () => void;
 }
 
@@ -26,6 +28,8 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
   onFocusTask,
   onCheckInStart,
   onBringToToday,
+  onScheduleTask,
+  onOpenPath,
   onNewTaskClick,
 }) => {
   const queue = getTodayQueue(tasks, reference);
@@ -39,7 +43,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
         : null;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
       <h2 className="sr-only">Today's queue</h2>
 
       <div className="flex flex-col items-center gap-2 text-center">
@@ -61,14 +65,14 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
       </div>
 
       <p className="text-[11px] text-[var(--muted)]">
-        Only tasks due today. Earlier tasks are in Past.
+        Tasks due today, plus deadline work you can start now. Earlier tasks are in Past.
       </p>
       <p className="text-[11px] text-[var(--muted)]">
         Drag a task image into a zone, or click the circle to check in.
       </p>
 
       {queue.today.length > 0 ? (
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] overflow-hidden shadow-xs">
+        <div className="grid gap-2.5 sm:grid-cols-2">
           {queue.today.map((task) => (
             <TaskRow
               key={task.id}
@@ -77,6 +81,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
               onToggleComplete={onToggleComplete}
               onFocus={onFocusTask}
               onCheckInStart={onCheckInStart}
+              onOpenPath={onOpenPath}
             />
           ))}
         </div>
@@ -109,7 +114,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
               A few suggestions from earlier. Pick one for today, or leave them where they are.
             </p>
           </div>
-          <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] overflow-hidden shadow-xs">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             {recommendations.map((task) => (
               <TaskRow
                 key={task.id}
@@ -119,6 +124,8 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
                 onFocus={onFocusTask}
                 onCheckInStart={onCheckInStart}
                 onBringToToday={onBringToToday}
+                onSchedule={onScheduleTask}
+                onOpenPath={onOpenPath}
               />
             ))}
           </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Task } from '../../data/taskTypes';
-import { AlertCircle, CheckCircle2, Clock, Maximize2, RotateCcw } from 'lucide-react';
+import { AlertCircle, CalendarDays, CheckCircle2, Clock, ListChecks, Maximize2, RotateCcw } from 'lucide-react';
 import { isDueTimePassed, isDueToday, isPastDay, relativeDayLabel } from '../../data/taskDates';
 import { DoodleTitle } from './doodles/DoodleTitle';
 
@@ -11,6 +11,8 @@ export interface TaskRowProps {
   onFocus?: (task: Task) => void;
   onCheckInStart?: (task: Task) => void;
   onBringToToday?: (task: Task) => void;
+  onSchedule?: (task: Task, dateKey: string) => void;
+  onOpenPath?: (taskId: string) => void;
   now?: Date;
 }
 
@@ -21,12 +23,15 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   onFocus,
   onCheckInStart,
   onBringToToday,
+  onSchedule,
+  onOpenPath,
   now = new Date(),
 }) => {
   const isCompleted = task.state === 'completed';
   const parked = Boolean(task.parkedAt);
+  const deadlineDay = task.recurrence ? task.dueDate : task.deadlineDate ?? task.dueDate;
   const pastDay = !parked && isPastDay(task, now);
-  const dueToday = isDueToday(task, now);
+  const dueToday = isDueToday({ dueDate: deadlineDay }, now);
   const dueTimePassed = !parked && isDueTimePassed(task, now);
   const pending = pastDay || dueTimePassed;
   const barColor = isCompleted ? 'var(--green)' : 'var(--accent)';
@@ -59,9 +64,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       }}
       aria-label={`Task: ${task.title}`}
       aria-keyshortcuts="Enter Space F C"
-      className="group flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--canvas)]/60 transition-colors cursor-pointer select-none"
+      className="group flex h-full flex-col gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)]/95 p-3.5 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/25 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] motion-reduce:transform-none cursor-pointer select-none"
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-start gap-2.5">
         <button
           type="button"
           onClick={(event) => {
@@ -71,7 +76,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           }}
           aria-label={isCompleted ? `Reopen ${task.title}` : `Check in ${task.title}`}
           title={isCompleted ? `Reopen ${task.title}` : 'Check in — drag the image or click here'}
-          className="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] cursor-pointer"
+          className="mt-0.5 shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] cursor-pointer"
         >
           {isCompleted ? (
             <span className="w-5 h-5 rounded-full bg-[var(--green-soft)] text-[var(--green)] flex items-center justify-center">
@@ -86,14 +91,14 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           )}
         </button>
 
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-1.5">
             {task.priority === 'high' && !isCompleted && (
               <span
                 role="img"
                 aria-label="Important"
                 title="Important"
-                className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0"
+                className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0"
               />
             )}
             <span
@@ -104,7 +109,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                 onCheckInStart?.(task);
               }}
               title={isCompleted ? task.title : 'Drag to check in'}
-              className={`inline-flex min-w-0 cursor-grab active:cursor-grabbing ${
+              className={`inline-flex min-w-0 flex-1 cursor-grab active:cursor-grabbing ${
                 isCompleted ? 'cursor-default' : ''
               }`}
             >
@@ -113,7 +118,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                 category={task.category}
                 customImageKey={task.customImageKey}
                 size="md"
-                className={`text-xs font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors ${
+                wrapTitle
+                className={`text-xs font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
                   isCompleted ? 'line-through opacity-60' : ''
                 }`}
                 onImageClick={
@@ -127,31 +133,88 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               />
             </span>
           </div>
-          {onBringToToday && !isCompleted && (
+
+          {task.subtasks && task.subtasks.length > 0 && (
+            <p className="mt-1 flex items-center gap-1 text-[10px] text-[var(--muted)]">
+              <ListChecks className="h-3 w-3" />
+              {task.subtasks.filter((subtask) => subtask.done).length}/{task.subtasks.length} steps
+            </p>
+          )}
+
+          {pending && !isCompleted && onOpenPath && (
             <button
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
-                onBringToToday(task);
+                onOpenPath(task.id);
               }}
-              aria-label={`Do ${task.title} today`}
-              className="mt-1 inline-flex w-fit items-center rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)] hover:bg-[var(--accent-soft)] cursor-pointer"
+              className="mt-1 text-[10px] font-bold text-[var(--accent)] hover:underline cursor-pointer"
             >
-              Do today
+              Break into steps →
             </button>
           )}
+
+          {(onBringToToday || onSchedule) && !isCompleted && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {onBringToToday && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onBringToToday(task);
+                  }}
+                  aria-label={`Do ${task.title} today`}
+                  className="inline-flex w-fit items-center rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)] hover:bg-[var(--accent-soft)] cursor-pointer"
+                >
+                  Will do it today
+                </button>
+              )}
+              {onSchedule && (
+                <label
+                  onClick={(event) => event.stopPropagation()}
+                  className="inline-flex items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--muted)]"
+                >
+                  <CalendarDays className="h-3 w-3" />
+                  <span className="sr-only">Move {task.title} to date</span>
+                  <input
+                    type="date"
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      if (event.target.value) onSchedule(task, event.target.value);
+                    }}
+                    aria-label={`Move ${task.title} to date`}
+                    className="w-[112px] bg-transparent text-[10px] text-[var(--ink)] focus:outline-none"
+                  />
+                </label>
+              )}
+            </div>
+          )}
         </div>
+
+        {onFocus && !isCompleted && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onFocus(task);
+            }}
+            aria-label={`Begin ${task.title}`}
+            className="inline-flex shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] p-1.5 text-[var(--muted)] opacity-100 transition-all hover:text-[var(--ink)] sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto cursor-pointer"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="w-20 sm:w-24">
-          <div className="flex items-center justify-between text-[10px] font-mono text-[var(--faint)] mb-1">
-            <span className="hidden sm:inline">Progress</span>
-            <span style={{ color: barColor }} className="font-semibold ml-auto">
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center justify-between text-[10px] font-mono text-[var(--faint)]">
+            <span>Progress</span>
+            <span style={{ color: barColor }} className="font-semibold">
               {task.progress}%
             </span>
           </div>
-          <div className="h-1.5 bg-[var(--canvas)] rounded-full overflow-hidden border border-[var(--line)]">
+          <div className="h-1.5 overflow-hidden rounded-full border border-[var(--line)] bg-[var(--canvas)]">
             <div
               className="h-full rounded-full transition-all motion-reduce:transition-none"
               style={{ width: `${task.progress}%`, backgroundColor: barColor }}
@@ -162,7 +225,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           )}
         </div>
 
-        <div className="text-right font-mono text-[11px] min-w-[86px]">
+        <div className="shrink-0 text-right font-mono text-[11px]">
           {isCompleted ? (
             <span className="text-[var(--green)] inline-flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 check-pop" />
@@ -179,28 +242,16 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               Pending
             </span>
           ) : dueToday ? (
-            <span className="text-[var(--accent)] font-semibold inline-flex items-center gap-1">
+            <span className="text-[var(--accent)] font-bold inline-flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
               {dueTodayLabel}
             </span>
+          ) : task.deadlineDate && !task.recurrence ? (
+            <span className="font-bold text-[var(--accent)]">By {relativeDayLabel(deadlineDay, now)}</span>
           ) : (
             <span className="text-[var(--muted)]">{relativeDayLabel(task.dueDate, now)}</span>
           )}
         </div>
-
-        {onFocus && !isCompleted && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onFocus(task);
-            }}
-            aria-label={`Begin ${task.title}`}
-            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[10px] font-semibold text-[var(--muted)] opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto hover:text-[var(--ink)]"
-          >
-            <Maximize2 className="w-3 h-3" /> Begin
-          </button>
-        )}
       </div>
     </div>
   );

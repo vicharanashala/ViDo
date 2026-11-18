@@ -11,6 +11,9 @@ const VIEWS = [
   ['Home', 'Your calm overview.'],
   ['Today', 'Only tasks due today.'],
   ['Upcoming', 'Later, when you have room.'],
+  ['Your paths', 'Choose a task and shape its steps.'],
+  ['Momentum trail', 'A gentle snake-and-ladder of completed work.'],
+  ['Profile', 'Edit how ViDo addresses you.'],
   ['Past', 'Earlier tasks. Pick what to do today, or leave them.'],
   ['Completed', 'What you finished.'],
   ['Archived', 'Put away, still kept.'],
@@ -80,15 +83,27 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             <MousePointer2 className="w-3.5 h-3.5" /> Checking in
           </h3>
           <p className="text-xs text-[var(--muted)] leading-relaxed">
-            Drag a task image into the check-in tray, tap the image, or click the circle beside a task. Choose
+            Use the Calendar dropdown in quick add to pick a planned date, deadline date, or deadline
+            time. Drag a task image into the check-in tray, tap the image, or click the circle beside a task. Choose
             <span className="font-semibold text-[var(--ink)]"> Done</span>,
             <span className="font-semibold text-[var(--ink)]"> Not today — I&apos;ll do it another day</span>,
             or <span className="font-semibold text-[var(--ink)]"> Not important right now — later</span>.
             All three answers are okay.
           </p>
           <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
-            A task stays open for updates until midnight after its planned date. If you set a deadline
-            time, it becomes Pending when that time passes, but you can still update it until midnight.
+            A task with a future deadline stays in Today until that deadline day passes. If you set a
+            deadline time, it becomes Pending when that time passes, but you can still update it until
+            midnight.
+          </p>
+          <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
+            To repeat a task until its deadline, open Calendar and choose Daily, Weekdays, or Weekly.
+            Finishing one occurrence schedules the next one automatically.
+          </p>
+          <p className="text-xs text-[var(--muted)] leading-relaxed mt-2">
+            For a bigger task, open its Task path and add small steps. Pending cards also offer
+            **Break into steps**. The path keeps the next move visible without turning the task into
+            another project. When every step is done, the task completes automatically. Adding a new
+            step reopens it.
           </p>
         </section>
 

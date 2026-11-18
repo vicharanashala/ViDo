@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, LayoutDashboard, Plus, X } from 'lucide-react';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, Gamepad2, LayoutDashboard, ListChecks, PanelLeftOpen, Plus, X } from 'lucide-react';
 import type { NewTaskInput, Task } from '../../data/taskTypes';
 import {
   applyTaskFilters,
@@ -10,7 +10,7 @@ import {
   pickFocusTask,
   type TaskFilterState,
 } from '../../data/taskFilters';
-import { formatDateLong, toDateKey } from '../../data/taskDates';
+import { formatDateLong, relativeDayLabel, toDateKey } from '../../data/taskDates';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
 import { HomeView } from './views/HomeView';
@@ -22,6 +22,10 @@ import { QuickAdd } from './QuickAdd';
 import { FocusMode } from './FocusMode';
 import { TaskCheckInTray } from './TaskCheckInTray';
 import { HelpModal } from './HelpModal';
+import { TaskPathView } from './TaskPathView';
+import { PathsView } from './views/PathsView';
+import { TrailView } from './views/TrailView';
+import { ProfileView } from './views/ProfileView';
 import { Doodle } from './doodles/Doodles';
 import type { DoodleKind } from './doodles/doodleMap';
 import type { CheckInKind } from './checkInTypes';
@@ -32,6 +36,8 @@ const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
   { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
   { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
+  { to: '/app/paths', label: 'Paths', icon: <ListChecks className="w-3.5 h-3.5" /> },
+  { to: '/app/trail', label: 'Trail', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
   { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
   { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
@@ -65,10 +71,14 @@ export const WorkspaceLayout: React.FC = () => {
     archiveTask,
     restoreTask,
     deleteTask,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
   } = useTaskStore();
   const welcome = useWelcome();
 
   const [filters, setFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTERS);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const [checkInTaskId, setCheckInTaskId] = useState<string | null>(null);
@@ -77,6 +87,7 @@ export const WorkspaceLayout: React.FC = () => {
   const [notice, setNotice] = useState<string | null>(null);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const now = new Date();
   const todayLabel = formatDateLong(now);
   const todayKey = toDateKey(now);
@@ -107,12 +118,24 @@ export const WorkspaceLayout: React.FC = () => {
   }, [notice]);
 
   const handleTaskClick = (task: Task) => {
+    setSidebarOpen(false);
     setSelectedTaskId(task.id);
   };
 
   const handleStartFocus = (task: Task) => {
+    setSidebarOpen(false);
     setSelectedTaskId(null);
     setFocusTaskId(task.id);
+  };
+
+  const handleOpenPath = (taskId: string) => {
+    setSelectedTaskId(null);
+    navigate(`/app/tasks/${taskId}/path`);
+  };
+
+  const handleSaveProfile = (profile: { prefix: string; name: string }) => {
+    welcome.saveProfile(profile);
+    setNotice('Profile updated.');
   };
 
   const handleQuickAdd = (input: NewTaskInput) => {
@@ -131,6 +154,7 @@ export const WorkspaceLayout: React.FC = () => {
   };
 
   const handleCheckInStart = (task: Task) => {
+    setSidebarOpen(false);
     if (task.state === 'completed') {
       handleToggleComplete(task);
       return;
@@ -141,9 +165,26 @@ export const WorkspaceLayout: React.FC = () => {
   const handleBringToToday = (task: Task) => {
     const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const keepTime = task.dueTime && task.dueTime > nowTime ? task.dueTime : undefined;
-    updateTask(task.id, { dueDate: todayKey, dueTime: keepTime, parkedAt: undefined });
+    updateTask(task.id, {
+      dueDate: todayKey,
+      dueTime: keepTime,
+      deadlineDate: undefined,
+      parkedAt: undefined,
+    });
     addCheckpoint(task.id, 'Chosen for today.');
     setNotice(`"${task.title}" is on today's list.`);
+  };
+
+  const handleScheduleTask = (task: Task, dateKey: string) => {
+    if (!dateKey) return;
+    updateTask(task.id, {
+      dueDate: dateKey,
+      dueTime: undefined,
+      deadlineDate: undefined,
+      parkedAt: undefined,
+    });
+    addCheckpoint(task.id, `Moved to ${relativeDayLabel(dateKey, now)}.`);
+    setNotice(`Moved to ${relativeDayLabel(dateKey, now)}.`);
   };
 
   const handleCheckIn = (task: Task, kind: CheckInKind, progress?: number) => {
@@ -163,6 +204,7 @@ export const WorkspaceLayout: React.FC = () => {
     updateTask(task.id, {
       parkedAt: new Date().toISOString(),
       dueTime: undefined,
+      deadlineDate: undefined,
       priority: kind === 'not-important' ? 'low' : task.priority,
     });
     addCheckpoint(
@@ -200,6 +242,18 @@ export const WorkspaceLayout: React.FC = () => {
     if (path.endsWith('/upcoming')) {
       return { title: 'Upcoming', subtitle: 'For when you have room — also called Later' };
     }
+    if (path.endsWith('/paths')) {
+      return { title: 'Paths', subtitle: 'Choose a task and shape its steps' };
+    }
+    if (path.endsWith('/trail')) {
+      return { title: 'Momentum trail', subtitle: 'A gentle snake-and-ladder of completed work' };
+    }
+    if (path.endsWith('/profile')) {
+      return { title: 'Profile', subtitle: 'Edit how ViDo addresses you' };
+    }
+    if (path.includes('/tasks/') && path.endsWith('/path')) {
+      return { title: 'Task path', subtitle: 'Shape the next small moves' };
+    }
     if (path.endsWith('/needs-attention')) {
       return { title: 'Past', subtitle: 'Earlier tasks — pick what to do today, or leave them' };
     }
@@ -223,11 +277,25 @@ export const WorkspaceLayout: React.FC = () => {
           </span>
         ))}
       </div>
-      <WorkspaceSidebar
-        userName={welcome.name}
-        userPrefix={welcome.prefix}
-        onNewTaskClick={() => setIsCreateOpen(true)}
-      />
+      {!sidebarOpen && (
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+          title="Open sidebar"
+          className="hidden md:flex fixed left-0 top-24 z-40 items-center justify-center rounded-r-xl border border-l-0 border-[var(--line)] bg-[var(--surface)] px-2 py-3 text-[var(--muted)] shadow-sm hover:text-[var(--ink)] cursor-pointer"
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+        </button>
+      )}
+      {sidebarOpen && (
+        <WorkspaceSidebar
+          userName={welcome.name}
+          userPrefix={welcome.prefix}
+          onNewTaskClick={() => setIsCreateOpen(true)}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col min-w-0">
         <WorkspaceTopBar
@@ -242,9 +310,18 @@ export const WorkspaceLayout: React.FC = () => {
           filtersActive={filtersActive}
           onClearFilters={() => setFilters(EMPTY_TASK_FILTERS)}
           onHelpClick={() => setIsHelpOpen(true)}
+          onProfileClick={() => navigate('/app/profile')}
         />
 
-        <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
+        <main
+          className="flex-1 overflow-y-auto pb-24 md:pb-0"
+          onClick={(event) => {
+            if (!sidebarOpen) return;
+            const target = event.target as HTMLElement;
+            if (target.closest('input, textarea, select, button, a, summary')) return;
+            setSidebarOpen(false);
+          }}
+        >
           <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 max-w-6xl mx-auto">
             <QuickAdd onAdd={handleQuickAdd} />
           </div>
@@ -269,6 +346,7 @@ export const WorkspaceLayout: React.FC = () => {
                   intention={welcome.intention}
                   onIntentionChange={welcome.updateIntention}
                   onCheckInStart={handleCheckInStart}
+                  onOpenPath={handleOpenPath}
                 />
               }
             />
@@ -283,6 +361,8 @@ export const WorkspaceLayout: React.FC = () => {
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
                   onBringToToday={handleBringToToday}
+                  onScheduleTask={handleScheduleTask}
+                  onOpenPath={handleOpenPath}
                 />
               }
             />
@@ -298,6 +378,30 @@ export const WorkspaceLayout: React.FC = () => {
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
+                  onOpenPath={handleOpenPath}
+                />
+              }
+            />
+            <Route path="paths" element={<PathsView tasks={tasks} />} />
+            <Route
+              path="profile"
+              element={
+                <ProfileView
+                  prefix={welcome.prefix}
+                  name={welcome.name}
+                  onSave={handleSaveProfile}
+                />
+              }
+            />
+            <Route path="trail" element={<TrailView tasks={tasks} />} />
+            <Route
+              path="tasks/:taskId/path"
+              element={
+                <TaskPathView
+                  tasks={tasks}
+                  onAddSubtask={addSubtask}
+                  onToggleSubtask={toggleSubtask}
+                  onDeleteSubtask={deleteSubtask}
                 />
               }
             />
@@ -314,6 +418,8 @@ export const WorkspaceLayout: React.FC = () => {
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
                   onBringToToday={handleBringToToday}
+                  onScheduleTask={handleScheduleTask}
+                  onOpenPath={handleOpenPath}
                 />
               }
             />
@@ -375,6 +481,8 @@ export const WorkspaceLayout: React.FC = () => {
         onFocus={() => {
           if (selectedTask) handleStartFocus(selectedTask);
         }}
+        onOpenPath={handleOpenPath}
+        onToggleSubtask={toggleSubtask}
       />
 
       <TaskCreateModal

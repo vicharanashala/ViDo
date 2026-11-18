@@ -32,28 +32,45 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-020 | Shared ProgressRing | Reusable ring primitive in `src/components/ui`. |
 | I-021 | 7-day momentum strip | Visual completion history for the last seven days. |
 | I-022 | Calm colour psychology | Sage canvas, warm white, muted clay action, green progress, amber attention, muted clay-red overdue, forest ink. |
-| I-023 | Slim icon rail | Replaces the text sidebar; reduces scanning and feels app-like. |
 | I-024 | Mobile bottom nav + FAB | App-like mobile navigation and floating add action. |
 | I-025 | Bold sans workspace headings | Removes the editorial/course-page feel inside the app. |
 | I-026 | Calm completion motion | Check-pop animation; respects `prefers-reduced-motion`. |
 | I-027 | Local persistence | `localStorage` key `vido.tasks.v1`; delete-all stays empty; seed restores only when storage is cleared. |
 | I-028 | Relative seed data | Demo workspace dates are generated relative to today. |
 | I-029 | Empty-state handling | Calm empty states for views and queues. |
-| I-030 | Tests for core logic | Filters, queue ordering, pace, repository, parser, components, layout. 53 tests at last run. |
+| I-030 | Tests for core logic | Filters, queue ordering, pace, repository, parser, path assistant, components, layout. 118 tests at last run. |
 | I-031 | Issue naming convention | `feat:` for features; `Issue:` for general work. Added to `AGENTS.md`. |
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
 | I-033 | Image + title task labels | Recognised tasks show an open-source image next to the task title, so the image is never the only meaning. |
-| I-034 | Task image catalog | 36 task image kinds in `taskImageCatalog.ts`, grouped by sport, learning, home, health, work, and life. Different sports have their own Twemoji image; reading uses an open book; writing composes paper + pencil; work/study tasks fall back to the desk image. Laundry and dishes share a basket composition. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
+| I-034 | Task image catalog | 37 task image kinds in `taskImageCatalog.ts`, grouped by sport, learning, home, health, work, and life. Different sports and walking have their own Twemoji image; reading uses an open book; writing composes paper + pencil; work/study tasks fall back to the desk image. Laundry and dishes share a basket composition. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
 | I-035 | Cartoon-sticker doodles | Early image experiment; replaced by open-source images. |
 | I-036 | Personal welcome card | Optional name, saved on this device, or skip. |
 | I-037 | Daily intention | One optional line per day, explicitly not a task. |
-| I-038 | Gentler navigation | `Still here`, `Later`, `Done`, `Put away`; no numeric counts in the sidebar. |
-| I-039 | Smaller task titles | Task titles reduced to 10px in rows and smaller in focus/detail views. |
+| I-038 | Gentler navigation | Superseded by I-100: `Past` / `Pick up again` with alert-free cues. |
+| I-039 | Smaller task titles | Superseded by 12px readable card titles. |
 | I-043 | “That's enough for today” rest state | Collapses the Today list into a calm rest state with an undo. |
 | I-044 | Small-win focus selection | Prefers a task already in progress on today’s list. |
-| I-045 | Calm carried-over language and colours | `Carried over`, amber cues, no red progress bars, no pressure counts. |
+| I-045 | Calm carried-over language and colours | Superseded by `Past` / `Pick up again`; amber cues and no red progress bars remain. |
 | I-046 | Partial progress check-in | “Worked on it — a little further” adds 25% and writes a checkpoint. |
 | I-041 | Specific HVAC, hose, and laundry images | Heat pump photo for HVAC; rubber washer/O-ring photo for hose repair; laundromat photo for high-priority laundry. |
+| I-100 | Labelled, motivating sidebar | Replaced the icon-only rail with readable labels and standard-name hints. |
+| I-101 | Drag/tap/C check-in | Image drag, image tap, and keyboard C open the same calm check-in tray. |
+| I-102 | Optional deadline date/time | Planned date and deadline are separate; deadline stays optional and editable. |
+| I-103 | Pick up again parking | Deferral sets a task aside without forcing tomorrow; the user decides when to bring it back. |
+| I-104 | Disciplined task board | Tasks and path steps use a two-column rounded card grid instead of list rows. |
+| I-105 | Task paths and subtasks | A sidebar **Your paths** board lists today/future tasks; steps appear in Task details; all steps done auto-completes the task and logs a checkpoint. |
+| I-106 | Path assistant | Conversational step drafting with explicit user approval; local fallback plus `VITE_PATH_ASSISTANT_URL` support. |
+| I-107 | Custom task images | Users can upload an image for an unmatched task, save a reuse keyword, and reuse it on this device. |
+| I-108 | Deadline-aware capture | Relative times, `by <date>`, and `date is <date>` set deadline data; legacy titles are repaired on load. |
+| I-109 | Walking image | Walking no longer shares the treadmill image. |
+| I-110 | Recurring tasks | Daily, weekdays, or weekly; completing one occurrence schedules the next until the deadline. |
+| I-111 | Motivating atmosphere and quote | Warm layered workspace background, small task doodles, and a centered accent quote. |
+| I-112 | Prefix-aware welcome | Optional Mr./Ms./Mx./Dr./Prof. prefix with the name. |
+| I-113 | Collapsible sidebar | Close from the sidebar icon or by working in the main area; reopen from the left-edge control. |
+| I-114 | Schedule a pending task | Past tasks offer **Will do it today** or a date picker to move to the relevant day. |
+| I-115 | Quest path treatment | Current step, completed-step stamps, segmented progress, and a calm complete state. |
+| I-116 | Momentum trail game | Completed tasks move a token on a snake-and-ladder board; the log names the task behind each ladder/reset; all-done reaches the goal. |
+| I-117 | Editable profile | Prefix and name are editable from a profile page linked in the sidebar and top bar. |
 
 ---
 
@@ -63,6 +80,7 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 |---|---|---|
 | I-040 | Priority-based image styles | Changing image style by priority made tasks harder to read. The workspace now uses one style. |
 | I-042 | Priority image legend | Removed with the priority-style experiment. The workspace uses image + title instead. |
+| I-023 | Slim icon rail | Superseded by I-100 labelled/motivating sidebar. |
 
 ---
 
@@ -82,7 +100,6 @@ None at the moment.
 | I-083 | Shared workspaces | Teams, invitations, assignment, membership management. |
 | I-084 | Comments / threaded replies | On task checkpoints. |
 | I-085 | Reminders | One calm reminder per task at a chosen lead time. |
-| I-086 | Recurring tasks | Daily/weekly routines; must not create clutter. |
 | I-087 | Tags / custom lists | Deferred until canonical types or grouping prove insufficient. |
 | I-088 | Drag-and-drop ordering | Manual queue order; conflicts with computed priority ordering, so needs a model. |
 | I-089 | Command palette | `Cmd/Ctrl+K` for create, search, views, focus. Only if it reduces steps. |
@@ -95,7 +112,9 @@ None at the moment.
 | I-096 | CI | Typecheck, tests, build on push. |
 | I-097 | Accessibility audit | Keyboard paths, contrast, screen-reader labels. |
 | I-098 | Focus blocks with pause/resume | Time-block model; split current task, insert new task, resume with checkpoints. Explore first. |
-| I-099 | AI agent | Task generation, follow-up suggestions, risk detection, summaries. Grounded in user-approved data. |
+| I-099 | AI agent | First slice implemented as I-106 Path assistant; full agent still planned. Grounded in user-approved data. |
+| I-118 | Daily mood and vent check-in | Capture mood plus optional venting, analyse lightly, and recommend one task; user chooses or auto-accepts. |
+| I-119 | Hosted path model | Configure a real LLM endpoint; keep approval mandatory and data explainable. |
 
 ---
 
@@ -106,7 +125,7 @@ None at the moment.
 | I-055 | Opt-in non-overlap scheduling | Do not enforce overlap rules. Offer Split / Move / Keep. Never auto-apply. |
 | I-056 | Doodle/plain-text toggle | Some users may prefer text; consider a profile or view setting. |
 | I-057 | Focus “studio” visuals | Ambient visuals, session timer, or a physical-planner metaphor. |
-| I-058 | Momentum garden | A visual metaphor for completed work; must avoid gamification pressure. |
+| I-058 | Momentum garden / calm reward | A non-points reward after meaningful progress; must avoid streak or leaderboard pressure. |
 
 ---
 
@@ -136,6 +155,23 @@ None at the moment.
 | I-071 | Serif headings inside the app | Made the workspace feel like a course page. Keep serif for landing only. |
 | I-072 | Text sidebar in the app | Too much scanning; replaced by an icon rail. |
 | I-073 | Binary checkbox as the core model | ViDo’s differentiator is progress + checkpoints. |
+
+---
+
+## Audit — 2026-11-18
+
+Implemented this pass: labelled and motivating navigation, drag/tap/C check-in, optional deadlines with pending grace, pick-up-again parking, future-deadline visibility, recurrence, relative and `by` date capture, custom images, walking image, prefix addressing, task board grid, task paths, path assistant, and workspace atmosphere.
+
+Superseded or changed from earlier entries:
+
+- I-023 icon rail → I-100 labelled sidebar.
+- I-038 `Still here` naming → `Past` / `Pick up again`.
+- I-039 10px titles → 12px task titles.
+- I-045 `Carried over` language → `Past` / `Pick up again`.
+- I-086 recurring tasks → I-110.
+- I-099 broad AI agent → I-106 path assistant first slice.
+
+Still not implemented: daily mood/vent analysis (I-118), calm rewards (I-058), hosted model without an endpoint (I-119), backend sync/sharing, reminders, and the broader agent.
 
 ---
 

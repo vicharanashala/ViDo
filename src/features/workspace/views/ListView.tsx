@@ -14,6 +14,8 @@ export interface ListViewProps {
   onFocusTask?: (task: Task) => void;
   onCheckInStart?: (task: Task) => void;
   onBringToToday?: (task: Task) => void;
+  onScheduleTask?: (task: Task, dateKey: string) => void;
+  onOpenPath?: (taskId: string) => void;
 }
 
 export const ListView: React.FC<ListViewProps> = ({
@@ -26,6 +28,8 @@ export const ListView: React.FC<ListViewProps> = ({
   onFocusTask,
   onCheckInStart,
   onBringToToday,
+  onScheduleTask,
+  onOpenPath,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -65,7 +69,7 @@ export const ListView: React.FC<ListViewProps> = ({
       </div>
 
       {filteredTasks.length > 0 ? (
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
+        <div className="grid gap-2.5 sm:grid-cols-2">
           {filteredTasks.map((task) => (
             <TaskRow
               key={task.id}
@@ -75,6 +79,8 @@ export const ListView: React.FC<ListViewProps> = ({
               onFocus={onFocusTask}
               onCheckInStart={onCheckInStart}
               onBringToToday={onBringToToday}
+              onSchedule={onScheduleTask}
+              onOpenPath={onOpenPath}
             />
           ))}
         </div>

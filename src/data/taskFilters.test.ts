@@ -115,6 +115,43 @@ describe('taskFilters', () => {
     expect(queue.highToday).toBe(3);
   });
 
+  it('shows a recurring task on its scheduled day, not every day until the deadline', () => {
+    const recurring = {
+      ...tasks.find((task) => task.dueDate === todayKey)!,
+      id: 'recurring-task',
+      dueDate: toDateKey(addDays(reference, 1)),
+      deadlineDate: toDateKey(addDays(reference, 10)),
+      recurrence: 'daily' as const,
+    };
+    const withRecurring = tasks.filter((task) => task.id !== recurring.id).concat(recurring);
+
+    const today = getFilteredTasks(withRecurring, reference);
+    expect(today.today.some((task) => task.id === recurring.id)).toBe(false);
+    expect(today.upcoming.some((task) => task.id === recurring.id)).toBe(true);
+
+    const tomorrow = getFilteredTasks(withRecurring, addDays(reference, 1));
+    expect(tomorrow.today.some((task) => task.id === recurring.id)).toBe(true);
+  });
+
+  it('keeps a future deadline in Today until the deadline day passes', () => {
+    const deadlineTask = {
+      ...tasks.find((task) => task.dueDate === todayKey)!,
+      id: 'deadline-task',
+      dueDate: todayKey,
+      deadlineDate: toDateKey(addDays(reference, 2)),
+    };
+    const withDeadline = tasks.filter((task) => task.id !== deadlineTask.id).concat(deadlineTask);
+
+    const views = getFilteredTasks(withDeadline, reference);
+    expect(views.today.some((task) => task.id === deadlineTask.id)).toBe(true);
+    expect(views.upcoming.some((task) => task.id === deadlineTask.id)).toBe(false);
+    expect(views.needsAttention.some((task) => task.id === deadlineTask.id)).toBe(false);
+
+    const after = getFilteredTasks(withDeadline, addDays(reference, 3));
+    expect(after.today.some((task) => task.id === deadlineTask.id)).toBe(false);
+    expect(after.needsAttention.some((task) => task.id === deadlineTask.id)).toBe(true);
+  });
+
   it('keeps parked tasks out of Today and Upcoming but in Past', () => {
     const parked = {
       ...tasks.find((task) => task.dueDate === todayKey)!,

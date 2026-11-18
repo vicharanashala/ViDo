@@ -70,6 +70,22 @@ describe('TaskRow', () => {
     expect(screen.getByLabelText(new RegExp(`check in ${passed.title}`, 'i'))).toBeInTheDocument();
   });
 
+  it('links a pending task to its path', () => {
+    const passed = { ...task, dueTime: '11:00' };
+    const onOpenPath = vi.fn();
+    render(
+      <TaskRow
+        task={passed}
+        now={reference}
+        onClick={vi.fn()}
+        onOpenPath={onOpenPath}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /break into steps/i }));
+    expect(onOpenPath).toHaveBeenCalledWith(passed.id);
+  });
+
   it('shows pending for a past day without the deadline nudge', () => {
     const past = { ...task, dueDate: toDateKey(addDays(reference, -1)) };
     render(<TaskRow task={past} now={reference} onClick={vi.fn()} />);

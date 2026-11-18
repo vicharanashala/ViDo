@@ -3,6 +3,7 @@ import { addDays, relativeDayLabel, toDateKey } from './taskDates';
 
 export interface QuickAddMeta {
   dateLabel?: string;
+  dateKind?: 'planned' | 'deadline';
   timeLabel?: string;
   priority?: TaskPriority;
   category?: TaskCategory;
@@ -26,7 +27,42 @@ const CATEGORY_TOKENS: Record<string, TaskCategory> = {
   '#work': 'work',
 };
 
-const DATE_PATTERN = /\b(today|tomorrow|next week)\b/i;
+const DATE_PATTERN = /\b(?:by\s+)?(today|tomorrow|next week)\b/i;
+const BY_DAY_MONTH_PATTERN =
+  /\b(?:by|before|due\s+by|due\s+on|deadline(?:\s+is)?|date\s+is)\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})\.?\s*,?\s*(\d{4})?\b/i;
+const BY_MONTH_DAY_PATTERN =
+  /\b(?:by|before|due\s+by|due\s+on|deadline(?:\s+is)?|date\s+is)\s+([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(\d{4})?\b/i;
+const ON_DAY_MONTH_PATTERN =
+  /\b(?:on)\s+(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]{3,9})\.?\s*,?\s*(\d{4})?\b/i;
+const ON_MONTH_DAY_PATTERN =
+  /\b(?:on)\s+([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(\d{4})?\b/i;
+
+const MONTHS: Record<string, number> = {
+  january: 0,
+  jan: 0,
+  february: 1,
+  feb: 1,
+  march: 2,
+  mar: 2,
+  april: 3,
+  apr: 3,
+  may: 4,
+  june: 5,
+  jun: 5,
+  july: 6,
+  jul: 6,
+  august: 7,
+  aug: 7,
+  september: 8,
+  sept: 8,
+  sep: 8,
+  october: 9,
+  oct: 9,
+  november: 10,
+  nov: 10,
+  december: 11,
+  dec: 11,
+};
 const RELATIVE_TIME_PATTERN =
   /\b(?:in|after|within)\s+(\d+(?:\.\d+)?|an?|one)\s*(minutes|minute|mins|min|hours|hour|hrs|hr|h|m)\b/i;
 const TWELVE_HOUR_PATTERN = /\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i;
@@ -58,9 +94,77 @@ function formatTime(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
+function dateWithMonth(day: number, monthName: string, year: string | undefined, reference: Date): string | null {
+  const month = MONTHS[monthName.toLowerCase()];
+  if (month === undefined) return null;
+
+  const parsedYear = year ? Number(year) : reference.getFullYear();
+  const candidate = new Date(parsedYear, month, day);
+  if (candidate.getDate() !== day || candidate.getMonth() !== month) return null;
+
+  if (!year && toDateKey(candidate) < toDateKey(reference)) {
+    candidate.setFullYear(parsedYear + 1);
+  }
+  return toDateKey(candidate);
+}
+
 export function parseQuickAdd(input: string, reference: Date = new Date()): ParsedQuickAdd {
   let working = input;
   const meta: QuickAddMeta = {};
+
+  let explicitDueDate: string | undefined;
+  const onDayMonthMatch = working.match(ON_DAY_MONTH_PATTERN);
+  if (onDayMonthMatch) {
+    explicitDueDate = dateWithMonth(
+      Number(onDayMonthMatch[1]),
+      onDayMonthMatch[2],
+      onDayMonthMatch[3],
+      reference
+    ) ?? undefined;
+    if (explicitDueDate) working = working.replace(onDayMonthMatch[0], ' ');
+  }
+
+  if (!explicitDueDate) {
+    const onMonthDayMatch = working.match(ON_MONTH_DAY_PATTERN);
+    if (onMonthDayMatch) {
+      explicitDueDate = dateWithMonth(
+        Number(onMonthDayMatch[2]),
+        onMonthDayMatch[1],
+        onMonthDayMatch[3],
+        reference
+      ) ?? undefined;
+      if (explicitDueDate) working = working.replace(onMonthDayMatch[0], ' ');
+    }
+  }
+
+  let explicitDeadlineDate: string | undefined;
+  const dayMonthMatch = working.match(BY_DAY_MONTH_PATTERN);
+  if (dayMonthMatch) {
+    explicitDeadlineDate = dateWithMonth(
+      Number(dayMonthMatch[1]),
+      dayMonthMatch[2],
+      dayMonthMatch[3],
+      reference
+    ) ?? undefined;
+    if (explicitDeadlineDate) working = working.replace(dayMonthMatch[0], ' ');
+  }
+
+  if (!explicitDeadlineDate) {
+    const monthDayMatch = working.match(BY_MONTH_DAY_PATTERN);
+    if (monthDayMatch) {
+      explicitDeadlineDate = dateWithMonth(
+        Number(monthDayMatch[2]),
+        monthDayMatch[1],
+        monthDayMatch[3],
+        reference
+      ) ?? undefined;
+      if (explicitDeadlineDate) working = working.replace(monthDayMatch[0], ' ');
+    }
+  }
+
+  if (explicitDeadlineDate) {
+    working = working.replace(/^\s*deadline\s*[:\-]?\s+/i, ' ');
+  }
 
   let dayOffset = 0;
   const dateMatch = working.match(DATE_PATTERN);
@@ -118,20 +222,28 @@ export function parseQuickAdd(input: string, reference: Date = new Date()): Pars
   }
 
   const dueDate =
-    relativeDueDate && !dateMatch
+    explicitDueDate ??
+    (relativeDueDate && !dateMatch
       ? relativeDueDate
-      : toDateKey(addDays(reference, dayOffset));
-  if (dateMatch) {
-    meta.dateLabel = relativeDayLabel(dueDate, reference);
-  } else if (relativeDueDate && relativeDueDate !== toDateKey(reference)) {
-    meta.dateLabel = relativeDayLabel(dueDate, reference);
+      : toDateKey(addDays(reference, dayOffset)));
+  const dateLabel = explicitDueDate ?? explicitDeadlineDate ?? dueDate;
+  if (
+    explicitDueDate ||
+    explicitDeadlineDate ||
+    dateMatch ||
+    (relativeDueDate && relativeDueDate !== toDateKey(reference))
+  ) {
+    meta.dateLabel = relativeDayLabel(dateLabel, reference);
   }
+  if (explicitDueDate) meta.dateKind = 'planned';
+  else if (explicitDeadlineDate) meta.dateKind = 'deadline';
   if (dueTime) {
     meta.timeLabel = dueTime;
   }
 
   return {
     title: cleanTitle(working),
+    deadlineDate: explicitDeadlineDate,
     dueDate,
     dueTime,
     priority,

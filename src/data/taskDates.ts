@@ -1,4 +1,4 @@
-import type { Task, TaskPace, PaceStatus } from './taskTypes';
+import type { Task, TaskPace, PaceStatus, TaskRecurrence } from './taskTypes';
 import { PACE_EFFICIENCY_LABELS } from './taskTypes';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -40,11 +40,22 @@ export function toIso(date: Date, time = '09:00'): string {
   return atTime(date, time).toISOString();
 }
 
-export function dueAt(task: Pick<Task, 'dueDate' | 'dueTime'>): Date {
-  return atTime(parseDateKey(task.dueDate), task.dueTime || '23:59');
+export function effectiveDeadlineDate(
+  task: Pick<Task, 'dueDate' | 'deadlineDate' | 'recurrence'>
+): string {
+  return task.recurrence ? task.dueDate : task.deadlineDate ?? task.dueDate;
 }
 
-export function isOverdue(task: Pick<Task, 'dueDate' | 'dueTime' | 'state'>, now = new Date()): boolean {
+export function dueAt(
+  task: Pick<Task, 'dueDate' | 'dueTime' | 'deadlineDate' | 'recurrence'>
+): Date {
+  return atTime(parseDateKey(effectiveDeadlineDate(task)), task.dueTime || '23:59');
+}
+
+export function isOverdue(
+  task: Pick<Task, 'dueDate' | 'deadlineDate' | 'dueTime' | 'recurrence' | 'state'>,
+  now = new Date()
+): boolean {
   return task.state === 'active' && dueAt(task).getTime() < now.getTime();
 }
 
@@ -52,19 +63,26 @@ export function isDueToday(task: Pick<Task, 'dueDate'>, now = new Date()): boole
   return task.dueDate === toDateKey(now);
 }
 
-export function isPastDay(task: Pick<Task, 'dueDate' | 'state'>, now = new Date()): boolean {
-  return task.state === 'active' && task.dueDate < toDateKey(now);
+export function isPastDay(
+  task: Pick<Task, 'dueDate' | 'deadlineDate' | 'recurrence' | 'state'>,
+  now = new Date()
+): boolean {
+  return task.state === 'active' && effectiveDeadlineDate(task) < toDateKey(now);
 }
 
 export function isDueTimePassed(
-  task: Pick<Task, 'dueDate' | 'dueTime' | 'state'>,
+  task: Pick<Task, 'dueDate' | 'deadlineDate' | 'recurrence' | 'dueTime' | 'state'>,
   now = new Date()
 ): boolean {
-  if (task.state !== 'active' || task.dueDate !== toDateKey(now) || !task.dueTime) return false;
+  if (task.state !== 'active' || effectiveDeadlineDate(task) !== toDateKey(now) || !task.dueTime) {
+    return false;
+  }
   return dueAt(task).getTime() < now.getTime();
 }
 
-export function completionTiming(task: Pick<Task, 'completedAt' | 'dueDate' | 'dueTime'>): 'on-time' | 'late' | null {
+export function completionTiming(
+  task: Pick<Task, 'completedAt' | 'dueDate' | 'deadlineDate' | 'recurrence' | 'dueTime'>
+): 'on-time' | 'late' | null {
   if (!task.completedAt) return null;
   return new Date(task.completedAt).getTime() <= dueAt(task).getTime() ? 'on-time' : 'late';
 }
@@ -119,6 +137,16 @@ export function daysBetween(a: Date, b: Date): number {
 
 export function clamp(value: number, min = 0, max = 100): number {
   return Math.min(max, Math.max(min, value));
+}
+
+export function nextRecurrenceDate(dateKey: string, recurrence: TaskRecurrence): string {
+  let next = addDays(parseDateKey(dateKey), recurrence === 'weekly' ? 7 : 1);
+  if (recurrence === 'weekdays') {
+    while (next.getDay() === 0 || next.getDay() === 6) {
+      next = addDays(next, 1);
+    }
+  }
+  return toDateKey(next);
 }
 
 export function getTaskPace(task: Task, now = new Date()): TaskPace {

@@ -23,15 +23,17 @@ This folder is the project memory for ViDo. It exists so a new session can recov
 - App folder: `vido-app/`
 - Base repo: `https://github.com/vicharanashala/ViDo` (cloned locally)
 - Branch: `feat/local-first-vido`
-- State: committed and pushed to `NAGASHREE1/ViDo`
+- State: committed through `889280d`; later work is in the local working tree
 - Fork: `https://github.com/NAGASHREE1/ViDo` (public)
-- PR: https://github.com/vicharanashala/ViDo/pull/9
+- PR #9 was closed: https://github.com/vicharanashala/ViDo/pull/9
 - Issues:
   - `#3 feat: Calm interactivity: reduce effort per action across the workspace`
   - `#4 feat: Today view: focused priority-aware queue with calm feedback`
   - `#7 feat: Make ViDo a gentle daily space, not an accountability tool`
+  - `#10 feat: Make ViDo navigation and task labels understandable`
+  - `#11 feat: Drag-to-check-in with calm image reactions`
 - Assignment to `@NAGASHREE1` requested in comments; pending maintainer action.
-- Verification at last run: typecheck pass, 67 tests pass across 21 suites, production build pass.
+- Verification at last run: typecheck pass, 118 tests pass across 31 suites, production build pass.
 - Dev server: `http://127.0.0.1:5173` (started locally).
 
 ## GitHub identity
@@ -63,13 +65,15 @@ Then open `/app` and `/app/today`.
 - Progress and checkpoint history over binary checkboxes.
 - Natural-language capture.
 - Recognised tasks show an open-source image **plus the task title**, so the image never has to carry the meaning alone.
-- If no image fits, the task stays as text.
+- If no image fits, the user can upload one and reuse it by keyword.
+- Walking has its own image; sports, reading, writing, home, health, work, and life tasks have a growing catalog.
 - The main workspace uses one image style. Priority-based image-style switching was reverted because it made tasks harder to read.
 - Images: Twemoji (CC-BY 4.0), OpenMoji (CC BY-SA 4.0), CC0 photos from Openverse/Wikimedia, Tabler (MIT).
-- Task titles are 10px in rows, with smaller focus/detail headings.
-- Personal welcome card and a daily intention line.
+- Task titles are readable at 12px in the card board.
+- Personal welcome card with optional prefix and a daily intention line.
 - “That’s enough for today” rest state with undo.
 - Small-win focus selection.
-- Gentle carried-over language, amber cues, and no red progress bars.
-- Gentler navigation labels and no pressure counts in the sidebar.
-- No gamification, guilt language, or urgency inflation.
+- Past / Pick up again language, amber cues, optional deadlines, and no red progress bars.
+- Motivating sidebar labels with standard-name hints and no pressure counts.
+- Disciplined two-column card board, task paths, subtasks, recurrence, the path assistant, the Momentum trail, and an editable profile.
+- No points, streaks, guilt language, or urgency inflation. Mood/vent analysis and calm rewards remain planned.
