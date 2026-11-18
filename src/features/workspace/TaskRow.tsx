@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Task } from '../../data/taskTypes';
 import { AlertCircle, CheckCircle2, Clock, Maximize2 } from 'lucide-react';
-import { getTaskPace, isDueToday, isOverdue, relativeDayLabel } from '../../data/taskDates';
+import { isDueToday, isOverdue, relativeDayLabel } from '../../data/taskDates';
 import { DoodleTitle } from './doodles/DoodleTitle';
 
 export interface TaskRowProps {
@@ -10,13 +10,6 @@ export interface TaskRowProps {
   onToggleComplete?: (task: Task) => void;
   onFocus?: (task: Task) => void;
   now?: Date;
-}
-
-function progressColor(status: ReturnType<typeof getTaskPace>['status']): string {
-  if (status === 'done' || status === 'ahead') return 'var(--green)';
-  if (status === 'behind') return 'var(--red)';
-  if (status === 'at-risk') return 'var(--amber)';
-  return 'var(--accent)';
 }
 
 export const TaskRow: React.FC<TaskRowProps> = ({
@@ -29,8 +22,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const isCompleted = task.state === 'completed';
   const overdue = isOverdue(task, now);
   const dueToday = isDueToday(task, now);
-  const pace = getTaskPace(task, now);
-  const barColor = progressColor(pace.status);
+  const barColor = isCompleted ? 'var(--green)' : 'var(--accent)';
   const dueTodayLabel = task.dueTime ? `Today ${task.dueTime}` : 'Today';
 
   return (
@@ -72,7 +64,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               <CheckCircle2 className="w-4 h-4" />
             </span>
           ) : overdue ? (
-            <span className="w-5 h-5 rounded-full bg-[var(--red-soft)] text-[var(--red)] flex items-center justify-center">
+            <span className="w-5 h-5 rounded-full bg-[var(--amber-soft)] text-[var(--amber)] flex items-center justify-center">
               <AlertCircle className="w-4 h-4" />
             </span>
           ) : (
@@ -85,9 +77,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             {task.priority === 'high' && !isCompleted && (
               <span
                 role="img"
-                aria-label="High priority"
-                title="High priority"
-                className="w-1.5 h-1.5 rounded-full bg-[var(--red)] shrink-0"
+                aria-label="Important"
+                title="Important"
+                className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0"
               />
             )}
             <DoodleTitle
@@ -121,10 +113,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           {isCompleted ? (
             <span className="text-[var(--green)] inline-flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 check-pop" />
-              Delivered
+              Done
             </span>
           ) : overdue ? (
-            <span className="text-[var(--red)] font-semibold inline-flex items-center gap-1">
+            <span className="text-[var(--amber)] font-semibold inline-flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" />
               {dueToday ? dueTodayLabel : relativeDayLabel(task.dueDate, now)}
             </span>
@@ -145,10 +137,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               event.stopPropagation();
               onFocus(task);
             }}
-            aria-label={`Focus ${task.title}`}
+            aria-label={`Begin ${task.title}`}
             className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[10px] font-semibold text-[var(--muted)] opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto hover:text-[var(--ink)]"
           >
-            <Maximize2 className="w-3 h-3" /> Focus
+            <Maximize2 className="w-3 h-3" /> Begin
           </button>
         )}
       </div>

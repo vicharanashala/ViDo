@@ -15,7 +15,7 @@ Before proposing or implementing a change, read these files in order:
 7. `README.md` — public project overview
 8. The active change under `openspec/changes/<change-name>/`, when one exists
 
-Do not infer current scope from the long-term vision alone. `FOLDER_STRUCTURE.md` and the active OpenSpec change define where and how code may be structured.
+Do not infer current scope from the long-term vision alone. Current code, `AGENTS.md`, `FOLDER_STRUCTURE.md`, and the journal define how code may be structured.
 
 ## Product Summary
 
@@ -39,16 +39,13 @@ Power should come from thoughtful information organization, not from placing mor
 
 ### Visual Direction
 
-- Professional and minimal
-- Desktop-first
-- Light theme first
-- Dark mode later
-- Restrained color and motion
-- Clear hierarchy and generous spacing
-- No guilt-driven productivity language
-- No excessive gamification
-
-The final accent color is deliberately unresolved and should be chosen through visual comparison during Milestone 1.
+- Calm, low-arousal light theme
+- Sage canvas, warm white surfaces, muted clay primary, green progress, amber attention
+- Desktop-first with a mobile bottom navigation
+- Restrained motion with reduced-motion support
+- Clear hierarchy, generous spacing, readable contrast
+- No guilt-driven language, urgency inflation, or gamification
+- Serif only on the landing page; sans headings inside the workspace
 
 ### Public Experience
 
@@ -63,6 +60,8 @@ Before opening the workspace, users see a complete landing page containing:
 
 - No account is required for the current local-first build.
 - Tasks are stored in `localStorage` under `vido.tasks.v1`.
+- Profile/welcome data uses `vido.profile.v1`.
+- The daily intention uses `vido.intention.<date>`.
 - Supabase Auth and PostgreSQL remain the planned path for cross-device sync and shared work.
 - When Supabase is introduced, Row-Level Security must enforce task ownership.
 - Private tasks come before shared tasks.
@@ -91,13 +90,11 @@ Progress and checkpoints are part of the core build. They are what make ViDo dif
 
 ### Completion
 
-- Ask for confirmation before completing a task.
-- Show brief, restrained completion feedback.
-- Move the task to Completed.
-- Offer a short Undo action.
-- Label completion as on time or after the deadline.
-- Allow reopening after confirmation.
-- Reopening clears the completion timestamp and recalculates deadline state.
+- Completion is a single action from the task row.
+- Show brief, restrained feedback.
+- Move the task to Done.
+- Allow reopening; reopening clears the completion timestamp and recalculates deadline state.
+- Show on-time or after-deadline timing in the task detail.
 
 ### Removal
 
@@ -111,40 +108,38 @@ Tasks have only Active and Completed states. Views are calculated from task data
 
 - Home
 - Today
-- Upcoming
-- Needs Attention
-- Completed
-- Archived
+- Later
+- Still here
+- Done
+- Put away
 
-The desktop application uses a persistent left sidebar for these views. The top bar is reserved for search, filters, and account controls.
+The desktop application uses a slim icon rail for these views. Mobile uses a bottom navigation bar. The top bar is reserved for search and filters.
 
-### Home Dashboard Limits
+### Home Shape
 
-- Today: up to 5 tasks
-- Needs Attention: up to 3 tasks
-- Upcoming: up to 3 tasks
-- Recently Completed: up to 3 tasks
-- Recently Completed includes only tasks completed within the last 7 days
-- Hide Recently Completed when empty
-- Every limited section shows its total and a **View all** action
+- Greeting with the optional name from the welcome card.
+- One focus task — a small, clear next step.
+- A seven-day momentum strip.
+- Today’s list, limited to five rows on Home.
+- An optional daily intention that is explicitly not a task.
+- A “That’s enough for today” rest state with an undo.
 
-The Home dashboard should provide a broad overview without confronting users with an overwhelming backlog.
+Home should provide a calm overview without a wall of backlog or pressure counts.
 
 ### Search and Filters
 
-Phase 1 will eventually include:
+Implemented:
 
 - Keyword search across title and description
-- Priority filters: High, Medium, Low, and No priority
-- Deadline filters: Today, Tomorrow, This week, Overdue, and Custom range
-- State filters: Active and Completed
+- Priority filter: All, High, Medium, Low
+- Deadline filter: Any, Today, Upcoming, Overdue, Completed
 - A clear-all action
 
-Search and filters are Milestone 6, not part of the first visual implementation slice.
+Filters appear on demand behind a single Filters button.
 
 ## Deferred Features
 
-Do not introduce these into the initial milestone unless a new approved OpenSpec change explicitly adds them:
+Do not introduce these unless a new issue or explicit user decision adds them:
 
 - Custom lists
 - Tags
@@ -170,39 +165,43 @@ The current build is:
 Built:
 
 - Vite + React + TypeScript foundation
-- Reusable visual design system
+- Calm design system with sage/clay/green/amber colour psychology
 - Public landing page
 - Working `/app` workspace with real task state
-- One-field quick capture
+- One-field and natural-language capture
 - Create, edit, complete, reopen, archive, restore, and delete
-- Progress percentage and checkpoint timeline
-- Pace-vs-deadline signal
+- Progress percentage, checkpoint timeline, and pace-vs-deadline
+- Today priority-aware queue and Focus mode
+- Image + title labels for recognised tasks; text fallback otherwise
+- Welcome card, optional daily intention, momentum strip, and rest state
+- Small-win focus selection
+- Gentle carried-over language and no red progress bars
 - Real dates and derived views
 - Search and priority/deadline filters
 - localStorage persistence
+- Project journal and image prompt guide
 
 Supabase, Google OAuth, teams, reminders, and AI are not part of this build.
 
 ## Development Workflow
 
-ViDo uses OpenSpec for spec-driven changes.
+Current work is tracked in `journal/` and GitHub issues. The `openspec/` and `.agents/` directories are historical artifacts from the original prototype and do not define current scope.
 
 ### Before Coding
 
-1. Identify the current milestone in `MILESTONES.md`.
-2. Use the OpenSpec exploration workflow when requirements remain unclear.
-3. Create an OpenSpec proposal for the specific milestone or bounded change.
-4. Review its proposal, requirements, design, and tasks.
-5. Obtain approval before applying the change.
+1. Read `journal/README.md`, `journal/CONVERSATIONS.md`, and `journal/IDEAS.md`.
+2. Check open issues (#3, #4, #7) and the current PR.
+3. Read the affected source files and tests.
+4. Record the intended change and out-of-scope items.
 
 ### During Implementation
 
-- Implement only the approved OpenSpec change.
-- Mark tasks complete as evidence is produced.
 - Keep changes small and reviewable.
-- Do not begin a later milestone to make the current result look more complete.
+- Update or add tests alongside the code.
+- Do not introduce a later-phase feature silently.
 - Preserve existing planning artifacts.
 - Record assumptions explicitly.
+- Update the journal after a meaningful decision or slice.
 
 ### Verification
 
@@ -219,32 +218,29 @@ Use the smallest meaningful quality gates for the active change. Depending on th
 
 Never claim completion without reporting the verification performed or a named blocker.
 
-### Review Gates
+### Review Points
 
-Every milestone in `MILESTONES.md` ends with a review gate. Stop and request review rather than continuing automatically.
+Stop for user review at meaningful slices and before any commit or PR. Do not continue into a later phase automatically.
 
-## OpenSpec Conventions
+## Current Collaboration Conventions
 
-- OpenSpec artifacts are written in English.
-- One bounded change should map to one clear milestone or small feature.
-- Every proposal must state what is out of scope.
-- Requirements must be observable and testable.
-- Design documents must explain relevant UX, data, security, and failure-state decisions.
-- Tasks should be small enough to verify independently.
-- Applied changes must include a concise verification summary.
-- Archive a change only after implementation and review are complete.
+- Work is tracked in `journal/` and GitHub issues.
+- Feature-related issues use `feat:`; general issues use `Issue:`.
+- Every change must pass typecheck, tests, and production build.
+- Update `journal/CONVERSATIONS.md` and `journal/IDEAS.md` when a decision changes.
+- Do not overwrite user decisions with stale roadmap documents.
 
 ## Source-of-Truth Priority
 
 If project documents conflict, use this priority:
 
 1. The user’s newest explicit decision
-2. The approved active OpenSpec change
-3. `MILESTONES.md`
-4. `context.md`
-5. `concept.html`
-6. `Idea.md`
-7. `README.md`
+2. Current code and tests
+3. `journal/CONVERSATIONS.md` and `journal/IDEAS.md`
+4. `AGENTS.md` and `FOLDER_STRUCTURE.md`
+5. `context.md` and `README.md`
+6. `Idea.md` and `concept.html`
+7. Historical `openspec/` artifacts
 
 Update affected planning documents when a decision changes so agents do not inherit contradictory context.
 
@@ -254,6 +250,8 @@ At the time this context was updated:
 
 - The workspace is a working local-first application at `/app`.
 - Tasks persist in `localStorage` under `vido.tasks.v1`.
-- Progress, checkpoints, pace, search, filters, and archive are implemented.
-- The verification gates are typecheck, tests, and production build.
+- Progress, checkpoints, pace, search, filters, Today queue, Focus mode, welcome, intention, and archive are implemented.
+- Recognised tasks show an image **and** their title; unrecognised tasks stay as text.
+- The verification gates are typecheck, 67 tests, and production build.
+- PR #9 is open from `NAGASHREE1:feat/local-first-vido` to `vicharanashala/ViDo:main`.
 - Supabase Auth, shared workspaces, reminders, and the AI agent remain future work.

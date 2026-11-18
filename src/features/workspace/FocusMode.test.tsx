@@ -28,11 +28,11 @@ describe('FocusMode', () => {
     fireEvent.click(screen.getByRole('button', { name: /set progress to 75%/i }));
     expect(onSetProgress).toHaveBeenCalledWith(task.id, 75);
 
-    fireEvent.change(screen.getByLabelText(/what moved/i), { target: { value: 'Draft reviewed' } });
-    fireEvent.click(screen.getByRole('button', { name: /log update/i }));
+    fireEvent.change(screen.getByLabelText(/a note to yourself/i), { target: { value: 'Draft reviewed' } });
+    fireEvent.click(screen.getByRole('button', { name: /keep a note/i }));
     expect(onAddCheckpoint).toHaveBeenCalledWith(task.id, 'Draft reviewed');
 
-    fireEvent.click(screen.getByRole('button', { name: /mark complete/i }));
+    fireEvent.click(screen.getByRole('button', { name: /done for now/i }));
     expect(onToggleComplete).toHaveBeenCalledWith(task.id);
 
     fireEvent.keyDown(window, { key: 'Escape' });

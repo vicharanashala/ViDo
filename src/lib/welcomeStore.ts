@@ -2,6 +2,7 @@ import { toDateKey } from '../data/taskDates';
 
 const PROFILE_KEY = 'vido.profile.v1';
 const INTENTION_PREFIX = 'vido.intention.';
+const REST_PREFIX = 'vido.rest.';
 
 export interface Profile {
   name: string;
@@ -67,6 +68,31 @@ export function saveIntention(dateKey: string, text: string): void {
   }
 }
 
+export function restKey(dateKey: string = toDateKey(new Date())): string {
+  return `${REST_PREFIX}${dateKey}`;
+}
+
+export function loadRested(dateKey: string = toDateKey(new Date())): boolean {
+  const store = storage();
+  if (!store) return false;
+  try {
+    return store.getItem(restKey(dateKey)) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function saveRested(dateKey: string, rested: boolean): void {
+  const store = storage();
+  if (!store) return;
+  try {
+    if (rested) store.setItem(restKey(dateKey), '1');
+    else store.removeItem(restKey(dateKey));
+  } catch {
+    // Ignore blocked storage.
+  }
+}
+
 export function clearWelcomeStorage(): void {
   const store = storage();
   if (!store) return;
@@ -74,7 +100,7 @@ export function clearWelcomeStorage(): void {
     const keys: string[] = [];
     for (let i = 0; i < store.length; i += 1) {
       const key = store.key(i);
-      if (key && (key === PROFILE_KEY || key.startsWith(INTENTION_PREFIX))) keys.push(key);
+      if (key && (key === PROFILE_KEY || key.startsWith(INTENTION_PREFIX) || key.startsWith(REST_PREFIX))) keys.push(key);
     }
     keys.forEach((key) => store.removeItem(key));
   } catch {

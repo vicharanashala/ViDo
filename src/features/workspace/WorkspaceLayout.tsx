@@ -26,14 +26,14 @@ import { useWelcome } from './useWelcome';
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
   { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
-  { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
-  { to: '/app/needs-attention', label: 'Attention', icon: <AlertCircle className="w-3.5 h-3.5" /> },
-  { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
+  { to: '/app/upcoming', label: 'Later', icon: <Calendar className="w-3.5 h-3.5" /> },
+  { to: '/app/needs-attention', label: 'Still here', icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  { to: '/app/completed', label: 'Done', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  { to: '/app/archived', label: 'Put away', icon: <Archive className="w-3.5 h-3.5" /> },
 ];
 
 function deliveryNotice(task: Task): string {
-  return task.priority === 'high' ? 'High-priority item delivered.' : 'Task delivered.';
+  return task.priority === 'high' ? 'Important thing done. That counts.' : 'Done. That counts.';
 }
 
 export const WorkspaceLayout: React.FC = () => {
@@ -128,19 +128,19 @@ export const WorkspaceLayout: React.FC = () => {
   const getHeaderInfo = () => {
     const path = location.pathname;
     if (path.endsWith('/today')) {
-      return { title: 'Today', subtitle: `Responsibilities due on ${todayLabel}` };
+      return { title: 'Today', subtitle: 'A few things for today, no rush' };
     }
     if (path.endsWith('/upcoming')) {
-      return { title: 'Upcoming', subtitle: 'Scheduled responsibilities for future dates' };
+      return { title: 'Later', subtitle: 'For when you have room' };
     }
     if (path.endsWith('/needs-attention')) {
-      return { title: 'Needs Attention', subtitle: 'Work that is past its target deadline' };
+      return { title: 'Still here', subtitle: 'Things you can move to tomorrow' };
     }
     if (path.endsWith('/completed')) {
-      return { title: 'Completed', subtitle: 'Delivered work with completion timing' };
+      return { title: 'Done', subtitle: 'What you finished' };
     }
     if (path.endsWith('/archived')) {
-      return { title: 'Archived', subtitle: 'Shelved tasks preserved with their history' };
+      return { title: 'Put away', subtitle: 'Kept, out of the way' };
     }
     return { title: 'Home' };
   };
@@ -210,8 +210,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="upcoming"
               element={
                 <ListView
-                  title="Upcoming Schedule"
-                  description="Planned tasks due beyond today."
+                  title="Later"
+                  description="For when you have room."
                   tasks={filteredViews.upcoming}
                   onTaskClick={handleTaskClick}
                   onNewTaskClick={() => setIsCreateOpen(true)}
@@ -224,8 +224,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="needs-attention"
               element={
                 <ListView
-                  title="Needs Attention"
-                  description="Tasks past their target deadline or needing a decision."
+                  title="Still here"
+                  description="Carried over. Move them, or leave them."
                   tasks={filteredViews.needsAttention}
                   onTaskClick={handleTaskClick}
                   onNewTaskClick={() => setIsCreateOpen(true)}
@@ -238,8 +238,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="completed"
               element={
                 <ListView
-                  title="Completed Tasks"
-                  description="The full record of delivered work."
+                  title="Done"
+                  description="What you finished."
                   tasks={filteredViews.completed}
                   onTaskClick={handleTaskClick}
                   onToggleComplete={handleToggleComplete}
@@ -250,8 +250,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="archived"
               element={
                 <ListView
-                  title="Archived Tasks"
-                  description="Shelved tasks preserved with their complete checkpoint history."
+                  title="Put away"
+                  description="Kept, out of the way."
                   tasks={filteredViews.archived}
                   onTaskClick={handleTaskClick}
                 />

@@ -157,28 +157,21 @@ export function getHomeDashboardTasks(
   };
 }
 
-function focusScore(task: Task, todayKey: string): number {
-  const overdue = task.dueDate < todayKey;
-  const dueToday = task.dueDate === todayKey;
-  const priority = task.priority ?? 'low';
-
-  if (overdue) return priority === 'high' ? 100 : priority === 'medium' ? 80 : 60;
-  if (dueToday) return priority === 'high' ? 70 : priority === 'medium' ? 50 : 40;
-  return priority === 'high' ? 30 : priority === 'medium' ? 20 : 10;
-}
-
 export function pickFocusTask(tasks: Task[], reference: Date = new Date()): Task | null {
   const todayKey = toDateKey(reference);
   const candidates = tasks.filter((task) => task.state === 'active' && !isArchived(task));
   if (candidates.length === 0) return null;
 
-  return candidates
+  const todayCandidates = candidates.filter((task) => task.dueDate === todayKey);
+  const pool = todayCandidates.length > 0 ? todayCandidates : candidates;
+
+  return pool
     .slice()
     .sort((a, b) => {
-      const score = focusScore(b, todayKey) - focusScore(a, todayKey);
-      if (score !== 0) return score;
-      const due = a.dueDate.localeCompare(b.dueDate);
-      if (due !== 0) return due;
+      const progress = b.progress - a.progress;
+      if (progress !== 0) return progress;
+      const priority = priorityRank(b) - priorityRank(a);
+      if (priority !== 0) return priority;
       return dueAt(a).getTime() - dueAt(b).getTime();
     })[0];
 }

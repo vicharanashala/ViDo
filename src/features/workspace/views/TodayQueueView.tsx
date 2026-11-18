@@ -14,23 +14,15 @@ export interface TodayQueueViewProps {
   onNewTaskClick?: () => void;
 }
 
-function prioritySummary(highOverdue: number, highToday: number): string {
-  if (highOverdue > 0 && highToday > 0) {
-    return `${highOverdue} high-priority overdue · ${highToday} due today.`;
-  }
-  if (highOverdue > 0) {
-    return `${highOverdue} high-priority item${highOverdue === 1 ? '' : 's'} overdue.`;
-  }
-  if (highToday > 0) {
-    return `${highToday} high-priority item${highToday === 1 ? '' : 's'} due today.`;
-  }
-  return 'No high-priority work is overdue.';
+function prioritySummary(total: number, highOverdue: number, highToday: number): string {
+  if (total === 0) return 'Nothing here. Take the day.';
+  if (highOverdue + highToday > 0) return 'One important thing is here. The rest can wait.';
+  return 'A few things are here. Start with the smallest one.';
 }
 
-const GroupHeading: React.FC<{ label: string; count: number }> = ({ label, count }) => (
-  <div className="px-4 py-2 bg-[var(--canvas)] border-b border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] flex items-center justify-between">
-    <span>{label}</span>
-    <span className="font-mono">{count}</span>
+const GroupHeading: React.FC<{ label: string }> = ({ label }) => (
+  <div className="px-4 py-2 bg-[var(--canvas)] border-b border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+    {label}
   </div>
 );
 
@@ -51,7 +43,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-medium text-[var(--muted)]">
-          {prioritySummary(queue.highOverdue, queue.highToday)}
+          {prioritySummary(queue.all.length, queue.highOverdue, queue.highToday)}
         </p>
         <Button
           size="sm"
@@ -60,7 +52,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           disabled={!nextTask}
           className="shrink-0"
         >
-          <Maximize2 className="w-3.5 h-3.5" /> Start next
+          <Maximize2 className="w-3.5 h-3.5" /> Start with one
         </Button>
       </div>
 
@@ -69,7 +61,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           {queue.overdue.length > 0 && (
             <section aria-labelledby="overdue-heading">
               <div id="overdue-heading">
-                <GroupHeading label="Overdue" count={queue.overdue.length} />
+                <GroupHeading label="Carried over" />
               </div>
               <div className="divide-y divide-[var(--line)]">
                 {queue.overdue.map((task) => (
@@ -91,7 +83,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
               className={queue.overdue.length > 0 ? 'border-t border-[var(--line)]' : ''}
             >
               <div id="due-today-heading">
-                <GroupHeading label="Due today" count={queue.today.length} />
+                <GroupHeading label="Today" />
               </div>
               <div className="divide-y divide-[var(--line)]">
                 {queue.today.map((task) => (
@@ -114,7 +106,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           </div>
           <p className="text-sm font-semibold text-[var(--ink)]">Nothing queued</p>
           <p className="text-xs text-[var(--muted)] mt-1">
-            No overdue or due-today tasks. Add one when you are ready.
+            No tasks waiting. Add one when you are ready.
           </p>
           {onNewTaskClick && (
             <div className="mt-4">

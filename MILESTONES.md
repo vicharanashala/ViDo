@@ -1,3 +1,5 @@
+> **Historical roadmap.** The current implementation is the working local-first workspace described in `README.md` and `context.md`. Milestone 1 was extended beyond the original static visual slice. See `journal/CONVERSATIONS.md` for the current state.
+
 # ViDo — Tasks and Milestones
 
 This is the working implementation roadmap for ViDo. It converts the product discussion into small, reviewable slices.

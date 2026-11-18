@@ -11,9 +11,10 @@ ViDo follows a **feature-driven, modular frontend architecture**. Code is organi
 
 ```text
 ViDo/
-├── .agents/                 # OpenSpec local skills and agent tooling
-├── openspec/                # OpenSpec specification and change tracking
-├── public/                  # Static assets served untouched by Vite
+├── .agents/                 # Historical OpenSpec agent tooling
+├── openspec/                # Historical specification artifacts
+├── public/doodles/          # Open-source task images + attribution
+├── journal/                 # Session log, idea register, image prompts
 ├── src/
 │   ├── components/ui/       # Domain-agnostic reusable UI primitives (Button, Card, Badge, etc.)
 │   ├── data/                # Data types, deterministic fixtures, pure filtering & logic
@@ -21,8 +22,9 @@ ViDo/
 │   │   ├── landing/         # Public landing page (/ route)
 │   │   ├── style-lab/       # Theme, accent palette, and visual lab (/style-lab route)
 │   │   └── workspace/       # Working task workspace (/app route)
-│   │       └── views/       # Subroute view components (Home, Today, Upcoming, etc.)
-│   ├── lib/                 # Browser persistence (localStorage task repository)
+│   │       ├── doodles/     # Task image detection and rendering
+│   │       └── views/       # Subroute views (Home, Today, Later, Still here, Done, Put away)
+│   ├── lib/                 # localStorage task + welcome/intention stores
 │   ├── test/                # Global test setup and environment configuration
 │   ├── App.tsx              # Central client-side routing
 │   ├── index.css            # Global CSS variables, theme variables, and Tailwind v4 setup
@@ -46,7 +48,7 @@ ViDo/
 ## 2. Directory Deep-Dive & Purpose
 
 ### `src/components/ui/` — Design System Primitives
-- **Purpose**: Low-level, domain-agnostic UI building blocks (e.g., `Button`, `Badge`, `Card`, `Input`, `NoticeModal`).
+- **Purpose**: Low-level, domain-agnostic UI building blocks (e.g., `Button`, `Badge`, `Card`, `Input`, `ProgressRing`, `NoticeModal`).
 - **Rules**:
   - **Zero domain knowledge**: Components in this folder must *never* import domain types (such as `Task`, `User`, or `Checkpoint`).
   - **Accessible**: Must support keyboard navigation, ARIA attributes, and focus rings.
@@ -59,8 +61,9 @@ ViDo/
   - `taskTypes.ts`: Task, Checkpoint, priority, category, state, and pace types.
   - `taskDates.ts`: date helpers, overdue detection, completion timing, and pace calculation.
   - `sampleTasks.ts`: relative-date seed generator and new-task factory.
-  - `taskFilters.ts`: pure functions for Today, Upcoming, Needs Attention, Completed, Archived, search, and filters.
-  - `taskFilters.test.ts`: unit tests for derived views, filtering, and pace.
+  - `taskFilters.ts`: pure functions for Today, Later, Still here, Done, Put away, search, and filters.
+  - `quickAddParser.ts`: natural-language task capture parser.
+  - `taskFilters.test.ts` and `quickAddParser.test.ts`: derived-view, filter, pace, and parser tests.
 - **Rules**:
   - Keep functions pure and side-effect free.
   - Dates are calculated from the current date; there is no fixed benchmark date.
@@ -69,7 +72,8 @@ ViDo/
 - **Purpose**: Side-effectful infrastructure such as the localStorage task repository.
 - **Current Contents**:
   - `taskRepository.ts`: load, save, normalize, and clear tasks under `vido.tasks.v1`.
-  - `taskRepository.test.ts`: persistence and seed behavior tests.
+  - `welcomeStore.ts`: profile name, welcome state, and per-day intention.
+  - `taskRepository.test.ts` and `welcomeStore.test.ts`: persistence tests.
 
 ### `src/features/` — Domain Vertical Slices
 Each subfolder under `src/features/` encapsulates a complete user-facing product domain:
@@ -82,16 +86,22 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
 #### 2. `src/features/workspace/`
 - **Route**: `/app/*`
 - **Components**:
-  - `WorkspaceLayout.tsx`: Shell layout with sidebar, top bar, quick capture, and subroute rendering.
-  - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, filters, and local profile.
-  - `WorkspaceSidebar.tsx`: Left navigation sidebar with view links and counts.
-  - `QuickAdd.tsx`: One-field capture form.
+  - `WorkspaceLayout.tsx`: Shell layout with icon rail, top bar, quick capture, focus, and subroute rendering.
+  - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, and filters.
+  - `WorkspaceSidebar.tsx`: Slim icon rail with gentle view labels.
+  - `QuickAdd.tsx`: One-field, natural-language capture form.
   - `useTaskStore.ts`: Task state and lifecycle actions backed by localStorage.
-  - `TaskRow.tsx`: Horizontal task row with priority, progress, pace, and checkpoint count.
+  - `useWelcome.ts`: Profile name, welcome state, and daily intention.
+  - `WelcomeCard.tsx` and `IntentionBar.tsx`: First-run welcome and optional daily intention.
+  - `MomentumStrip.tsx`: Seven-day completion view.
+  - `FocusMode.tsx`: One-task focus view with progress ring and checkpoints.
+  - `TaskRow.tsx`: Horizontal row with image + title, due cue, progress cue, and one primary action.
   - `TaskCard.tsx`: Card representation of a task.
   - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Working modals for editing and creating tasks.
-  - `views/HomeView.tsx`: Dashboard command center with 4 interactive summary tiles and task feed.
-  - `views/ListView.tsx`: Category-filterable list view for specific subroutes.
+  - `doodles/`: `DoodleTitle`, `Doodle`, image detection, and image assets mapping.
+  - `views/HomeView.tsx`: Greeting, focus card, momentum, and today’s list.
+  - `views/TodayQueueView.tsx`: Carried-over-first priority queue.
+  - `views/ListView.tsx`: List view for Later, Still here, Done, and Put away.
 - **Rules**:
   - Data is real and persisted; there is no demo mode.
   - Views must derive from real dates and the task store.
@@ -100,14 +110,19 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
 #### 3. `src/features/style-lab/`
 - **Route**: `/style-lab`
 - **Components**: `StyleLab.tsx` and colocated test `StyleLab.test.tsx`.
-- **Purpose**: Live sandbox allowing users and developers to test the three core design palettes (`Cobalt Blue`, `Deep Indigo`, and `Forest Green`).
+- **Purpose**: Live sandbox for accent palettes, UI primitives, and the open-source image library. Image-style experiments here do not drive the main workspace.
 
 ### `src/test/` — Testing Infrastructure
 - `setup.ts`: Configures `@testing-library/jest-dom` matchers and mock polyfills for Happy DOM.
 
-### `openspec/` & `.agents/` — Spec-Driven Workflow
-- `openspec/`: OpenSpec directory storing specs, changes, proposals, and tasks.
-- `.agents/`: Agent skill files used by automated coding agents.
+### `journal/` — Project Memory
+- `CONVERSATIONS.md`: Session story, decisions, issues, and verification.
+- `IDEAS.md`: Implemented, planned, exploring, deferred, and rejected ideas.
+- `IMAGE_PROMPTS.md`: Prompt and workflow for a consistent image set.
+- `README.md`: How to use the journal and current snapshot.
+
+### `openspec/` & `.agents/` — Historical Workflow
+- `openspec/` and `.agents/` are historical spec-driven artifacts. Current work is tracked in `journal/` and GitHub issues.
 
 ---
 
@@ -126,6 +141,8 @@ When adding or modifying files, follow this decision tree:
 | Browser persistence or storage adapter | `src/lib/` | `camelCase.ts` |
 | Future API client, backend integration, or Supabase client | `src/lib/` or `src/services/` | `camelCase.ts` |
 | Unit / integration test | Colocated with feature/component | `<TargetName>.test.tsx` or `.test.ts` |
+| Task image asset | `public/doodles/` | kebab-case `.svg` / `.png` |
+| Journal entry or prompt | `journal/` | `UPPER_CASE.md` |
 | Global CSS or styling tokens | `src/index.css` | kebab-case variables |
 
 ---
@@ -139,3 +156,5 @@ When adding or modifying files, follow this decision tree:
 5. **DO NOT create orphan components without tests**: Every new component or calculation function must have a colocated test.
 6. **DO NOT expose secrets or service-role keys**: All client code runs in the browser. Never commit `.env` or paste private backend tokens.
 7. **DO NOT reintroduce demo framing**: no demo banner, "Demo User", preview badge, or fixed benchmark date. The app at `/app` is real and persisted.
+8. **DO NOT render image-only task labels**: recognised tasks always show image + title; unrecognised tasks stay as text.
+9. **DO NOT add unlicensed images**: update `public/doodles/README.md` with source and license.

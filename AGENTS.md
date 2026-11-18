@@ -10,10 +10,11 @@
 Before proposing changes, creating files, or editing code, read these documents in order:
 
 1. **[FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md)** — Architectural layout and file placement rules.
-2. **[context.md](./context.md)** — Product requirements, UX constraints, and task models.
-3. **[MILESTONES.md](./MILESTONES.md)** — Roadmap phases and delivery boundaries.
-4. **[README.md](./README.md)** — Public product overview and setup instructions.
-5. The active OpenSpec change in `openspec/changes/<change-name>/` (if currently working under a spec change).
+2. **[context.md](./context.md)** — Current product direction, constraints, and task model.
+3. **[README.md](./README.md)** — Public overview, routes, and setup.
+4. **[journal/CONVERSATIONS.md](./journal/CONVERSATIONS.md)** — Session story and current state.
+5. **[journal/IDEAS.md](./journal/IDEAS.md)** — Implemented, planned, deferred, and rejected ideas.
+6. **[MILESTONES.md](./MILESTONES.md)** — Historical roadmap; do not treat it as current scope.
 
 ---
 
@@ -41,6 +42,7 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
 - **Local-First Identity**: Tasks are stored in `localStorage` under `vido.tasks.v1`. No account is required.
 - **Real Dates**: Views are calculated from the current date. Seed data is generated relative to today by `createSeedTasks()`, never a fixed benchmark date.
 - **Progress Is Real**: Tasks carry `progress` (0–100) and a checkpoint timeline. The pace-vs-deadline signal is part of the product, not decoration.
+- **Gentle Language**: Use `Carried over`, `Still here`, `Later`, `Done`, and `Put away`. Avoid pressure counts, red progress bars, and accountability language.
 
 ---
 
@@ -55,6 +57,18 @@ Examples:
 
 - `feat: Today view: focused priority-aware queue`
 - `Issue: Update local setup instructions`
+
+---
+
+## 3.2 Image and Journal Rules
+
+- **Image + title**: Every recognised task must show its image **and** its task title. Never render an image-only task label.
+- **Text fallback**: If no image fits, render the task in words.
+- **No priority-based style switching**: The main workspace uses one image style. The style lab is experimental and must not drive the workspace.
+- **Assets**: Put images in `public/doodles/` (and line doodles in `public/doodles/doodle/`). Update `public/doodles/README.md` when adding or replacing assets.
+- **Components**: Use `DoodleTitle` and `Doodle`; do not hardcode image paths in feature components.
+- **Credits**: Only add assets with a clear license and attribution.
+- **Journal**: After a meaningful decision or implementation slice, update `journal/CONVERSATIONS.md` and `journal/IDEAS.md`.
 
 ---
 
@@ -94,3 +108,5 @@ npm run build
 2. ❌ **Do not remove or weaken existing tests** to make a command pass.
 3. ❌ **Do not commit secrets, environment variables, or build folders** (`.env`, `dist/`, `node_modules/`).
 4. ❌ **Do not hardcode Windows backslashes** in markdown links; always format file links with forward slashes (e.g. `[link text](file:///path/to/file)`).
+5. ❌ **Do not remove task titles in favour of image-only labels.** Images are anchors, not the only meaning.
+6. ❌ **Do not add unlicensed images.** Every asset needs a known license and a credit entry.

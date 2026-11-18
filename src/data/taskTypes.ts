@@ -46,10 +46,10 @@ export interface TaskPace {
 }
 
 export const PACE_EFFICIENCY_LABELS: Record<PaceStatus, string> = {
-  done: 'Delivered',
+  done: 'Done',
   ahead: 'Ahead',
-  'on-track': 'On track',
-  'at-risk': 'At risk',
-  behind: 'Behind',
-  'no-deadline': 'No deadline',
+  'on-track': 'Steady',
+  'at-risk': 'Small step',
+  behind: 'Take your time',
+  'no-deadline': 'No rush',
 };

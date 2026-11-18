@@ -22,12 +22,12 @@ describe('TodayQueueView', () => {
       />
     );
 
-    expect(screen.getByText(/2 high-priority overdue · 3 due today/i)).toBeInTheDocument();
-    expect(screen.getByText('Overdue')).toBeInTheDocument();
-    expect(screen.getByText('Due today')).toBeInTheDocument();
+    expect(screen.getByText(/one important thing is here/i)).toBeInTheDocument();
+    expect(screen.getByText('Carried over')).toBeInTheDocument();
+    expect(screen.getByText('Today')).toBeInTheDocument();
     expect(screen.getByText(/property insurance/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /start next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /start with one/i }));
     expect(onFocusTask).toHaveBeenCalledWith(
       expect.objectContaining({ title: expect.stringMatching(/property insurance/i) })
     );

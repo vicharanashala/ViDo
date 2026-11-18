@@ -17,8 +17,8 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-005 | Progress 0–100 | Task carries `progress`; 100 completes; reopening caps at 99. |
 | I-006 | Checkpoint history | Timestamped note + progress snapshot per update. |
 | I-007 | Pace vs deadline | Expected progress from elapsed time vs actual progress; Ahead / On track / At risk / Behind / Delivered. |
-| I-008 | Real-date views | Today, Upcoming, Needs Attention, Completed, Archived derived from the current clock. |
-| I-009 | Home limits | Today 5, Needs Attention 3, Upcoming 3, Recently Completed 3 for dashboard-style views. |
+| I-008 | Real-date views | Today, Later, Still here, Done, Put away derived from the current clock. |
+| I-009 | Home shape | Greeting, one focus task, seven-day momentum, and a five-row today list. |
 | I-010 | Search and filters | Keyword, priority, deadline; filters appear on demand. |
 | I-011 | Focus mode | Full-screen one-task view; progress ring; checkpoint input; complete/reopen; Esc closes. |
 | I-012 | Delivered state | Completion preserves checkpoint history and shows delivered state. |
@@ -44,14 +44,24 @@ Status labels: `Implemented`, `In progress`, `Planned`, `Exploring`, `Deferred`,
 | I-032 | Journal folder | `journal/` with conversation log, idea register, and guide. |
 | I-033 | Image + title task labels | Recognised tasks show an open-source image next to the task title, so the image is never the only meaning. |
 | I-034 | Doodle coverage | 20 images: laundry, groceries, dishes, dentist, doctor, medicine, cleaning, cooking, call, meeting, run, exercise, reading, plants, car, heatpump, washer, bill, repair, travel. Unrecognised tasks fall back to text. Sources: Twemoji (CC-BY 4.0), rawpixel/Openverse (CC0), Wikimedia Commons (CC0), Tabler (MIT). |
-| I-035 | Cartoon-sticker doodles | Bold outlines, flat cheerful fills, and a pastel sticker background. Doodle library added to `/style-lab`. |
+| I-035 | Cartoon-sticker doodles | Early image experiment; replaced by open-source images. |
 | I-036 | Personal welcome card | Optional name, saved on this device, or skip. |
 | I-037 | Daily intention | One optional line per day, explicitly not a task. |
 | I-038 | Gentler navigation | `Still here`, `Later`, `Done`, `Put away`; no numeric counts in the sidebar. |
 | I-039 | Smaller task titles | Task titles reduced to 10px in rows and smaller in focus/detail views. |
-| I-040 | Priority-based image styles | Experimental. Reverted in the main workspace because changing image styles made tasks harder to read. |
+| I-043 | “That's enough for today” rest state | Collapses the Today list into a calm rest state with an undo. |
+| I-044 | Small-win focus selection | Prefers a task already in progress on today’s list. |
+| I-045 | Calm carried-over language and colours | `Carried over`, amber cues, no red progress bars, no pressure counts. |
 | I-041 | Specific HVAC, hose, and laundry images | Heat pump photo for HVAC; rubber washer/O-ring photo for hose repair; laundromat photo for high-priority laundry. |
-| I-042 | Priority image legend | Removed with the priority-style experiment. The main workspace uses image + title instead. |
+
+---
+
+## Reverted
+
+| ID | Idea | Reason |
+|---|---|---|
+| I-040 | Priority-based image styles | Changing image style by priority made tasks harder to read. The workspace now uses one style. |
+| I-042 | Priority image legend | Removed with the priority-style experiment. The workspace uses image + title instead. |
 
 ---
 
@@ -85,9 +95,6 @@ None at the moment.
 | I-097 | Accessibility audit | Keyboard paths, contrast, screen-reader labels. |
 | I-098 | Focus blocks with pause/resume | Time-block model; split current task, insert new task, resume with checkpoints. Explore first. |
 | I-099 | AI agent | Task generation, follow-up suggestions, risk detection, summaries. Grounded in user-approved data. |
-| I-074 | "That's enough for today" rest state | Collapse the Today list into a calm rest state, with undo. |
-| I-075 | Small-win focus selection | Prefer a task with higher progress / due today over the oldest overdue task. |
-| I-076 | Calm overdue language and colours | Replace `Overdue` with `Carried over`; amber cues, never red progress bars. |
 
 ---
 
@@ -133,10 +140,11 @@ None at the moment.
 
 ## Open questions
 
-1. Which doodles should be mandatory vs optional?
-2. Should recognised tasks hide the title entirely, or show it on hover/focus?
-3. Should doodles appear in every view or only Today/Home?
-4. Should the landing page use the same doodle language?
-5. Should focus blocks be a design spike or a full feature?
-6. Should the next foundation be Supabase/auth or more local polish?
+1. Which image kinds should be added next?
+2. Should there be a picture-only mode, or keep image + title as the default?
+3. Should the landing page match the workspace more closely?
+4. Should focus blocks be a design spike?
+5. Should Supabase/auth be the next foundation step?
+6. Should we add a focus session timer?
 7. Do we need a dark theme?
+8. What should follow #7 — more image coverage or the landing page?

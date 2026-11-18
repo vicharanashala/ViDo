@@ -42,19 +42,43 @@ describe('Workspace views and modals', () => {
 
       expect(screen.getByText(/good (morning|afternoon|evening)/i)).toBeInTheDocument();
       expect(screen.getAllByText(todayLabel).length).toBeGreaterThan(0);
-      expect(screen.getByText(/focus next/i)).toBeInTheDocument();
-      expect(screen.getByText(focusTask.title)).toBeInTheDocument();
+      expect(screen.getByText(/one small thing/i)).toBeInTheDocument();
+      expect(screen.getAllByText(focusTask.title).length).toBeGreaterThan(0);
 
       expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
       expect(screen.getByText(/review q4 budget/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/delivered/i).length).toBeGreaterThan(0);
+      expect(screen.getByText(/a little progress today/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/7-day momentum/i)).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: /start focus/i }));
+      fireEvent.click(screen.getByRole('button', { name: /^begin$/i }));
       expect(handleFocus).toHaveBeenCalledWith(focusTask);
 
       fireEvent.click(screen.getByLabelText(/task: review q4 budget/i));
       expect(handleClick).toHaveBeenCalled();
+    });
+
+    it('can put the list away for today', () => {
+      const dashboard = getHomeDashboardTasks(tasks, reference);
+      const focusTask = pickFocusTask(tasks, reference)!;
+
+      render(
+        <MemoryRouter>
+          <HomeView
+            todayTasks={dashboard.today}
+            todayLabel={todayLabel}
+            todayMomentum={{ completed: 2, total: 8 }}
+            focusTask={focusTask}
+            allTasks={tasks}
+            onTaskClick={vi.fn()}
+            onFocusTask={vi.fn()}
+          />
+        </MemoryRouter>
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /that's enough for today/i }));
+      expect(screen.getByText(/you can stop here/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: /show the list/i }));
+      expect(screen.getByLabelText(/task: review q4 budget/i)).toBeInTheDocument();
     });
   });
 
@@ -89,7 +113,7 @@ describe('Workspace views and modals', () => {
 
       expect(screen.getByText(task.title)).toBeInTheDocument();
       expect(screen.getByText(task.description!)).toBeInTheDocument();
-      expect(screen.getByText(/progress checkpoints/i)).toBeInTheDocument();
+      expect(screen.getByText(/notes and updates/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/task progress/i)).toBeInTheDocument();
 
       fireEvent.keyDown(window, { key: 'Escape' });

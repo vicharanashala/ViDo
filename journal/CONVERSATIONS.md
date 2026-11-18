@@ -97,7 +97,7 @@ Conclusion: the host team directed and committed the app, but it was largely AI-
 | App LOC | ~4,310 | ~2,553 | ~3,393 (+ tests) |
 | Largest file | 1,957 LOC | 1,162 LOC | 300 LOC |
 | Architecture | root + server + client, JS | root + server + client, JS | single package, TS, feature slices |
-| Tests | 0 | 0 | 28 initially, 65 at last run |
+| Tests | 0 | 0 | 28 initially, 67 at last run |
 | Backend | Express + JWT + JSON + cron + email | Express + dataset engine | none |
 | Auth | magic link + Google + JWT | none | none |
 | Algorithm depth | high | highest | low initially |
@@ -452,6 +452,7 @@ Assessment:
 | Doodle task titles | pass | 60 | pass |
 | Cartoon sticker doodles + welcome/intention | pass | 65 | pass |
 | Image + title clarity pass | pass | 65 | pass |
+| Gentle daily-space pass (#7) | pass | 67 | pass |
 
 Last build at time of writing:
 
@@ -466,13 +467,14 @@ Last build at time of writing:
 - Working app in `vido-app/`.
 - Routes: `/`, `/app`, `/app/today`, `/app/upcoming`, `/app/needs-attention`, `/app/completed`, `/app/archived`, `/style-lab`.
 - Data persists in localStorage.
-- First commit `0d10483` pushed to fork `NAGASHREE1/ViDo` on branch `feat/local-first-vido`.
-- Current version includes cartoon-sticker doodles, welcome card, daily intention, gentler navigation, and smaller task titles.
+- Branch `feat/local-first-vido` pushed to fork `NAGASHREE1/ViDo`; PR #9 is open.
+- Commit author: `Nagashree Venkatesh <nagu95@gmail.com>` under `NAGASHREE1`.
+- Current version includes image + title task labels, welcome card, daily intention, rest state, small-win focus, gentler navigation, smaller task titles, and Today/Focus flows.
 - Issue #7 opened for the gentle daily-space direction.
-- PR #9 raised: https://github.com/vicharanashala/ViDo/pull/9
+- PR #9 open: https://github.com/vicharanashala/ViDo/pull/9
 - Issues #3, #4, and #7 open.
 - Assignment pending.
-- Doodle title system implemented for 14 task kinds.
+- Image + title labels implemented for 20 task kinds; unrecognised tasks stay as text.
 - Journal folder created with conversation log, idea register, and guide.
 - Dev server runs at `http://127.0.0.1:5173`.
 

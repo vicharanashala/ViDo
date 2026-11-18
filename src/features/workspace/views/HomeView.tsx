@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Task } from '../../../data/taskTypes';
-import { getTaskPace, greeting, paceTone, relativeDayLabel } from '../../../data/taskDates';
+import { getTaskPace, greeting, paceTone, relativeDayLabel, toDateKey } from '../../../data/taskDates';
 import { TaskRow } from '../TaskRow';
 import { DoodleTitle } from '../doodles/DoodleTitle';
 import { WelcomeCard } from '../WelcomeCard';
 import { IntentionBar } from '../IntentionBar';
 import { MomentumStrip } from '../MomentumStrip';
+import { Doodle } from '../doodles/Doodles';
+import { loadRested, saveRested } from '../../../lib/welcomeStore';
 import { ArrowRight, Clock, Maximize2 } from 'lucide-react';
 import { Badge, Button, ProgressRing } from '../../../components/ui';
 
@@ -37,10 +39,10 @@ export interface HomeViewProps {
 }
 
 function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string {
-  if (status === 'behind') return 'Narrow the next step and log one update.';
-  if (status === 'at-risk') return 'A small update will get this back on pace.';
-  if (status === 'ahead') return 'You are ahead. Keep the next step small.';
-  return 'Open one task. Leave everything else here.';
+  if (status === 'behind') return 'No rush. Pick the smallest next step.';
+  if (status === 'at-risk') return 'One small update is enough.';
+  if (status === 'ahead') return 'You are moving. Keep it light.';
+  return 'One thing at a time.';
 }
 
 const HERO_GRADIENT =
@@ -63,6 +65,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
 }) => {
   const focusPace = focusTask ? getTaskPace(focusTask) : null;
   const greetingText = userName ? `${greeting()}, ${userName}` : greeting();
+  const todayKey = toDateKey(new Date());
+  const [rested, setRested] = useState(() => loadRested(todayKey));
+
+  const stopForToday = () => {
+    setRested(true);
+    saveRested(todayKey, true);
+  };
+
+  const showList = () => {
+    setRested(false);
+    saveRested(todayKey, false);
+  };
+
   const momentumPercent =
     todayMomentum.total > 0
       ? Math.round((todayMomentum.completed / todayMomentum.total) * 100)
@@ -94,8 +109,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             value={momentumPercent}
             size={82}
             strokeWidth={7}
-            label={`${todayMomentum.completed}/${todayMomentum.total}`}
-            subLabel="today"
+            label={`${todayMomentum.completed}`}
+            subLabel="done today"
             className="hidden sm:inline-flex"
           />
         </div>
@@ -104,7 +119,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="relative mt-6 grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-[var(--surface)]/85 border border-[var(--line)] p-5">
             <div>
               <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--accent)]">
-                Focus next
+                One small thing
               </span>
               <h2 className="text-base sm:text-lg font-extrabold text-[var(--ink)] mt-1 leading-snug">
                 <DoodleTitle title={focusTask.title} size="lg" />
@@ -122,7 +137,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Button variant="primary" size="sm" onClick={() => onFocusTask(focusTask)}>
-                  <Maximize2 className="w-3.5 h-3.5" /> Start focus
+                  <Maximize2 className="w-3.5 h-3.5" /> Begin
                 </Button>
                 <span className="text-[11px] text-[var(--muted)]">{focusMessage(focusPace.status)}</span>
               </div>
@@ -132,7 +147,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               size={112}
               strokeWidth={8}
               label={`${focusTask.progress}%`}
-              subLabel={`expected ${focusPace.expected}%`}
               className="mx-auto sm:mx-0"
             />
           </div>
@@ -149,9 +163,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <MomentumStrip tasks={allTasks} />
             </div>
           </div>
-          <span className="text-xs font-mono text-[var(--muted)]">
-            {todayMomentum.completed}/{todayMomentum.total} delivered today
-          </span>
+          <span className="text-xs text-[var(--muted)]">A little progress today.</span>
         </div>
       </section>
 
@@ -159,14 +171,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       <section aria-labelledby="today-heading" className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <h2 id="today-heading" className="text-lg font-bold text-[var(--ink)] tracking-tight">
-              Today
-            </h2>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--line)] text-[var(--muted)]">
-              {todayTasks.items.length} of {todayTasks.totalCount}
-            </span>
-          </div>
+          <h2 id="today-heading" className="text-lg font-bold text-[var(--ink)] tracking-tight">
+            Today
+          </h2>
 
           <Link
             to="/app/today"
@@ -176,18 +183,36 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </Link>
         </div>
 
-        {todayTasks.items.length > 0 ? (
-          <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
-            {todayTasks.items.map((task) => (
-              <TaskRow
-                key={task.id}
-                task={task}
-                onClick={onTaskClick}
-                onToggleComplete={onToggleComplete}
-                onFocus={onFocusTask}
-              />
-            ))}
+        {rested ? (
+          <div className="p-8 text-center border border-[var(--line)] rounded-xl bg-[var(--surface)]">
+            <div className="w-12 h-12 mx-auto mb-3">
+              <Doodle kind="plants" />
+            </div>
+            <h3 className="text-base font-semibold text-[var(--ink)]">You can stop here.</h3>
+            <p className="text-xs text-[var(--muted)] mt-1">The rest will keep until tomorrow.</p>
+            <Button variant="secondary" size="sm" className="mt-4" onClick={showList}>
+              Show the list
+            </Button>
           </div>
+        ) : todayTasks.items.length > 0 ? (
+          <>
+            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
+              {todayTasks.items.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  task={task}
+                  onClick={onTaskClick}
+                  onToggleComplete={onToggleComplete}
+                  onFocus={onFocusTask}
+                />
+              ))}
+            </div>
+            <div className="flex justify-center pt-1">
+              <Button variant="ghost" size="sm" onClick={stopForToday}>
+                That's enough for today
+              </Button>
+            </div>
+          </>
         ) : (
           <div className="p-10 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)]">
             <p className="text-xs text-[var(--muted)]">No tasks due today. You are fully caught up.</p>

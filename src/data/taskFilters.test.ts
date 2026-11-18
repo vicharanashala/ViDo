@@ -88,11 +88,13 @@ describe('taskFilters', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('picks the highest-priority overdue task as the focus', () => {
+  it('picks a small win from today as the focus', () => {
     const focus = pickFocusTask(tasks, reference);
     expect(focus).not.toBeNull();
+    expect(focus?.state).toBe('active');
+    expect(focus?.dueDate).toBe(todayKey);
     expect(focus?.priority).toBe('high');
-    expect(focus!.dueDate < todayKey).toBe(true);
+    expect(focus?.progress).toBeGreaterThan(0);
   });
 
   it('builds an ordered Today queue with priority feedback', () => {

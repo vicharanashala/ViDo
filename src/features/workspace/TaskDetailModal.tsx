@@ -38,11 +38,7 @@ export interface TaskDetailModalProps {
 }
 
 function progressColor(task: Task): string {
-  const pace = getTaskPace(task);
-  if (pace.status === 'behind') return 'var(--red)';
-  if (pace.status === 'at-risk') return 'var(--amber)';
-  if (pace.status === 'done' || pace.status === 'ahead') return 'var(--green)';
-  return 'var(--accent)';
+  return task.state === 'completed' ? 'var(--green)' : 'var(--accent)';
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
@@ -163,18 +159,18 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               size="sm"
               variant={task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'neutral'}
             >
-              {task.priority}
+              {task.priority === 'high' ? 'Important' : task.priority}
             </Badge>
           )}
           <Badge size="sm" variant={isCompleted ? 'success' : isOverdue ? 'danger' : 'accent'}>
-            {isCompleted ? 'Completed' : isOverdue ? 'Overdue' : 'Active'}
+            {isCompleted ? 'Done' : isOverdue ? 'Carried over' : 'Active'}
           </Badge>
           <Badge size="sm" variant={paceTone(pace.status)}>
             {pace.label}
           </Badge>
           {task.archivedAt && (
             <Badge size="sm" variant="neutral">
-              Archived
+              Put away
             </Badge>
           )}
         </div>
@@ -308,7 +304,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         <div className="mt-6 p-4 rounded-xl border border-[var(--line)] bg-[var(--canvas)]">
           <div className="flex items-center justify-between gap-3 mb-2">
-            <h3 className="text-xs uppercase font-bold tracking-wider text-[var(--muted)]">Pace vs deadline</h3>
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[var(--muted)]">A little context</h3>
             <Badge size="sm" variant={paceTone(pace.status)}>
               {pace.label}
             </Badge>
@@ -320,19 +316,18 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             />
           </div>
           <div className="flex items-center justify-between text-[11px] text-[var(--muted)] mt-1.5 font-mono">
-            <span>Actual {task.progress}%</span>
-            <span>Expected by now {pace.expected}%</span>
+            <span>{task.progress}% there</span>
           </div>
           <p className="text-[11px] text-[var(--muted)] mt-2">
             {pace.status === 'behind'
-              ? 'Progress is behind the time elapsed. Consider narrowing the scope or moving the deadline.'
+              ? 'No rush. Pick the smallest next step.'
               : pace.status === 'at-risk'
-                ? 'Progress is slightly behind. A checkpoint update would help.'
+                ? 'One small update is enough.'
                 : pace.status === 'ahead'
-                  ? 'You are ahead of the deadline. Good place to bank the win.'
+                  ? 'You are moving. Keep it light.'
                   : pace.status === 'done'
-                    ? 'Delivered and recorded.'
-                    : 'Progress is tracking the deadline.'}
+                    ? 'Done. That counts.'
+                    : 'One thing at a time.'}
           </p>
 
           <div className="mt-3 flex items-center gap-3">
@@ -355,7 +350,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         <div className="mt-6">
           <h3 className="text-xs uppercase font-bold tracking-wider text-[var(--muted)] flex items-center gap-1.5 mb-3">
-            <History className="w-3.5 h-3.5 text-[var(--accent)]" /> Progress checkpoints
+            <History className="w-3.5 h-3.5 text-[var(--accent)]" /> Notes and updates
           </h3>
 
           {task.checkpoints.length > 0 ? (
@@ -374,7 +369,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 ))}
             </div>
           ) : (
-            <p className="text-xs text-[var(--faint)] italic">No checkpoints recorded yet for this task.</p>
+            <p className="text-xs text-[var(--faint)] italic">No notes yet.</p>
           )}
 
           <form onSubmit={handleAddCheckpoint} className="mt-3 flex flex-col sm:flex-row gap-2">
@@ -395,25 +390,25 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           <div className="flex items-center gap-2">
             {onFocus && !task.archivedAt && (
               <Button size="sm" variant="secondary" onClick={onFocus}>
-                <Maximize2 className="w-3.5 h-3.5" /> Focus
+                <Maximize2 className="w-3.5 h-3.5" /> Begin
               </Button>
             )}
             {!isCompleted ? (
               <Button size="sm" variant="primary" onClick={() => onToggleComplete?.(task.id)}>
-                <CheckCircle2 className="w-3.5 h-3.5" /> Complete
+                <CheckCircle2 className="w-3.5 h-3.5" /> Done
               </Button>
             ) : (
               <Button size="sm" variant="secondary" onClick={() => onToggleComplete?.(task.id)}>
-                <RotateCcw className="w-3.5 h-3.5" /> Reopen
+                <RotateCcw className="w-3.5 h-3.5" /> Back on the list
               </Button>
             )}
             {task.archivedAt ? (
               <Button size="sm" variant="secondary" onClick={() => onRestore?.(task.id)}>
-                Restore
+                Bring back
               </Button>
             ) : (
               <Button size="sm" variant="secondary" onClick={() => onArchive?.(task.id)}>
-                <Archive className="w-3.5 h-3.5" /> Archive
+                <Archive className="w-3.5 h-3.5" /> Put away
               </Button>
             )}
           </div>
@@ -428,8 +423,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         </div>
 
         {isOverdue && (
-          <p className="mt-3 text-[11px] text-[var(--red)] flex items-center gap-1">
-            <AlertCircle className="w-3.5 h-3.5" /> This task is past its deadline.
+          <p className="mt-3 text-[11px] text-[var(--amber)] flex items-center gap-1">
+            <AlertCircle className="w-3.5 h-3.5" /> This one is still here. Move it or leave it for today.
           </p>
         )}
       </div>

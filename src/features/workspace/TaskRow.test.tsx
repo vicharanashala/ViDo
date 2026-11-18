@@ -7,13 +7,13 @@ const reference = new Date(2026, 10, 17, 12, 0, 0);
 const task = createSeedTasks(reference)[0];
 
 describe('TaskRow', () => {
-  it('shows three signals and a high-priority marker', () => {
+  it('shows three signals and an important marker', () => {
     render(<TaskRow task={task} now={reference} onClick={vi.fn()} onToggleComplete={vi.fn()} />);
 
     expect(screen.getByText(task.title)).toBeInTheDocument();
     expect(screen.getByText('60%')).toBeInTheDocument();
     expect(screen.getByText(/today 16:00/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/high priority/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/important/i)).toBeInTheDocument();
     expect(screen.queryByText(/^high$/i)).not.toBeInTheDocument();
   });
 
@@ -42,7 +42,7 @@ describe('TaskRow', () => {
     fireEvent.keyDown(row, { key: 'f' });
     expect(onFocus).toHaveBeenCalledWith(task);
 
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(`focus ${task.title}`, 'i') }));
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(`begin ${task.title}`, 'i') }));
     expect(onFocus).toHaveBeenCalledTimes(2);
   });
 

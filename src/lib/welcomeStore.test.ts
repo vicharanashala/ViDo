@@ -3,8 +3,10 @@ import {
   clearWelcomeStorage,
   loadIntention,
   loadProfile,
+  loadRested,
   saveIntention,
   saveProfile,
+  saveRested,
 } from './welcomeStore';
 
 describe('welcomeStore', () => {
@@ -27,13 +29,24 @@ describe('welcomeStore', () => {
     expect(loadIntention('2026-11-18')).toBe('');
   });
 
-  it('clears only welcome data', () => {
+  it('stores a per-day rest state', () => {
+    saveRested('2026-11-17', true);
+    expect(loadRested('2026-11-17')).toBe(true);
+    expect(loadRested('2026-11-18')).toBe(false);
+
+    saveRested('2026-11-17', false);
+    expect(loadRested('2026-11-17')).toBe(false);
+  });
+
+  it('clears only personal data', () => {
     saveProfile({ name: 'Asha', welcomed: true });
     saveIntention('2026-11-17', 'Move slowly.');
+    saveRested('2026-11-17', true);
 
     clearWelcomeStorage();
 
     expect(loadProfile().welcomed).toBe(false);
     expect(loadIntention('2026-11-17')).toBe('');
+    expect(loadRested('2026-11-17')).toBe(false);
   });
 });

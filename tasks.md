@@ -1,3 +1,5 @@
+> **Historical planning artifact.** Current status, routes, and next work live in `README.md`, `context.md`, and `journal/IDEAS.md`.
+
 # ViDo — Project Tasks
 
 A structured task breakdown derived from [README.md](./README.md) and [Idea.md](./Idea.md).
