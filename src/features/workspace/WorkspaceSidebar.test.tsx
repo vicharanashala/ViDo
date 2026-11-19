@@ -12,13 +12,13 @@ describe('WorkspaceSidebar', () => {
     );
 
     expect(screen.getByRole('link', { name: /vido/i })).toHaveAttribute('href', '/app');
-    expect(screen.getByRole('link', { name: /home base/i })).toHaveAttribute('href', '/app');
-    expect(screen.getByRole('link', { name: /today's move/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /pick up again/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /what's next/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /your paths/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /wins so far/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /resting/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute('href', '/app');
+    expect(screen.getByRole('link', { name: /^today$/i })).toBeInTheDocument();
+    
+    expect(screen.getByRole('link', { name: /^upcoming/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^past$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^completed/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^archived/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
     expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });

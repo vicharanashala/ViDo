@@ -54,3 +54,18 @@ Thumbs.db
 *.sw?
 *.sublime-workspace
 *.sublime-project
+
+# Local-only project memory and planning files
+journal/
+AGENTS.md
+FOLDER_STRUCTURE.md
+context.md
+REVIEW_FEEDBACK.md
+MILESTONES.md
+tasks.md
+Idea.md
+concept.html
+review-evidence/
+openspec/
+.agents/
+.cursorrules

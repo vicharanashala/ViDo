@@ -114,6 +114,34 @@ describe('useTaskStore recurrence', () => {
     expect(next?.progress).toBe(0);
   });
 
+  it('resets reminder and subtask state for the next occurrence', () => {
+    const { result } = renderHook(() => useTaskStore());
+    let taskId = '';
+
+    act(() => {
+      taskId = result.current.addTask({
+        title: 'Daily practice',
+        dueDate: todayKey,
+        deadlineDate: toDateKey(addDays(reference, 5)),
+        recurrence: 'daily',
+        reminderAt: reference.toISOString(),
+      }).id;
+      result.current.addSubtask(taskId, 'Warm up');
+    });
+
+    const step = result.current.tasks.find((task) => task.id === taskId)?.subtasks?.[0];
+    act(() => {
+      result.current.toggleSubtask(taskId, step!.id);
+    });
+
+    const next = result.current.tasks.find(
+      (task) => task.recurrence === 'daily' && task.state === 'active'
+    );
+    expect(next?.reminderAt).toBeUndefined();
+    expect(next?.reminderSentAt).toBeUndefined();
+    expect(next?.subtasks?.every((subtask) => !subtask.done)).toBe(true);
+  });
+
   it('stops when the next occurrence would pass the deadline', () => {
     const { result } = renderHook(() => useTaskStore());
     let taskId = '';

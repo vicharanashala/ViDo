@@ -18,8 +18,6 @@ export interface TodayQueueViewProps {
   onNewTaskClick?: () => void;
 }
 
-const TODAY_QUOTE = '“Small steps still count. Begin where it feels lightest.”';
-
 export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
   tasks,
   reference = new Date(),
@@ -35,35 +33,24 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
   const queue = getTodayQueue(tasks, reference);
   const recommendations = onBringToToday ? pickTodayRecommendations(tasks, reference) : [];
   const nextTask = queue.all[0] ?? null;
-  const priorityNote =
-    queue.all.length === 0
-      ? 'Nothing here. Take the day.'
-      : queue.highToday > 0
-        ? 'One important thing is here. The rest can wait.'
-        : null;
-
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
       <h2 className="sr-only">Today's queue</h2>
 
-      <div className="flex flex-col items-center gap-2 text-center">
-        <p className="max-w-2xl text-base sm:text-lg font-extrabold leading-snug tracking-tight text-[var(--accent)]">
-          {TODAY_QUOTE}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs font-medium text-[var(--muted)]">
+          {queue.all.length > 0 ? `${queue.all.length} task${queue.all.length === 1 ? '' : 's'} due today.` : 'No tasks due today.'}
         </p>
-        {priorityNote && (
-          <p className="text-xs font-medium text-[var(--muted)]">{priorityNote}</p>
-        )}
         <Button
           size="sm"
           variant="primary"
           onClick={() => nextTask && onFocusTask(nextTask)}
           disabled={!nextTask}
-          className="mt-1 shrink-0"
+          className="shrink-0"
         >
           <Maximize2 className="w-3.5 h-3.5" /> Start with one
         </Button>
       </div>
-
       <p className="text-[11px] text-[var(--muted)]">
         Tasks due today, plus deadline work you can start now. Earlier tasks are in Past.
       </p>
@@ -90,7 +77,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           <div className="w-10 h-10 rounded-full bg-[var(--canvas)] text-[var(--faint)] flex items-center justify-center mx-auto mb-3">
             <Inbox className="w-5 h-5" />
           </div>
-          <p className="text-sm font-semibold text-[var(--ink)]">Nothing due today</p>
+          <p className="text-sm font-semibold text-[var(--ink)]">Nothing queued</p>
           <p className="text-xs text-[var(--muted)] mt-1">
             No tasks waiting for today. Add one when you are ready.
           </p>

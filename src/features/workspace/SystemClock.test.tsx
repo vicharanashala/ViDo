@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { SystemClock } from './SystemClock';
 
 describe('SystemClock', () => {
@@ -14,15 +14,17 @@ describe('SystemClock', () => {
 
   it('shows the current system time', () => {
     render(<SystemClock />);
-    expect(screen.getByText('21:42')).toBeInTheDocument();
-    expect(screen.getByText('Wednesday, 18 November 2026')).toBeInTheDocument();
-    expect(screen.getByText(/right now/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/system time: Wednesday, 18 November 2026 21:42/i)).toBeInTheDocument();
+    expect(screen.getByText('21:42:12')).toBeInTheDocument();
+    expect(screen.getByText('Wednesday')).toBeInTheDocument();
+    expect(screen.getByText('18 November 2026')).toBeInTheDocument();
+    expect(screen.getByLabelText(/system time: Wednesday, 18 November 2026 21:42:12/i)).toBeInTheDocument();
   });
 
   it('updates when the clock moves forward', () => {
     render(<SystemClock />);
-    vi.advanceTimersByTime(1000);
-    expect(screen.getByText('21:42')).toBeInTheDocument();
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText('21:42:13')).toBeInTheDocument();
   });
 });

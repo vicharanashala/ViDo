@@ -11,8 +11,6 @@ const VIEWS = [
   ['Home', 'Your calm overview.'],
   ['Today', 'Only tasks due today.'],
   ['Upcoming', 'Later, when you have room.'],
-  ['Your paths', 'Choose a task and shape its steps.'],
-  ['Momentum trail', 'A gentle snake-and-ladder of completed work.'],
   ['Profile', 'Edit name, email, date of birth, and phone.'],
   ['Past', 'Earlier tasks. Pick what to do today, or leave them.'],
   ['Completed', 'What you finished.'],

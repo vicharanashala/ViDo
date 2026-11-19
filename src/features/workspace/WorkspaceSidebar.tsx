@@ -6,10 +6,8 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Gamepad2,
   LayoutDashboard,
   Leaf,
-  ListChecks,
   PanelLeftClose,
   Palette,
   Pencil,
@@ -36,53 +34,36 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     {
       to: '/app',
       end: true,
-      label: 'Home base',
-      hint: 'Overview',
+      label: 'Home',
       icon: <LayoutDashboard className="w-4 h-4" />,
     },
     {
       to: '/app/today',
-      label: "Today's move",
-      hint: 'Today',
+      label: 'Today',
       icon: <Clock className="w-4 h-4" />,
     },
     {
       to: '/app/upcoming',
-      label: "What's next",
-      hint: 'Upcoming',
+      label: 'Upcoming',
       icon: <Calendar className="w-4 h-4" />,
     },
     {
-      to: '/app/paths',
-      label: 'Your paths',
-      hint: 'Task steps',
-      icon: <ListChecks className="w-4 h-4" />,
-    },
-    {
-      to: '/app/trail',
-      label: 'Momentum trail',
-      hint: 'Game board',
-      icon: <Gamepad2 className="w-4 h-4" />,
-    },
-    {
       to: '/app/needs-attention',
-      label: 'Pick up again',
-      hint: 'Past',
+      label: 'Past',
       icon: <AlertCircle className="w-4 h-4" />,
     },
     {
       to: '/app/completed',
-      label: 'Wins so far',
-      hint: 'Completed',
+      label: 'Completed',
       icon: <CheckCircle2 className="w-4 h-4" />,
     },
     {
       to: '/app/archived',
-      label: 'Resting',
-      hint: 'Archived',
+      label: 'Archived',
       icon: <Archive className="w-4 h-4" />,
     },
   ];
+
 
   return (
     <aside
@@ -147,9 +128,6 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               <span className="shrink-0">{item.icon}</span>
               <span className="min-w-0">
                 <span className="text-xs font-semibold block leading-tight">{item.label}</span>
-                {item.hint && (
-                  <span className="text-[10px] text-[var(--faint)] block leading-tight">{item.hint}</span>
-                )}
               </span>
             </NavLink>
           ))}

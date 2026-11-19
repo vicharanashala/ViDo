@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, Gamepad2, LayoutDashboard, ListChecks, PanelLeftOpen, Plus, X } from 'lucide-react';
+import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, LayoutDashboard, PanelLeftOpen, Plus, X } from 'lucide-react';
 import type { NewTaskInput, Task } from '../../data/taskTypes';
 import {
   applyTaskFilters,
@@ -24,10 +24,7 @@ import { TaskCheckInTray } from './TaskCheckInTray';
 import { HelpModal } from './HelpModal';
 import { TaskPathView } from './TaskPathView';
 import { PathsView } from './views/PathsView';
-import { TrailView } from './views/TrailView';
 import { ProfileView } from './views/ProfileView';
-import { Doodle } from './doodles/Doodles';
-import type { DoodleKind } from './doodles/doodleMap';
 import type { CheckInKind } from './checkInTypes';
 import { useTaskStore } from './useTaskStore';
 import { useWelcome } from './useWelcome';
@@ -38,8 +35,6 @@ const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
   { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
   { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
-  { to: '/app/paths', label: 'Paths', icon: <ListChecks className="w-3.5 h-3.5" /> },
-  { to: '/app/trail', label: 'Trail', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
   { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
   { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
@@ -48,19 +43,6 @@ const MOBILE_NAV = [
 function deliveryNotice(task: Task): string {
   return task.priority === 'high' ? 'Important thing done. That counts.' : 'Done. That counts.';
 }
-
-const ATMOSPHERE_TASKS: { kind: DoodleKind; style: React.CSSProperties }[] = [
-  { kind: 'laundry', style: { top: '10%', left: '23%', width: 62, height: 62, animationDelay: '-2s' } },
-  { kind: 'reading', style: { top: '16%', right: '7%', width: 54, height: 54, animationDelay: '-7s' } },
-  { kind: 'groceries', style: { top: '38%', left: '4%', width: 58, height: 58, animationDelay: '-12s' } },
-  { kind: 'writing', style: { top: '44%', right: '12%', width: 60, height: 60, animationDelay: '-5s' } },
-  { kind: 'run', style: { top: '68%', left: '24%', width: 66, height: 66, animationDelay: '-16s' } },
-  { kind: 'cooking', style: { top: '72%', right: '20%', width: 52, height: 52, animationDelay: '-9s' } },
-  { kind: 'plants', style: { top: '84%', left: '6%', width: 48, height: 48, animationDelay: '-20s' } },
-  { kind: 'cricket', style: { top: '88%', right: '5%', width: 56, height: 56, animationDelay: '-13s' } },
-  { kind: 'travel', style: { top: '30%', left: '76%', width: 48, height: 48, animationDelay: '-18s' } },
-  { kind: 'basketball', style: { top: '58%', right: '3%', width: 46, height: 46, animationDelay: '-3s' } },
-];
 
 export const WorkspaceLayout: React.FC = () => {
   const {
@@ -136,6 +118,7 @@ export const WorkspaceLayout: React.FC = () => {
         (task) =>
           task.state === 'active' &&
           !task.archivedAt &&
+          !task.parkedAt &&
           task.reminderAt &&
           !task.reminderSentAt &&
           new Date(task.reminderAt).getTime() <= nowMs
@@ -307,9 +290,6 @@ export const WorkspaceLayout: React.FC = () => {
     if (path.endsWith('/paths')) {
       return { title: 'Paths', subtitle: 'Choose a task and shape its steps' };
     }
-    if (path.endsWith('/trail')) {
-      return { title: 'Momentum trail', subtitle: 'A gentle snake-and-ladder of completed work' };
-    }
     if (path.endsWith('/profile')) {
       return { title: 'Profile', subtitle: 'Edit how ViDo addresses you' };
     }
@@ -332,13 +312,6 @@ export const WorkspaceLayout: React.FC = () => {
 
   return (
     <div className="workspace-studio flex min-h-screen text-[var(--ink)] antialiased">
-      <div className="workspace-atmosphere" aria-hidden="true">
-        {ATMOSPHERE_TASKS.map(({ kind, style }) => (
-          <span key={kind} className="workspace-task-mark" style={style}>
-            <Doodle kind={kind} />
-          </span>
-        ))}
-      </div>
       {!sidebarOpen && (
         <button
           type="button"
@@ -384,14 +357,12 @@ export const WorkspaceLayout: React.FC = () => {
             setSidebarOpen(false);
           }}
         >
-          <div className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 max-w-3xl mx-auto">
-            <div className="flex items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <QuickAdd onAdd={handleQuickAdd} />
-              </div>
-              <div className="pt-1">
-                <SystemClock />
-              </div>
+          <div className="relative px-4 sm:px-6 lg:px-8 pt-5 pb-2">
+            <div className="mx-auto w-full max-w-2xl">
+              <QuickAdd onAdd={handleQuickAdd} />
+            </div>
+            <div className="absolute right-4 top-5 hidden min-[1400px]:block lg:right-8">
+              <SystemClock />
             </div>
           </div>
 
@@ -471,7 +442,6 @@ export const WorkspaceLayout: React.FC = () => {
                 />
               }
             />
-            <Route path="trail" element={<TrailView tasks={tasks} />} />
             <Route
               path="tasks/:taskId/path"
               element={

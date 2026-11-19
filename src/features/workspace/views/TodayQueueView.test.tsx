@@ -24,7 +24,7 @@ describe('TodayQueueView', () => {
       />
     );
 
-    expect(screen.getByText(/one important thing is here/i)).toBeInTheDocument();
+    expect(screen.getByText(/6 tasks due today/i)).toBeInTheDocument();
     expect(screen.queryByText(/carried over/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/property insurance/i)).not.toBeInTheDocument();
     expect(screen.getByText(/review q4 budget/i)).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('TodayQueueView', () => {
       />
     );
 
-    expect(screen.getByText(/nothing due today/i)).toBeInTheDocument();
+    expect(screen.getByText(/nothing queued/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /add a task/i }));
     expect(onNewTaskClick).toHaveBeenCalled();
   });
