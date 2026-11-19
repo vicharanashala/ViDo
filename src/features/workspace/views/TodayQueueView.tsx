@@ -18,6 +18,8 @@ export interface TodayQueueViewProps {
   onNewTaskClick?: () => void;
 }
 
+const TODAY_QUOTE = 'Small steps still count. Begin where it feels lightest.';
+
 export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
   tasks,
   reference = new Date(),
@@ -33,14 +35,27 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
   const queue = getTodayQueue(tasks, reference);
   const recommendations = onBringToToday ? pickTodayRecommendations(tasks, reference) : [];
   const nextTask = queue.all[0] ?? null;
+  const taskCountLabel =
+    queue.all.length === 0
+      ? 'A clear day.'
+      : `${queue.all.length} task${queue.all.length === 1 ? '' : 's'} due today.`;
+
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
       <h2 className="sr-only">Today's queue</h2>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs font-medium text-[var(--muted)]">
-          {queue.all.length > 0 ? `${queue.all.length} task${queue.all.length === 1 ? '' : 's'} due today.` : 'No tasks due today.'}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[var(--ink)]">{taskCountLabel}</p>
+          <p className="mt-0.5 text-[11px] text-[var(--muted)]">
+            Tasks due today, plus deadline work you can start now. Earlier tasks are in Past.
+          </p>
+          {queue.highToday > 0 && (
+            <p className="mt-1 text-[11px] font-medium text-[var(--muted)]">
+              One important thing is here. The rest can wait.
+            </p>
+          )}
+        </div>
         <Button
           size="sm"
           variant="primary"
@@ -51,11 +66,9 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           <Maximize2 className="w-3.5 h-3.5" /> Start with one
         </Button>
       </div>
+
       <p className="text-[11px] text-[var(--muted)]">
-        Tasks due today, plus deadline work you can start now. Earlier tasks are in Past.
-      </p>
-      <p className="text-[11px] text-[var(--muted)]">
-        Drag a task image into a zone, or click the circle to check in.
+        Drag a task image into a check-in zone, or click the circle to check in.
       </p>
 
       {queue.today.length > 0 ? (
@@ -81,6 +94,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
           <p className="text-xs text-[var(--muted)] mt-1">
             No tasks waiting for today. Add one when you are ready.
           </p>
+          <p className="mt-2 text-xs font-medium text-[var(--accent)]">{TODAY_QUOTE}</p>
           {onNewTaskClick && (
             <div className="mt-4">
               <Button size="sm" variant="secondary" onClick={onNewTaskClick}>

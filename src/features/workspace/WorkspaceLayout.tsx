@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, LayoutDashboard, PanelLeftOpen, Plus, X } from 'lucide-react';
+import { AlertCircle, Archive, Calendar, CheckCircle2, Clock, Gamepad2, LayoutDashboard, ListChecks, PanelLeftOpen, Plus, X } from 'lucide-react';
 import type { NewTaskInput, Task } from '../../data/taskTypes';
 import {
   applyTaskFilters,
@@ -24,6 +24,7 @@ import { TaskCheckInTray } from './TaskCheckInTray';
 import { HelpModal } from './HelpModal';
 import { TaskPathView } from './TaskPathView';
 import { PathsView } from './views/PathsView';
+import { TrailView } from './views/TrailView';
 import { ProfileView } from './views/ProfileView';
 import type { CheckInKind } from './checkInTypes';
 import { useTaskStore } from './useTaskStore';
@@ -35,6 +36,8 @@ const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
   { to: '/app/today', label: 'Today', icon: <Clock className="w-3.5 h-3.5" /> },
   { to: '/app/upcoming', label: 'Upcoming', icon: <Calendar className="w-3.5 h-3.5" /> },
+  { to: '/app/paths', label: 'Task paths', icon: <ListChecks className="w-3.5 h-3.5" /> },
+  { to: '/app/trail', label: 'Trail', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
   { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
   { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
@@ -282,13 +285,16 @@ export const WorkspaceLayout: React.FC = () => {
   const getHeaderInfo = () => {
     const path = location.pathname;
     if (path.endsWith('/today')) {
-      return { title: 'Today', subtitle: 'A few things for today, no rush' };
+      return { title: 'Today', subtitle: 'What is due today, and nothing more' };
     }
     if (path.endsWith('/upcoming')) {
-      return { title: 'Upcoming', subtitle: 'For when you have room — also called Later' };
+      return { title: 'Upcoming', subtitle: 'Tasks you can prepare for later' };
     }
     if (path.endsWith('/paths')) {
-      return { title: 'Paths', subtitle: 'Choose a task and shape its steps' };
+      return { title: 'Task paths', subtitle: 'Break a task into small, visible steps' };
+    }
+    if (path.endsWith('/trail')) {
+      return { title: 'Momentum trail', subtitle: 'A gentle board of completed work' };
     }
     if (path.endsWith('/profile')) {
       return { title: 'Profile', subtitle: 'Edit how ViDo addresses you' };
@@ -297,13 +303,13 @@ export const WorkspaceLayout: React.FC = () => {
       return { title: 'Task path', subtitle: 'Shape the next small moves' };
     }
     if (path.endsWith('/needs-attention')) {
-      return { title: 'Past', subtitle: 'Earlier tasks — pick what to do today, or leave them' };
+      return { title: 'Past', subtitle: 'Earlier tasks. Bring one forward, or leave it.' };
     }
     if (path.endsWith('/completed')) {
-      return { title: 'Completed', subtitle: 'What you finished — also called Done' };
+      return { title: 'Completed', subtitle: 'Finished work, kept for perspective' };
     }
     if (path.endsWith('/archived')) {
-      return { title: 'Archived', subtitle: 'Kept out of the way — also called Put away' };
+      return { title: 'Archived', subtitle: 'Put away, still kept' };
     }
     return { title: 'Home' };
   };
@@ -442,6 +448,7 @@ export const WorkspaceLayout: React.FC = () => {
                 />
               }
             />
+            <Route path="trail" element={<TrailView tasks={tasks} />} />
             <Route
               path="tasks/:taskId/path"
               element={

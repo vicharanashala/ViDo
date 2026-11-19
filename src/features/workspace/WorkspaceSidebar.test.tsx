@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 
 describe('WorkspaceSidebar', () => {
-  it('renders the brand, new task action, and gentle views', () => {
+  it('renders the brand, new task action, and focused navigation', () => {
     render(
       <MemoryRouter initialEntries={['/app']}>
         <WorkspaceSidebar />
@@ -14,11 +14,12 @@ describe('WorkspaceSidebar', () => {
     expect(screen.getByRole('link', { name: /vido/i })).toHaveAttribute('href', '/app');
     expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute('href', '/app');
     expect(screen.getByRole('link', { name: /^today$/i })).toBeInTheDocument();
-    
-    expect(screen.getByRole('link', { name: /^upcoming/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^upcoming$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^task paths$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^momentum trail$/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /^past$/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^completed/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^archived/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^completed$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^archived$/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
     expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });

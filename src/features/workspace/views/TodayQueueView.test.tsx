@@ -7,7 +7,7 @@ const reference = new Date(2026, 10, 17, 12, 0, 0);
 const tasks = createSeedTasks(reference);
 
 describe('TodayQueueView', () => {
-  it('renders only due-today tasks with priority feedback', () => {
+  it('renders only due-today tasks with a clear count', () => {
     const onTaskClick = vi.fn();
     const onToggleComplete = vi.fn();
     const onFocusTask = vi.fn();
@@ -25,6 +25,7 @@ describe('TodayQueueView', () => {
     );
 
     expect(screen.getByText(/6 tasks due today/i)).toBeInTheDocument();
+    expect(screen.getByText(/one important thing is here/i)).toBeInTheDocument();
     expect(screen.queryByText(/carried over/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/property insurance/i)).not.toBeInTheDocument();
     expect(screen.getByText(/review q4 budget/i)).toBeInTheDocument();
@@ -78,6 +79,7 @@ describe('TodayQueueView', () => {
     );
 
     expect(screen.getByText(/nothing queued/i)).toBeInTheDocument();
+    expect(screen.getByText(/small steps still count/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /add a task/i }));
     expect(onNewTaskClick).toHaveBeenCalled();
   });

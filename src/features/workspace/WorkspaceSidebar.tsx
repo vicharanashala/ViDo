@@ -6,8 +6,10 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Gamepad2,
   LayoutDashboard,
   Leaf,
+  ListChecks,
   PanelLeftClose,
   Palette,
   Pencil,
@@ -30,40 +32,67 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const displayName = [userPrefix, userName].filter(Boolean).join(' ');
   const location = useLocation();
 
-  const navItems = [
+  const navGroups: {
+    label: string;
+    items: { to: string; label: string; icon: React.ReactNode; end?: boolean }[];
+  }[] = [
     {
-      to: '/app',
-      end: true,
-      label: 'Home',
-      icon: <LayoutDashboard className="w-4 h-4" />,
+      label: 'Main',
+      items: [
+        {
+          to: '/app',
+          end: true,
+          label: 'Home',
+          icon: <LayoutDashboard className="w-4 h-4" />,
+        },
+        {
+          to: '/app/today',
+          label: 'Today',
+          icon: <Clock className="w-4 h-4" />,
+        },
+        {
+          to: '/app/upcoming',
+          label: 'Upcoming',
+          icon: <Calendar className="w-4 h-4" />,
+        },
+      ],
     },
     {
-      to: '/app/today',
-      label: 'Today',
-      icon: <Clock className="w-4 h-4" />,
+      label: 'Plan',
+      items: [
+        {
+          to: '/app/paths',
+          label: 'Task paths',
+          icon: <ListChecks className="w-4 h-4" />,
+        },
+        {
+          to: '/app/trail',
+          label: 'Momentum trail',
+          icon: <Gamepad2 className="w-4 h-4" />,
+        },
+      ],
     },
     {
-      to: '/app/upcoming',
-      label: 'Upcoming',
-      icon: <Calendar className="w-4 h-4" />,
-    },
-    {
-      to: '/app/needs-attention',
-      label: 'Past',
-      icon: <AlertCircle className="w-4 h-4" />,
-    },
-    {
-      to: '/app/completed',
-      label: 'Completed',
-      icon: <CheckCircle2 className="w-4 h-4" />,
-    },
-    {
-      to: '/app/archived',
-      label: 'Archived',
-      icon: <Archive className="w-4 h-4" />,
+      label: 'History',
+      items: [
+        {
+          to: '/app/needs-attention',
+          label: 'Past',
+          icon: <AlertCircle className="w-4 h-4" />,
+        },
+        {
+          to: '/app/completed',
+          label: 'Completed',
+          icon: <CheckCircle2 className="w-4 h-4" />,
+        },
+        {
+          to: '/app/archived',
+          label: 'Archived',
+          icon: <Archive className="w-4 h-4" />,
+        },
+      ],
     },
   ];
-
 
   return (
     <aside
@@ -106,32 +135,36 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </button>
         )}
 
-        <div className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1.5 px-2.5">
-          Views
-        </div>
-        <nav aria-label="Views" className="space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) => {
-                const pathActive =
-                  item.to === '/app/paths' && location.pathname.includes('/tasks/');
-                return `flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors ${
-                  isActive || pathActive
-                    ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                    : 'text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)]'
-                }`;
-              }}
-            >
-              <span className="shrink-0">{item.icon}</span>
-              <span className="min-w-0">
-                <span className="text-xs font-semibold block leading-tight">{item.label}</span>
-              </span>
-            </NavLink>
+        <div className="space-y-3">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <div className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1.5 px-2.5">
+                {group.label}
+              </div>
+              <nav aria-label={group.label} className="space-y-1">
+                {group.items.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) => {
+                      const pathActive =
+                        item.to === '/app/paths' && location.pathname.includes('/tasks/');
+                      return `flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors ${
+                        isActive || pathActive
+                          ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+                          : 'text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)]'
+                      }`;
+                    }}
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    <span className="min-w-0 text-xs font-semibold leading-tight">{item.label}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
           ))}
-        </nav>
+        </div>
       </div>
 
       <div className="pt-3 border-t border-[var(--line)] space-y-1">

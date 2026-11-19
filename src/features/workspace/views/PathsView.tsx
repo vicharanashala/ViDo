@@ -91,7 +91,7 @@ export const PathsView: React.FC<PathsViewProps> = ({ tasks, reference = new Dat
             <Sparkles className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="text-xl font-extrabold text-[var(--ink)]">Your paths</h1>
+            <h1 className="text-xl font-extrabold text-[var(--ink)]">Task paths</h1>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
               Choose a task for today or later, then break it into small steps. The path assistant
               can draft a route when the first move is hard to see.

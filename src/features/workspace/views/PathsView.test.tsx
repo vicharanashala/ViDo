@@ -15,7 +15,7 @@ describe('PathsView', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /your paths/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /task paths/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /^upcoming$/i })).toBeInTheDocument();
     expect(screen.getAllByText(/review q4 budget/i).length).toBeGreaterThan(0);

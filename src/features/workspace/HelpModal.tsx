@@ -11,10 +11,12 @@ const VIEWS = [
   ['Home', 'Your calm overview.'],
   ['Today', 'Only tasks due today.'],
   ['Upcoming', 'Later, when you have room.'],
-  ['Profile', 'Edit name, email, date of birth, and phone.'],
-  ['Past', 'Earlier tasks. Pick what to do today, or leave them.'],
-  ['Completed', 'What you finished.'],
+  ['Task paths', 'Break a task into small, visible steps.'],
+  ['Momentum trail', 'A gentle board of completed work.'],
+  ['Past', 'Earlier tasks. Bring one forward, or leave it.'],
+  ['Completed', 'Finished work, kept for perspective.'],
   ['Archived', 'Put away, still kept.'],
+  ['Profile', 'Edit name, email, date of birth, and phone.'],
 ];
 
 export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
