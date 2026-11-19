@@ -4,7 +4,7 @@ A calm, local-first task workspace. Tasks can carry an optional deadline, progre
 
 ## What works
 
-- **Quick add** — type a task and press Enter. Natural-language dates, times, priority, and categories are supported.
+- **Quick add** — type a task and press Enter. Natural-language dates, times, priority, and categories are supported. The Calendar control stays available before typing.
 - **Focused navigation** — Home, Today, Upcoming, Past, Completed, and Archived, with Task paths and Momentum trail grouped under Plan.
 - **Today queue** — tasks due today, deadline work you can start now, and a few suggestions from earlier.
 - **Task paths** — break a task into steps, check them off, and reopen the task by adding another step.
@@ -14,7 +14,7 @@ A calm, local-first task workspace. Tasks can carry an optional deadline, progre
 - **Images** — a task image catalog plus custom images stored on this device.
 - **Local account** — email + one-time code sign-in, profile fields, and local-browser task sharing.
 - **Reminders** — in-app reminders while ViDo is open.
-- **System clock** — live date and time beside the quick-add row on wide screens.
+- **System clock** — live date and time at the right of the quick-add row on laptop and desktop widths.
 
 ## Focused by design
 
@@ -42,4 +42,4 @@ npm test
 npm run build
 ```
 
-Last verified: **125 tests across 33 suites**, typecheck pass, production build pass.
+Last verified: **126 tests across 33 suites**, typecheck pass, production build pass.

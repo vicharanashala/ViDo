@@ -73,24 +73,27 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
         </Button>
       </div>
 
-      {title.trim() && (
-        <div className="flex flex-wrap items-center gap-1.5 px-1.5 pt-2 pb-0.5">
-          <label htmlFor="quick-add-priority" className="text-[10px] font-semibold text-[var(--muted)]">
-            Priority
-          </label>
-          <select
-            id="quick-add-priority"
-            value={manualPriority}
-            onChange={(event) => setManualPriority(event.target.value as TaskPriority | 'auto')}
-            className="rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
-          >
-            <option value="auto">Auto</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+      <div className="flex flex-wrap items-center gap-1.5 px-1.5 pt-2 pb-0.5">
+        {title.trim() && (
+          <>
+            <label htmlFor="quick-add-priority" className="text-[10px] font-semibold text-[var(--muted)]">
+              Priority
+            </label>
+            <select
+              id="quick-add-priority"
+              value={manualPriority}
+              onChange={(event) => setManualPriority(event.target.value as TaskPriority | 'auto')}
+              className="rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+            >
+              <option value="auto">Auto</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </>
+        )}
 
-          <details className="relative">
+        <details className="relative">
             <summary className="inline-flex list-none items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--ink)] cursor-pointer hover:bg-[var(--canvas)]">
               <CalendarDays className="h-3 w-3" /> Calendar
             </summary>
@@ -144,22 +147,25 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
               </p>
             </div>
           </details>
-          {meta.dateLabel && <Badge size="sm">{meta.dateLabel}</Badge>}
-          {meta.timeLabel && <Badge size="sm">{meta.timeLabel}</Badge>}
-          {manualPriority === 'auto' && meta.priority && (
-            <Badge
-              size="sm"
-              variant={meta.priority === 'high' ? 'danger' : meta.priority === 'medium' ? 'warning' : 'neutral'}
-            >
-              {meta.priority}
-            </Badge>
-          )}
-          {meta.category && <Badge size="sm" variant="accent">{meta.category}</Badge>}
-          {(meta.dateLabel || meta.timeLabel || meta.priority || meta.category) && (
-            <span className="text-[10px] text-[var(--faint)]">Parsed from your sentence</span>
-          )}
-        </div>
-      )}
+        {title.trim() && (
+          <>
+            {meta.dateLabel && <Badge size="sm">{meta.dateLabel}</Badge>}
+            {meta.timeLabel && <Badge size="sm">{meta.timeLabel}</Badge>}
+            {manualPriority === 'auto' && meta.priority && (
+              <Badge
+                size="sm"
+                variant={meta.priority === 'high' ? 'danger' : meta.priority === 'medium' ? 'warning' : 'neutral'}
+              >
+                {meta.priority}
+              </Badge>
+            )}
+            {meta.category && <Badge size="sm" variant="accent">{meta.category}</Badge>}
+            {(meta.dateLabel || meta.timeLabel || meta.priority || meta.category) && (
+              <span className="text-[10px] text-[var(--faint)]">Parsed from your sentence</span>
+            )}
+          </>
+        )}
+      </div>
     </form>
   );
 };

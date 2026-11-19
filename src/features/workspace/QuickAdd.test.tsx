@@ -3,6 +3,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QuickAdd } from './QuickAdd';
 
 describe('QuickAdd', () => {
+  it('keeps the calendar available before typing', () => {
+    render(<QuickAdd onAdd={vi.fn()} />);
+
+    expect(screen.getByText(/^calendar$/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/priority/i)).not.toBeInTheDocument();
+  });
+
   it('calculates “in 45 min” into the deadline time', () => {
     const onAdd = vi.fn();
     render(<QuickAdd onAdd={onAdd} />);
