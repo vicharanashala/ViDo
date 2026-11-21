@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Routes,
   Route,
@@ -11,10 +11,12 @@ import {
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import {
   BENCHMARK_DATE_STR,
+  BENCHMARK_DATE_TIME,
   SAMPLE_TASKS,
   type SampleTask,
 } from '../../data/sampleTasks';
 import { getFilteredTasks, getHomeDashboardTasks } from '../../data/taskFilters';
+import { getTodayDateString } from '../../utils/dateUtils';
 import { todayISO } from '../../data/calendar';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
@@ -153,8 +155,40 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const views = getFilteredTasks(tasks);
-  const dashboard = getHomeDashboardTasks(tasks);
+  const todayStr = getTodayDateString();
+  const benchmarkDateStr = isPreview ? BENCHMARK_DATE_STR : todayStr;
+  const benchmarkDateTime = isPreview ? BENCHMARK_DATE_TIME : new Date().toISOString();
+
+  const baseViews = useMemo(
+    () => getFilteredTasks(tasks, benchmarkDateStr, benchmarkDateTime),
+    [tasks, benchmarkDateStr, benchmarkDateTime]
+  );
+
+  const views = useMemo(() => {
+    if (!isPreview || todayStr === BENCHMARK_DATE_STR) {
+      return baseViews;
+    }
+    const extraTodayTasks = tasks.filter(
+      (t) =>
+        t.state === 'active' &&
+        !t.isArchived &&
+        t.dueDate === todayStr &&
+        !baseViews.today.some((bt) => bt.id === t.id)
+    );
+    if (extraTodayTasks.length === 0) {
+      return baseViews;
+    }
+    return {
+      ...baseViews,
+      today: [...extraTodayTasks, ...baseViews.today],
+      upcoming: baseViews.upcoming.filter((t) => t.dueDate !== todayStr),
+    };
+  }, [baseViews, isPreview, tasks, todayStr]);
+
+  const dashboard = useMemo(
+    () => getHomeDashboardTasks(tasks, benchmarkDateStr, benchmarkDateTime),
+    [tasks, benchmarkDateStr, benchmarkDateTime]
+  );
   const syncError = calendar.error ?? planningTargets.error;
 
   // Authentication guards: evaluated AFTER all hooks have executed unconditionally
@@ -186,18 +220,19 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
 
   const handleToggleTask = (taskToToggle: SampleTask) => {
     const isNowCompleted = taskToToggle.state !== 'completed';
+    const nowIso = new Date().toISOString();
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskToToggle.id
           ? {
               ...t,
               state: isNowCompleted ? 'completed' : 'active',
-              completedAt: isNowCompleted ? '2026-11-17T12:00:00Z' : undefined,
+              completedAt: isNowCompleted ? nowIso : undefined,
               checkpoints: [
                 ...(t.checkpoints || []),
                 {
                   id: `cp-${Date.now()}`,
-                  timestamp: '2026-11-17T12:00:00Z',
+                  timestamp: nowIso,
                   note: isNowCompleted
                     ? 'Task marked as completed.'
                     : 'Task reopened in workspace.',
@@ -213,7 +248,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
           ? {
               ...prev,
               state: isNowCompleted ? 'completed' : 'active',
-              completedAt: isNowCompleted ? '2026-11-17T12:00:00Z' : undefined,
+              completedAt: isNowCompleted ? nowIso : undefined,
             }
           : null
       );

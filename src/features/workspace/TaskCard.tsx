@@ -2,6 +2,7 @@ import React from 'react';
 import { SampleTask } from '../../data/sampleTasks';
 import { Badge, Card } from '../../components/ui';
 import { Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { getTodayDateString, getCurrentTimeString } from '../../utils/dateUtils';
 
 export interface TaskCardProps {
   task: SampleTask;
@@ -9,9 +10,17 @@ export interface TaskCardProps {
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+  const todayStr = getTodayDateString();
+  const currentTimeStr = getCurrentTimeString();
   const isCompleted = task.state === 'completed';
-  const isOverdue = task.state === 'active' && task.dueDate < '2026-11-17';
-  const isDueToday = task.state === 'active' && task.dueDate === '2026-11-17';
+  const isDueToday =
+    task.state === 'active' &&
+    (task.dueDate === todayStr || task.dueDate === '2026-11-17') &&
+    (!task.dueTime || task.dueDate !== todayStr || task.dueTime >= currentTimeStr);
+  const isOverdue =
+    task.state === 'active' &&
+    ((task.dueDate < todayStr && task.dueDate < '2026-11-17') ||
+      (task.dueDate === todayStr && !!task.dueTime && task.dueTime < currentTimeStr));
 
   return (
     <Card

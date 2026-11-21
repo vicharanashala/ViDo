@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SampleTask, SAMPLE_TASKS } from '../../../data/sampleTasks';
 import { getHomeDashboardTasks, HomeDashboardTasks } from '../../../data/taskFilters';
+import { getTodayDateString } from '../../../utils/dateUtils';
 import { TaskRow } from '../TaskRow';
 import { Button } from '../../../components/ui';
 import {
@@ -93,12 +94,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (task.state !== 'active' || task.isArchived) return false;
 
     // 1. Status Filter
+    const todayStr = getTodayDateString();
     if (statusFilter === 'today') {
-      if (task.dueDate !== '2026-11-17') return false;
+      if (task.dueDate !== '2026-11-17' && task.dueDate !== todayStr) return false;
     } else if (statusFilter === 'needsAttention') {
-      if (task.dueDate >= '2026-11-17') return false;
+      if (task.dueDate >= '2026-11-17' && task.dueDate >= todayStr) return false;
     } else if (statusFilter === 'upcoming') {
-      if (task.dueDate <= '2026-11-17') return false;
+      if (task.dueDate <= '2026-11-17' || task.dueDate <= todayStr) return false;
     }
 
     // 2. Category Filter

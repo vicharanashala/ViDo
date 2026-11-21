@@ -2,6 +2,7 @@ import React from 'react';
 import { SampleTask } from '../../data/sampleTasks';
 import { Badge } from '../../components/ui';
 import { Clock, AlertCircle, CheckCircle2, ChevronRight, MessageSquare } from 'lucide-react';
+import { getTodayDateString, getCurrentTimeString } from '../../utils/dateUtils';
 
 export interface TaskRowProps {
   task: SampleTask;
@@ -10,9 +11,17 @@ export interface TaskRowProps {
 }
 
 export const TaskRow: React.FC<TaskRowProps> = ({ task, onClick, onToggle }) => {
+  const todayStr = getTodayDateString();
+  const currentTimeStr = getCurrentTimeString();
   const isCompleted = task.state === 'completed';
-  const isOverdue = task.state === 'active' && task.dueDate < '2026-11-17';
-  const isDueToday = task.state === 'active' && task.dueDate === '2026-11-17';
+  const isDueToday =
+    task.state === 'active' &&
+    (task.dueDate === todayStr || task.dueDate === '2026-11-17') &&
+    (!task.dueTime || task.dueDate !== todayStr || task.dueTime >= currentTimeStr);
+  const isOverdue =
+    task.state === 'active' &&
+    ((task.dueDate < todayStr && task.dueDate < '2026-11-17') ||
+      (task.dueDate === todayStr && !!task.dueTime && task.dueTime < currentTimeStr));
 
   return (
     <div

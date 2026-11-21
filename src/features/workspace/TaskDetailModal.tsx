@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { SampleTask } from '../../data/sampleTasks';
 import { Badge, Button } from '../../components/ui';
 import { X, Clock, Calendar, CheckCircle2, AlertCircle, History, Tag } from 'lucide-react';
+import { getTodayDateString, getCurrentTimeString } from '../../utils/dateUtils';
 
 export interface TaskDetailModalProps {
   task: SampleTask | null;
@@ -34,9 +35,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   if (!isOpen || !task) return null;
 
+  const todayStr = getTodayDateString();
+  const currentTimeStr = getCurrentTimeString();
   const isCompleted = task.state === 'completed';
-  const isOverdue = task.state === 'active' && task.dueDate < '2026-11-17';
-  const isDueToday = task.state === 'active' && task.dueDate === '2026-11-17';
+  const isDueToday =
+    task.state === 'active' &&
+    (task.dueDate === todayStr || task.dueDate === '2026-11-17') &&
+    (!task.dueTime || task.dueDate !== todayStr || task.dueTime >= currentTimeStr);
+  const isOverdue =
+    task.state === 'active' &&
+    ((task.dueDate < todayStr && task.dueDate < '2026-11-17') ||
+      (task.dueDate === todayStr && !!task.dueTime && task.dueTime < currentTimeStr));
 
   return (
     <div

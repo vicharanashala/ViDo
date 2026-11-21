@@ -12,6 +12,7 @@ export interface SampleTask {
   id: string;
   title: string;
   description?: string;
+  startDate?: string; // YYYY-MM-DD (optional, defaults to createdAt)
   dueDate: string; // YYYY-MM-DD
   dueTime?: string; // HH:mm
   priority?: TaskPriority;
