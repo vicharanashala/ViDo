@@ -17,7 +17,7 @@ describe('Workspace Views and Modals', () => {
 
       render(
         <MemoryRouter>
-          <HomeView dashboard={dashboard} onTaskClick={handleClick} />
+          <HomeView dashboard={dashboard} now={new Date(2026, 10, 17, 12, 0)} onTaskClick={handleClick} />
         </MemoryRouter>
       );
 
@@ -52,7 +52,7 @@ describe('Workspace Views and Modals', () => {
     it('supports dynamic filter addition, pill removal, and clear all filters in Tasks tab', () => {
       render(
         <MemoryRouter>
-          <HomeView tasks={SAMPLE_TASKS} onTaskClick={vi.fn()} initialTab="tasks" />
+          <HomeView tasks={SAMPLE_TASKS} now={new Date(2026, 10, 17, 12, 0)} onTaskClick={vi.fn()} initialTab="tasks" />
         </MemoryRouter>
       );
 
@@ -90,10 +90,24 @@ describe('Workspace Views and Modals', () => {
       expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
     });
 
+    it('uses an injected runtime date for authenticated dashboard sections', () => {
+      const now = new Date(2026, 10, 19, 12, 0);
+      render(
+        <MemoryRouter>
+          <HomeView tasks={SAMPLE_TASKS} now={now} onTaskClick={vi.fn()} />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText(/Thursday, 19 November 2026/i)).toBeInTheDocument();
+      expect(screen.getByText(/As of 19\/11\/2026/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /next best task/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /workload insight/i })).toBeInTheDocument();
+    });
+
     it('switches between Dashboard and Tasks tabs seamlessly', () => {
       render(
         <MemoryRouter>
-          <HomeView tasks={SAMPLE_TASKS} onTaskClick={vi.fn()} />
+          <HomeView tasks={SAMPLE_TASKS} now={new Date(2026, 10, 17, 12, 0)} onTaskClick={vi.fn()} />
         </MemoryRouter>
       );
 
@@ -120,7 +134,7 @@ describe('Workspace Views and Modals', () => {
     it('does not show completed tasks in the tasks section', () => {
       render(
         <MemoryRouter>
-          <HomeView tasks={SAMPLE_TASKS} onTaskClick={vi.fn()} initialTab="tasks" />
+          <HomeView tasks={SAMPLE_TASKS} now={new Date(2026, 10, 17, 12, 0)} onTaskClick={vi.fn()} initialTab="tasks" />
         </MemoryRouter>
       );
 

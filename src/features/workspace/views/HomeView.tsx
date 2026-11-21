@@ -4,6 +4,10 @@ import { SampleTask, SAMPLE_TASKS } from '../../../data/sampleTasks';
 import { getHomeDashboardTasks, HomeDashboardTasks } from '../../../data/taskFilters';
 import { TaskRow } from '../TaskRow';
 import { Button } from '../../../components/ui';
+import { NextBestTaskCard } from '../NextBestTaskCard';
+import { WorkloadInsightCard } from '../WorkloadInsightCard';
+import { rankNextTasks } from '../../../data/taskRecommendations';
+import { toDateStr } from '../../../data/taskDeadline';
 import {
   LayoutDashboard,
   CheckSquare,
@@ -20,6 +24,7 @@ import {
 
 export interface HomeViewProps {
   isPreview?: boolean;
+  now?: Date;
   basePath?: string;
   user?: {
     name: string;
@@ -40,10 +45,10 @@ export type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
 
 export const HomeView: React.FC<HomeViewProps> = ({
   isPreview = true,
+  now: nowProp,
   basePath = '/preview',
   user,
   tasks,
-  dashboard,
   initialTab = 'dashboard',
   initialStatus = 'today',
   onTaskClick,
@@ -51,8 +56,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onNewTaskClick,
 }) => {
   const navigate = useNavigate();
+  const [currentNow, setCurrentNow] = useState<Date>(() => nowProp ?? new Date());
   const allTasks = tasks ?? SAMPLE_TASKS;
-  const currentDashboard = dashboard ?? getHomeDashboardTasks(allTasks);
+  const benchmarkDateStr = toDateStr(currentNow);
+  const benchmarkDateTime = currentNow.toISOString();
+  const currentDashboard = getHomeDashboardTasks(allTasks, benchmarkDateStr, benchmarkDateTime);
+  const todayLabel = currentNow.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks'>(initialTab);
   const [dashboardCategory, setDashboardCategory] = useState<
@@ -71,6 +84,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
   useEffect(() => {
     setStatusFilter(initialStatus);
   }, [initialStatus]);
+
+  useEffect(() => {
+    if (nowProp) {
+      setCurrentNow(nowProp);
+      return;
+    }
+
+    const updateNow = () => setCurrentNow(new Date());
+    const interval = window.setInterval(updateNow, 60000);
+    window.addEventListener('focus', updateNow);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', updateNow);
+    };
+  }, [nowProp]);
 
   const handleTabSwitch = (tab: 'dashboard' | 'tasks') => {
     setActiveTab(tab);
@@ -104,11 +133,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
     // 1. Status Filter
     if (statusFilter === 'today') {
-      if (task.dueDate !== '2026-11-17') return false;
+      if (task.dueDate !== benchmarkDateStr) return false;
     } else if (statusFilter === 'needsAttention') {
-      if (task.dueDate >= '2026-11-17') return false;
+      if (task.dueDate >= benchmarkDateStr) return false;
     } else if (statusFilter === 'upcoming') {
-      if (task.dueDate <= '2026-11-17') return false;
+      if (task.dueDate <= benchmarkDateStr) return false;
     }
 
     // 2. Category Filter
@@ -128,7 +157,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const dashboardCategories = {
     today: {
       title: "Today's Agenda",
-      subtitle: 'Tasks scheduled for today, 17 November 2026',
+      subtitle: `Tasks scheduled for today, ${todayLabel}`,
       items: currentDashboard.today.items,
       count: currentDashboard.today.totalCount,
       emptyText: 'No tasks due today. You are fully caught up.',
@@ -206,6 +235,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ======================================================== */}
       {activeTab === 'dashboard' && (
         <div className="space-y-8 animate-in fade-in duration-150">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {(() => {
+              const bestTask = rankNextTasks(allTasks, currentNow, 1)[0]?.task;
+              const showNextBest = !activeDashboardSection.items.some((task) => task.id === bestTask?.id);
+              return showNextBest ? (
+                <NextBestTaskCard tasks={allTasks} now={currentNow} onTaskClick={onTaskClick} />
+              ) : null;
+            })()}
+            <WorkloadInsightCard tasks={allTasks} now={currentNow} />
+          </div>
+
           {/* Dark Navy Hero Overview Card */}
           <section
             aria-label="Overview Command Center"
@@ -218,7 +258,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className="text-[11px] font-mono tracking-wider uppercase font-semibold text-gray-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-                      Tuesday, 17 November 2026
+                      {currentNow.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     {isPreview ? (
                       <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">

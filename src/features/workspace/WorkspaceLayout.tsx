@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate, Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { SAMPLE_TASKS, SampleTask } from '../../data/sampleTasks';
+import { SAMPLE_TASKS, SampleTask, BENCHMARK_DATE_STR } from '../../data/sampleTasks';
 import { getFilteredTasks, getHomeDashboardTasks } from '../../data/taskFilters';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
@@ -14,6 +14,15 @@ import { TeamSpaceView } from '../teams/TeamSpaceView';
 import { CreateTeamModal } from '../teams/CreateTeamModal';
 import { getTeamRepository } from '../teams/teamRepository';
 import { Team } from '../teams/types';
+
+/**
+ * The demo preview is anchored to a fixed day (see AGENTS.md), so its pickers
+ * must treat that moment as "now" to agree with the Today / Upcoming views.
+ */
+const PREVIEW_NOW = (() => {
+  const [y, m, d] = BENCHMARK_DATE_STR.split('-').map(Number);
+  return new Date(y, m - 1, d, 12, 0);
+})();
 
 export interface WorkspaceLayoutProps {
   isPreview?: boolean;
@@ -331,6 +340,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     user={user}
                     tasks={tasks}
                     dashboard={dashboard}
+                    now={isPreview ? PREVIEW_NOW : undefined}
                     initialTab="dashboard"
                     onTaskClick={handleTaskClick}
                     onToggleTask={handleToggleTask}
@@ -347,6 +357,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     user={user}
                     tasks={tasks}
                     dashboard={dashboard}
+                    now={isPreview ? PREVIEW_NOW : undefined}
                     initialTab="tasks"
                     onTaskClick={handleTaskClick}
                     onToggleTask={handleToggleTask}
@@ -440,6 +451,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreateTask={handleCreateTask}
+        now={isPreview ? PREVIEW_NOW : undefined}
       />
 
       <CreateTeamModal
