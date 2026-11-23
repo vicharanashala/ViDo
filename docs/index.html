@@ -1,251 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViDo — Project Knowledge Hub & Wiki</title>
-  <meta name="description" content="Official documentation, product vision, and open-source contribution portal for ViDo.">
-  <link rel="stylesheet" href="./style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore ViDo’s task workspace, learn how planning works, and set up the project to contribute.">
+  <title>ViDo — Documentation</title>
+  <link rel="stylesheet" href="./guide.css">
 </head>
 <body>
-
-  <!-- Top Navigation Bar -->
-  <header class="top-nav">
-    <a href="./index.html" class="brand-wrapper">
-      <div class="brand-badge">V</div>
-      <div>
-        <span class="brand-title">ViDo</span>
-        <span class="brand-tag">Wiki</span>
-      </div>
-    </a>
-
-    <!-- Page Navigation Links -->
-    <div class="nav-controls">
-      <nav class="page-nav-pill-group" aria-label="Documentation Pages">
-        <a href="./index.html" class="page-nav-pill active">Home</a>
-        <a href="./user.html" class="page-nav-pill">👤 User Guide</a>
-        <a href="./developer.html" class="page-nav-pill">💻 Developer Guide</a>
-      </nav>
-
-      <!-- GitHub Link -->
-      <a href="https://github.com/vicharanashala/ViDo" target="_blank" rel="noopener noreferrer" class="icon-btn" title="ViDo GitHub Repository" aria-label="GitHub Repository">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-        </svg>
-      </a>
-    </div>
+  <header class="masthead">
+    <a class="brand" href="./index.html"><span class="brand-mark">V</span> ViDo <small>An interactive wiki for an interactive to-do</small></a>
+    <nav aria-label="Documentation">
+      <a href="./index.html" aria-current="page">Home</a>
+      <a href="./user.html">For users</a>
+      <a href="./developer.html">For developers</a>
+    </nav>
   </header>
-
-  <main class="page-container">
-
-    <!-- Visual Hero Header -->
-    <section class="visual-hero">
-      <div class="hero-glow-blob"></div>
-      <div class="kicker-pill">
-        <span class="live-pulse"></span>
-        <span>Knowledge Base & Wiki</span>
+  <main class="wiki-home">
+    <section class="home-intro" aria-labelledby="home-title">
+      <div>
+        <h1 id="home-title">A field guide<br>to <em>ViDo.</em></h1>
+        <p class="lead">See what’s due, who owns it, and how far it’s come. ViDo brings your tasks, calendar, and team checkpoints into one workspace.</p>
+        <a class="text-link" href="./user.html#get-started">Try the workspace preview &rarr;</a>
       </div>
-      <h1>Simple enough for anyone.<br>Structured enough for serious work.</h1>
-      <p class="lead">
-        ViDo rethinks task management: moving beyond binary checkboxes into measurable progress (0–100%), chronological checkpoints, and calm, distraction-free coordination.
-      </p>
-
-      <!-- Visual Contrast: Checkbox vs ViDo Living Responsibility -->
-      <div class="contrast-grid">
-        <div class="contrast-card old-way">
-          <span class="contrast-badge">Traditional To-Do</span>
-          <div class="task-dummy-row strikethrough">
-            <span>☑</span>
-            <span>Finalize quarterly report</span>
-          </div>
-          <p style="font-size: 11px; color: var(--text-faint); margin-top: 8px;">
-            Binary only. Did this take 2 hours or 3 weeks? Was it late? Who helped? No context remains.
-          </p>
-        </div>
-
-        <div class="contrast-card vido-way">
-          <span class="contrast-badge">The ViDo Way</span>
-          <div class="task-dummy-row" style="background: var(--surface);">
-            <span class="live-pulse"></span>
-            <strong>Finalize quarterly report</strong>
-            <span style="margin-left: auto; font-size: 10px; font-weight: 800; color: var(--accent);">65%</span>
-          </div>
-          <div class="mini-progress-track">
-            <div class="mini-progress-fill"></div>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
-            <span>⏱ 2 Checkpoints logged</span>
-            <span style="color: var(--success); font-weight: 700;">On Track</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5 Questions Chips -->
-      <div class="questions-chips">
-        <div class="q-chip"><span>1</span> What needs to be done?</div>
-        <div class="q-chip"><span>2</span> Who owns it?</div>
-        <div class="q-chip"><span>3</span> Exact due time?</div>
-        <div class="q-chip"><span>4</span> Progress %?</div>
-        <div class="q-chip"><span>5</span> What happened since creation?</div>
-      </div>
+      <figure class="home-example">
+        <figcaption>Inside a team task <small>Example</small></figcaption>
+        <h2>Review the first draft</h2>
+        <dl><div><dt>Assigned to</dt><dd>Demo User</dd></div><div><dt>Due</dt><dd>17 Nov · 4 pm</dd></div></dl>
+        <div class="home-progress"><label for="draft-progress">Progress</label><strong>60%</strong></div>
+        <progress id="draft-progress" value="60" max="100">60%</progress>
+        <blockquote><small>Latest checkpoint</small>“First pass complete. Two sections still need sources.”</blockquote>
+      </figure>
     </section>
-
-    <!-- Animated Pathway Chooser Cards -->
-    <section class="pathway-selection-section">
-      <div class="pathway-title-center">
-        <h2>Select Your Destination</h2>
-        <p>Choose the dedicated guide tailored for your perspective.</p>
-      </div>
-
-      <div class="pathway-grid">
-        <!-- User Pathway Card -->
-        <a href="./user.html" class="pathway-card" aria-label="Open User Guide">
-          <div class="card-illustration">👤</div>
-          <h3>User Guide</h3>
-          <div class="card-subtitle">For individuals, homemakers, students, and teams managing daily commitments with calm simplicity.</div>
-          <div class="visual-pills-list">
-            <span class="v-pill">Personal & Home</span>
-            <span class="v-pill">Calm 5/3/3/3 Limits</span>
-            <span class="v-pill">0–100% Progress</span>
-            <span class="v-pill">Team Milestones</span>
-            <span class="v-pill">Live Demo Sandbox</span>
-          </div>
-          <div class="pathway-btn">
-            <span>Explore User Guide</span>
-            <span>→</span>
-          </div>
+    <section aria-labelledby="guides-heading">
+      <h2 id="guides-heading">Explore the guides</h2>
+      <div class="home-guides">
+        <a href="./user.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 5 2 2 5-5"/></svg>
+          <h3>User guide</h3><p>Start with a task, plan your week, and record what changed. Try the sample workspace or follow the local setup instructions.</p><span>Read the user guide &rarr;</span>
         </a>
-
-        <!-- Developer Pathway Card -->
-        <a href="./developer.html" class="pathway-card" aria-label="Open Developer Guide">
-          <div class="card-illustration" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">💻</div>
-          <h3>Developer Guide</h3>
-          <div class="card-subtitle">For engineers and open-source contributors: PR rules, discussions forum, architecture, and OpenSpec.</div>
-          <div class="visual-pills-list">
-            <span class="v-pill">Discussions Forum Rules</span>
-            <span class="v-pill">PR Standards & Proof</span>
-            <span class="v-pill">React 19 + NestJS 11</span>
-            <span class="v-pill">Strict Folder Invariants</span>
-            <span class="v-pill">OpenSpec Major Updates</span>
-          </div>
-          <div class="pathway-btn" style="background: #10b981;">
-            <span>Explore Developer Guide</span>
-            <span>→</span>
-          </div>
+        <a href="./developer.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5m-18 4 9 5 9-5"/></svg>
+          <h3>Developer guide</h3><p>Trace a task through the codebase, inspect the stack, and run ViDo locally. Follow the contribution guide for your first pull request.</p><span>Read the developer guide &rarr;</span>
         </a>
       </div>
     </section>
-
-    <!-- Roadmap: Phase 1 Milestones (M0 - M8) -->
-    <section style="margin-top: 48px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px;">Phase 1: Implementation Milestones</h2>
-      <p style="color: var(--text-muted); font-size: 13.5px; margin: 0 0 20px;">
-        ViDo builds one reviewable slice at a time. Each milestone ends at a strict review gate:
-      </p>
-
-      <div class="feature-grid-2">
-        <div class="v-card" style="border-left: 4px solid var(--success);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M0 · Product Discovery</strong>
-            <span class="v-pill" style="background: var(--success-soft); color: var(--success); border-color: var(--success);">COMPLETED</span>
-          </div>
-          <p style="margin-top: 6px;">Vision, audience, universal principles, core task flow, living brief, and handoff specifications.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--success);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M1 · Static Visual Foundation</strong>
-            <span class="v-pill" style="background: var(--success-soft); color: var(--success); border-color: var(--success);">COMPLETED</span>
-          </div>
-          <p style="margin-top: 6px;">Vite + React + TS architecture, design system tokens, public landing page, and preview dashboard shell.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--accent);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M2 · Google Authentication</strong>
-            <span class="v-pill" style="background: var(--accent-soft); color: var(--accent); border-color: var(--accent);">NEXT / READY</span>
-          </div>
-          <p style="margin-top: 6px;">Google OAuth single sign-on, session restoration, private route protection, and user profile display.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M3 · Private Task Storage</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Database schema, authenticated owner ID, Row-Level Security isolation, and typed data access.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M4 · Core Task Lifecycle</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Centered create modal, view & edit, confirmation before completion, quick Undo, and on-time vs. late audit.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M5 · Dashboard & Derived Views</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Calculated sections (Home, Today, Upcoming, Needs Attention, Completed, Archived) and calm 5/3/3/3 caps.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M6 · Search & Filters</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Keyword search across title and description, priority presets, deadline ranges, and clear-all action.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M7 · Archive & Reliability</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Reversible archiving, separately confirmed permanent deletion, offline handling, and error recovery.</p>
-        </div>
-
-        <div class="v-card" style="border-left: 4px solid var(--border); grid-column: span 2;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>M8 · Phase 1 Polish & Release Readiness</strong>
-            <span class="v-pill">PLANNED</span>
-          </div>
-          <p style="margin-top: 6px;">Mobile responsiveness adaptation, accessibility compliance (WCAG AA), full automated test suite, and release sign-off.</p>
-        </div>
-      </div>
+    <section class="home-direction">
+      <h2>Where planning is headed</h2>
+      <p class="lead">When a new task lands on an already full day, ViDo’s goal is to suggest a better time using priority, commitments, and past progress. You decide whether to move it. Intelligent scheduling is still in development.</p>
+      <nav aria-label="Explore the product direction"><a href="./user.html#today">What you can use today</a><a href="./developer.html#milestones">Implementation milestones</a><a href="https://github.com/vicharanashala/ViDo">Project repository</a></nav>
     </section>
-
-    <!-- Future Phases Evolution -->
-    <section style="margin-top: 40px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px;">Future Evolution: Beyond Phase 1</h2>
-      <p style="color: var(--text-muted); font-size: 13.5px; margin: 0 0 16px;">
-        Advanced capabilities are intentionally deferred to subsequent project phases:
-      </p>
-
-      <div class="step-pipeline" style="grid-template-columns: repeat(3, 1fr);">
-        <div class="step-box">
-          <div class="step-num" style="background: var(--surface-secondary); color: var(--text);">2</div>
-          <h5>Phase 2: Organization</h5>
-          <p>Custom lists, tags, recurring & periodic tasks, manual ordering, and saved filters.</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num" style="background: var(--surface-secondary); color: var(--text);">3</div>
-          <h5>Phase 3: Collaboration</h5>
-          <p>Shared tasks, email invitations, member assignments, comments, and team workspaces.</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num" style="background: var(--surface-secondary); color: var(--text);">4</div>
-          <h5>Phase 4: Intelligence</h5>
-          <p>Embedded AI agent for task generation, deadline-risk prediction, and scheduling assistance.</p>
-        </div>
-      </div>
-    </section>
-
   </main>
-
-  <script src="./app.js"></script>
+  <footer><a href="./index.html">ViDo documentation</a><span>Thoughtful tools to get your work from “doing” to “done”.</span></footer>
 </body>
 </html>
