@@ -211,7 +211,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   // Authentication guards: evaluated AFTER all hooks have executed unconditionally
   if (!isPreview && loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--canvas)] text-[var(--muted)] text-sm">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface)] text-[var(--muted)] text-sm">
         <div className="flex items-center gap-2.5">
           <div className="w-4 h-4 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
           <span>Verifying authentication...</span>
@@ -295,6 +295,21 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const handleDeleteTask = (taskToDelete: SampleTask) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskToDelete.id));
+    if (selectedTask?.id === taskToDelete.id) {
+      setIsDetailOpen(false);
+      setSelectedTask(null);
+    }
+    setToastMessage(`Task "${taskToDelete.title}" deleted.`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleUpdateTask = (taskId: string, updates: Partial<SampleTask>) => {
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t)));
+    setSelectedTask((prev) => (prev?.id === taskId ? { ...prev, ...updates } : prev));
+  };
+
   const handleSignOut = () => {
     if (!isPreview) {
       void signOut();
@@ -303,7 +318,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--canvas)] text-[var(--ink)] antialiased">
+    <div className="flex flex-col min-h-screen text-[var(--ink)] antialiased">
       {/* 1. Global Persistent Demo Preview Notice Bar - ONLY in Preview mode */}
       {isPreview && (
         <aside
@@ -342,7 +357,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
       {syncError && (
         <div
           role="alert"
-          className="bg-red-50 border-b border-red-200 text-red-700 px-6 py-2.5 text-xs flex items-center gap-2"
+          className="bg-[var(--red-soft)] border-b border-[var(--red)]/30 text-[var(--red)] px-6 py-2.5 text-xs flex items-center gap-2"
         >
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span className="truncate">{syncError}</span>
@@ -405,6 +420,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     onTaskClick={handleTaskClick}
                     onToggleTask={handleToggleTask}
                     onNewTaskClick={() => setIsCreateOpen(true)}
+                    onUpdateTask={handleUpdateTask}
                   />
                 }
               />
@@ -427,6 +443,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     onTaskClick={handleTaskClick}
                     onToggleTask={handleToggleTask}
                     onNewTaskClick={() => setIsCreateOpen(true)}
+                    onUpdateTask={handleUpdateTask}
                   />
                 }
               />
@@ -582,6 +599,8 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
           setSelectedTask(null);
         }}
         onToggleTask={handleToggleTask}
+        onDeleteTask={handleDeleteTask}
+        onUpdateTask={handleUpdateTask}
         isPreview={isPreview}
       />
 

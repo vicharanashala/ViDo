@@ -117,7 +117,7 @@ describe('LandingPage Integration', () => {
 
       // Authenticated user profile is displayed
       expect(screen.getAllByText('Alex Morgan')[0]).toBeInTheDocument();
-      expect(screen.getByText(/welcome back, alex/i)).toBeInTheDocument();
+      expect(screen.getByText(/24-Hour Interactive Timeline/i)).toBeInTheDocument();
     });
 
     // Two tabs are present: Dashboard and Tasks

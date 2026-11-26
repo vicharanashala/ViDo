@@ -46,23 +46,23 @@ export const LandingPreview: React.FC = () => {
             <div className="space-y-1 text-xs font-medium text-gray-400">
               <div className="p-2 rounded-lg bg-white/10 text-white font-semibold flex items-center justify-between">
                 <span>Home</span>
-                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">11</span>
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">0</span>
               </div>
               <div className="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between">
                 <span>Today</span>
-                <span className="text-[10px] text-gray-500">4</span>
+                <span className="text-[10px] text-gray-500">0</span>
               </div>
               <div className="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between">
                 <span>Upcoming</span>
-                <span className="text-[10px] text-gray-500">5</span>
+                <span className="text-[10px] text-gray-500">0</span>
               </div>
               <div className="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between">
                 <span>Needs Attention</span>
-                <span className="text-[10px] text-amber-400 font-bold">2</span>
+                <span className="text-[10px] text-gray-500">0</span>
               </div>
               <div className="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between">
                 <span>Completed</span>
-                <span className="text-[10px] text-gray-500">8</span>
+                <span className="text-[10px] text-gray-500">0</span>
               </div>
             </div>
           </div>
@@ -85,25 +85,17 @@ export const LandingPreview: React.FC = () => {
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[var(--accent)]" /> Today (4)
+                    <Clock className="w-3.5 h-3.5 text-[var(--accent)]" /> Today (0)
                   </h3>
                   <span className="text-[11px] text-[var(--accent)] font-semibold">View all</span>
                 </div>
 
                 <div className="bg-[var(--surface)] p-3 rounded-lg border border-[var(--line)] shadow-xs">
                   <div className="flex items-start justify-between">
-                    <span className="text-xs font-semibold text-[var(--ink)]">Review Q4 Budget & Resource Allocations</span>
-                    <Badge variant="accent" size="sm">High</Badge>
+                    <span className="text-xs font-semibold text-[var(--ink)]">No tasks for today yet</span>
+                    <Badge variant="neutral" size="sm">Empty</Badge>
                   </div>
-                  <span className="text-[10px] text-[var(--muted)] mt-1 block">Due Today at 17:00</span>
-                </div>
-
-                <div className="bg-[var(--surface)] p-3 rounded-lg border border-[var(--line)] shadow-xs">
-                  <div className="flex items-start justify-between">
-                    <span className="text-xs font-semibold text-[var(--ink)]">Finalize Vehicle Registration Renewal</span>
-                    <Badge variant="neutral" size="sm">Medium</Badge>
-                  </div>
-                  <span className="text-[10px] text-[var(--muted)] mt-1 block">Due Today at 18:30</span>
+                  <span className="text-[10px] text-[var(--muted)] mt-1 block">Add a task when you are ready to plan.</span>
                 </div>
               </div>
 
@@ -111,25 +103,17 @@ export const LandingPreview: React.FC = () => {
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--amber)] flex items-center gap-1.5">
-                    <AlertCircle className="w-3.5 h-3.5" /> Needs Attention (2)
+                    <AlertCircle className="w-3.5 h-3.5" /> Needs Attention (0)
                   </h3>
                   <span className="text-[11px] text-[var(--accent)] font-semibold">View all</span>
                 </div>
 
-                <div className="bg-[var(--surface)] p-3 rounded-lg border border-red-200 shadow-xs">
-                  <div className="flex items-start justify-between">
-                    <span className="text-xs font-semibold text-[var(--ink)]">Submit Annual Insurance Declaration</span>
-                    <Badge variant="danger" size="sm">Overdue</Badge>
-                  </div>
-                  <span className="text-[10px] text-[var(--red)] mt-1 block">Was due 15 Nov 2026</span>
-                </div>
-
                 <div className="bg-[var(--surface)] p-3 rounded-lg border border-[var(--line)] shadow-xs">
                   <div className="flex items-start justify-between">
-                    <span className="text-xs font-semibold text-[var(--ink)]">Server Security Certificate Expiry</span>
-                    <Badge variant="warning" size="sm">Urgent</Badge>
+                    <span className="text-xs font-semibold text-[var(--ink)]">Nothing needs attention</span>
+                    <Badge variant="neutral" size="sm">Clear</Badge>
                   </div>
-                  <span className="text-[10px] text-[var(--amber)] mt-1 block">Expires in 24 hours</span>
+                  <span className="text-[10px] text-[var(--muted)] mt-1 block">You are all caught up.</span>
                 </div>
               </div>
             </div>
@@ -143,8 +127,8 @@ export const LandingPreview: React.FC = () => {
                 <span className="text-[11px] text-[var(--accent)] font-semibold">View all</span>
               </div>
               <div className="bg-[var(--surface)] p-2.5 rounded-lg border border-[var(--line)] flex items-center justify-between text-xs">
-                <span className="line-through text-[var(--muted)]">Complete initial workspace design review</span>
-                <span className="text-[10px] text-[var(--green)] font-medium">Completed on time</span>
+                <span className="text-[var(--muted)]">No completed tasks yet</span>
+                <span className="text-[10px] text-[var(--muted)] font-medium">Start with one task</span>
               </div>
             </div>
           </div>

@@ -1,22 +1,134 @@
 @import "tailwindcss";
 
+/* Registered so the interpolated atmospheric colours animate smoothly. */
+@property --atmo-top { syntax: "<color>"; inherits: true; initial-value: #4489dd; }
+@property --atmo-mid { syntax: "<color>"; inherits: true; initial-value: #a0c4ef; }
+@property --atmo-low { syntax: "<color>"; inherits: true; initial-value: #e5eef7; }
+@property --atmo-glow { syntax: "<color>"; inherits: true; initial-value: rgba(253, 224, 71, 0.28); }
+@property --atmo-haze { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.30); }
+@property --atmo-surface { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.82); }
+@property --atmo-surface-strong { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.94); }
+@property --atmo-text { syntax: "<color>"; inherits: true; initial-value: #16233a; }
+@property --atmo-muted { syntax: "<color>"; inherits: true; initial-value: #5b6b82; }
+@property --atmo-faint { syntax: "<color>"; inherits: true; initial-value: #7b8aa0; }
+@property --atmo-line { syntax: "<color>"; inherits: true; initial-value: rgba(71, 105, 145, 0.18); }
+@property --atmo-line-strong { syntax: "<color>"; inherits: true; initial-value: rgba(71, 105, 145, 0.36); }
+@property --atmo-accent { syntax: "<color>"; inherits: true; initial-value: #305fdd; }
+@property --atmo-on-accent { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --atmo-accent-soft { syntax: "<color>"; inherits: true; initial-value: rgba(48, 95, 221, 0.10); }
+@property --atmo-green { syntax: "<color>"; inherits: true; initial-value: #247a56; }
+@property --atmo-green-soft { syntax: "<color>"; inherits: true; initial-value: rgba(36, 122, 86, 0.10); }
+@property --atmo-amber { syntax: "<color>"; inherits: true; initial-value: #936019; }
+@property --atmo-amber-soft { syntax: "<color>"; inherits: true; initial-value: rgba(147, 96, 25, 0.10); }
+@property --atmo-red { syntax: "<color>"; inherits: true; initial-value: #a44747; }
+@property --atmo-red-soft { syntax: "<color>"; inherits: true; initial-value: rgba(164, 71, 71, 0.10); }
+@property --atmo-shadow { syntax: "<color>"; inherits: true; initial-value: rgba(30, 63, 105, 0.16); }
+@property --atmo-chrome { syntax: "<color>"; inherits: true; initial-value: #17345c; }
+@property --atmo-daylight { syntax: "<number>"; inherits: true; initial-value: 1; }
+
 :root {
-  --ink: #16181d;
-  --muted: #676c76;
-  --faint: #9297a1;
-  --line: #e3e5e9;
-  --surface: #ffffff;
-  --canvas: #f5f6f8;
-  --dark: #1c2028;
-  --accent: #305fdd;
-  --accent-soft: #eef3ff;
-  --green: #247a56;
-  --green-soft: #eaf6f0;
-  --amber: #936019;
-  --amber-soft: #fff5df;
-  --red: #a44747;
-  --red-soft: #fff0ef;
+  /* Sampled sky stops from the reference recording. */
+  --atmo-top: #4489dd;
+  --atmo-mid: #a0c4ef;
+  --atmo-low: #e5eef7;
+  --atmo-glow: rgba(253, 224, 71, 0.28);
+  --atmo-haze: rgba(255, 255, 255, 0.30);
+  --atmo-surface: rgba(255, 255, 255, 0.82);
+  --atmo-surface-strong: rgba(255, 255, 255, 0.94);
+  --atmo-text: #16233a;
+  --atmo-muted: #5b6b82;
+  --atmo-faint: #7b8aa0;
+  --atmo-line: rgba(71, 105, 145, 0.18);
+  --atmo-line-strong: rgba(71, 105, 145, 0.36);
+  --atmo-accent: #305fdd;
+  --atmo-on-accent: #ffffff;
+  --atmo-accent-soft: rgba(48, 95, 221, 0.10);
+  --atmo-green: #247a56;
+  --atmo-green-soft: rgba(36, 122, 86, 0.10);
+  --atmo-amber: #936019;
+  --atmo-amber-soft: rgba(147, 96, 25, 0.10);
+  --atmo-red: #a44747;
+  --atmo-red-soft: rgba(164, 71, 71, 0.10);
+  --atmo-shadow: rgba(30, 63, 105, 0.16);
+  --atmo-chrome: #17345c;
+  --atmo-rain-top: #2a558a;
+  --atmo-rain-mid: #3c608e;
+  --atmo-rain-low: #576a84;
+  --atmo-daylight: 1;
+  --atmo-page: linear-gradient(180deg, var(--atmo-top) 0%, var(--atmo-mid) 45%, var(--atmo-low) 100%);
+
+  /* Existing design tokens now inherit the atmospheric palette. */
+  --ink: var(--atmo-text);
+  --muted: var(--atmo-muted);
+  --faint: var(--atmo-faint);
+  --line: var(--atmo-line);
+  --line-strong: var(--atmo-line-strong);
+  --surface: var(--atmo-surface);
+  --surface-strong: var(--atmo-surface-strong);
+  --canvas: var(--atmo-low);
+  --dark: var(--atmo-chrome);
+  --on-accent: var(--atmo-on-accent);
+  --accent: var(--atmo-accent);
+  --accent-soft: var(--atmo-accent-soft);
+  --green: var(--atmo-green);
+  --green-soft: var(--atmo-green-soft);
+  --amber: var(--atmo-amber);
+  --amber-soft: var(--atmo-amber-soft);
+  --red: var(--atmo-red);
+  --red-soft: var(--atmo-red-soft);
   --radius: 14px;
+}
+
+html {
+  background-image: var(--atmo-page);
+  transition:
+    --atmo-top 180ms linear,
+    --atmo-mid 180ms linear,
+    --atmo-low 180ms linear,
+    --atmo-glow 180ms linear,
+    --atmo-haze 180ms linear,
+    --atmo-surface 180ms linear,
+    --atmo-surface-strong 180ms linear,
+    --atmo-text 180ms linear,
+    --atmo-muted 180ms linear,
+    --atmo-faint 180ms linear,
+    --atmo-line 180ms linear,
+    --atmo-line-strong 180ms linear,
+    --atmo-accent 180ms linear,
+    --atmo-on-accent 180ms linear,
+    --atmo-accent-soft 180ms linear,
+    --atmo-green 180ms linear,
+    --atmo-green-soft 180ms linear,
+    --atmo-amber 180ms linear,
+    --atmo-amber-soft 180ms linear,
+    --atmo-red 180ms linear,
+    --atmo-red-soft 180ms linear,
+    --atmo-shadow 180ms linear,
+    --atmo-chrome 180ms linear,
+    --atmo-daylight 180ms linear;
+}
+
+body {
+  min-height: 100vh;
+  background-image: var(--atmo-page);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 78% 12%, var(--atmo-glow) 0%, transparent 42%),
+    radial-gradient(circle at 12% 100%, var(--atmo-haze) 0%, transparent 58%);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
 }
 
 [data-accent="indigo"] {
@@ -39,7 +151,9 @@
   --color-muted: var(--muted);
   --color-faint: var(--faint);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
   --color-canvas: var(--canvas);
   --color-dark: var(--dark);
   --color-accent: var(--accent);
@@ -56,6 +170,33 @@
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Demo weather effects */
+@keyframes weather-fall {
+  0% { transform: translateY(-6px); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+
+.weather-rain,
+.weather-snow {
+  animation: weather-fall 1.4s linear infinite;
+}
+
+.weather-snow {
+  animation-duration: 2.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+
+  .weather-rain,
+  .weather-snow {
+    animation: none;
+  }
 }
 
 /* Keep the workspace navigation scrollbar quiet, compact, and palette-aware. */

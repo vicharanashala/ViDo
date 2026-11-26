@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { SAMPLE_TASKS, SampleTask } from './sampleTasks';
+import { SampleTask } from './sampleTasks';
+import { TASK_FIXTURES } from './testTaskFixtures';
 import {
   getFilteredTasks,
   getHomeDashboardTasks,
@@ -9,7 +10,7 @@ import {
 
 describe('taskFilters', () => {
   it('correctly categorizes tasks based on the benchmark date', () => {
-    const views = getFilteredTasks(SAMPLE_TASKS);
+    const views = getFilteredTasks(TASK_FIXTURES);
 
     expect(views.today.length).toBe(6);
     expect(views.needsAttention.length).toBe(4);
@@ -38,7 +39,7 @@ describe('taskFilters', () => {
   });
 
   it('enforces Home dashboard section limits with total counts', () => {
-    const home = getHomeDashboardTasks(SAMPLE_TASKS);
+    const home = getHomeDashboardTasks(TASK_FIXTURES);
 
     // Today section: limited to 5, total is 6
     expect(home.today.items.length).toBe(HOME_LIMITS.today);
@@ -83,7 +84,7 @@ describe('taskFilters', () => {
       createdAt: '2026-11-22T08:00:00Z',
     };
 
-    const all = [todayTask, futureTask, ...SAMPLE_TASKS];
+    const all = [todayTask, futureTask, ...TASK_FIXTURES];
     const views = getFilteredTasks(all, '2026-11-17', '2026-11-17T09:00:00Z', '2026-11-22');
 
     // Today task should be in today, NOT upcoming

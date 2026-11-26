@@ -68,7 +68,8 @@ ViDo/
 ### `src/data/` — Types, Fixtures & Pure Logic
 - **Purpose**: TypeScript interfaces, sample data fixtures, and pure filtering/calculation functions.
 - **Current Contents**:
-  - `sampleTasks.ts`: Deterministic task dataset, priorities, tags, categories, and checkpoints.
+  - `sampleTasks.ts`: Shared task types and benchmark constants; the app-facing sample list is empty.
+  - `testTaskFixtures.ts`: Neutral, test-only tasks used by filter and view tests.
   - `taskFilters.ts`: Pure functions for filtering tasks into *Today*, *Upcoming*, *Needs Attention*, *Completed*, and *Archived*.
   - `calendar.ts`: ISO date helpers, week/month grids, sample calendar events, and event sorting.
   - `analytics.ts`: Weekly/monthly completion stats, target progress, and cumulative monthly roll-ups.

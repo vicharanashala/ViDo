@@ -24,13 +24,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'bg-[var(--accent)] text-white hover:opacity-90 active:opacity-95 focus-visible:outline-[var(--accent)] shadow-sm',
+      'bg-[var(--accent)] text-[var(--on-accent)] hover:opacity-90 active:opacity-95 focus-visible:outline-[var(--accent)] shadow-sm',
     secondary:
       'bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] hover:bg-[var(--canvas)] active:bg-gray-100 focus-visible:outline-[var(--accent)] shadow-xs',
     ghost:
       'bg-transparent text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--canvas)] focus-visible:outline-[var(--accent)]',
     danger:
-      'bg-[var(--red)] text-white hover:opacity-90 active:opacity-95 focus-visible:outline-[var(--red)] shadow-sm',
+      'bg-[var(--red)] text-[var(--on-accent)] hover:opacity-90 active:opacity-95 focus-visible:outline-[var(--red)] shadow-sm',
   }[variant];
 
   return (
