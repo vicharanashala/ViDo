@@ -60,6 +60,7 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
   const [minutes, setMinutes] = useState<Record<string, string>>({});
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
+  const [journey, setJourney] = useState('');
   const [intention, setIntention] = useState('');
 
   useEffect(() => {
@@ -116,6 +117,8 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
       timeLog,
       note: note.trim() || undefined,
       analysis: note.trim() ? analyseNote(note) : undefined,
+      journey: journey.trim() || undefined,
+      journeyAnalysis: journey.trim() ? analyseNote(journey) : undefined,
       answeredAt: new Date().toISOString(),
     };
     saveEveningCheckIn(checkIn);
@@ -273,6 +276,24 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="mt-5">
+          <label className="block">
+            <span className="block text-xs font-semibold text-[var(--muted)] mb-1">
+              How did the work itself go? (optional)
+            </span>
+            <span className="block text-[11px] text-[var(--faint)] mb-1.5">
+              Where you got stuck, what flowed, what you learned.
+            </span>
+            <textarea
+              rows={3}
+              value={journey}
+              onChange={(event) => setJourney(event.target.value)}
+              placeholder="What was hard, what flowed, what you learned."
+              className="w-full px-3 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] placeholder-[var(--faint)] border border-[var(--line)] rounded-lg resize-none focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+            />
+          </label>
         </section>
 
         <section className="mt-5">

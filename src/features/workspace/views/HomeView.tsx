@@ -39,7 +39,7 @@ export interface HomeViewProps {
   onSaveProfile?: (profile: { prefix: string; name: string }) => void;
   intention?: string;
   onIntentionChange?: (text: string) => void;
-  eveningReview?: { onOpen: () => void };
+  eveningReview?: { onOpen: () => void; label?: string };
 }
 
 function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -48,9 +48,6 @@ function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string 
   if (status === 'ahead') return 'You are moving. Keep it light.';
   return 'One thing at a time.';
 }
-
-const HERO_GRADIENT =
-  'linear-gradient(135deg, #fff1df 0%, #f8fbf1 48%, #f8e1d3 100%)';
 
 export const HomeView: React.FC<HomeViewProps> = ({
   todayTasks,
@@ -96,14 +93,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       )}
 
-      <section
-        className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
-        style={{ background: HERO_GRADIENT }}
-      >
+      <section className="hero-gradient relative mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm">
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[rgba(131,184,168,0.18)] blur-3xl" />
 
-        <div className="relative flex items-start justify-between gap-4">
+        <div className="relative flex flex-col items-center gap-3 text-center">
           <div>
             <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted)]">
               {todayLabel}
@@ -123,10 +117,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
             subLabel="done today"
             className="hidden sm:inline-flex"
           />
+          {eveningReview && (
+            <button
+              type="button"
+              onClick={eveningReview.onOpen}
+              aria-label="Open the evening review"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--surface)]/80 px-4 py-1.5 text-[11px] text-[var(--muted)] shadow-xs transition-colors hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            >
+              <Moon className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" />
+              <span className="font-semibold text-[var(--ink)]">
+                {eveningReview.label ?? 'How did today sit?'}
+              </span>
+              <span className="text-[var(--faint)]">Answer when you are ready.</span>
+            </button>
+          )}
         </div>
 
         {focusTask && focusPace ? (
-          <div className="relative mt-6 grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-[var(--surface)]/85 border border-[var(--line)] p-5">
+          <div className="relative mx-auto mt-6 grid w-full gap-5 sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-[var(--surface)]/85 border border-[var(--line)] p-5 text-center sm:text-left">
             <div>
               <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--accent)]">
                 One small thing
@@ -167,18 +175,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         )}
 
-        <div className="relative mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">7-day momentum</span>
-            <div className="mt-2">
-              <MomentumStrip tasks={allTasks} />
-            </div>
-          </div>
+        <div className="relative mt-5 flex flex-col items-center gap-2 text-center">
+          <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">7-day momentum</span>
+          <MomentumStrip tasks={allTasks} />
           <span className="text-xs text-[var(--muted)]">A little progress today.</span>
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-5xl px-1">
+      <div className="mx-auto w-full max-w-5xl px-1 text-center">
         <DailyQuote dateKey={toDateKey(new Date())} />
       </div>
 
@@ -188,23 +192,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       )}
 
-      {eveningReview && (
-        <div className="mx-auto w-full max-w-5xl">
-          <button
-            type="button"
-            onClick={eveningReview.onOpen}
-            aria-label="Open the evening review"
-            className="flex w-full items-center gap-2 rounded-lg bg-[var(--accent-soft)]/70 px-3 py-2 text-left text-[11px] text-[var(--muted)] transition-colors hover:bg-[var(--accent-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-          >
-            <Moon className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" />
-            <span className="font-semibold text-[var(--ink)]">How did today sit?</span>
-            <span className="text-[var(--faint)]">Answer when you are ready.</span>
-          </button>
-        </div>
-      )}
-
       <section aria-labelledby="today-heading" className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col items-center gap-1 text-center">
           <h2 id="today-heading" className="text-lg font-bold text-[var(--ink)] tracking-tight">
             Today
           </h2>
@@ -229,8 +218,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </Button>
           </div>
         ) : todayTasks.items.length > 0 ? (
-          <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="rounded-xl bg-[var(--surface)] px-4 py-3 text-center">
+            <div className="flex flex-col items-center gap-2">
               <p className="text-xs text-[var(--muted)]">
                 <span className="font-semibold text-[var(--ink)]">{todayTasks.totalCount}</span>{' '}
                 {todayTasks.totalCount === 1 ? 'task' : 'tasks'} due today
@@ -245,7 +234,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Open Today <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="mt-2">
+            <div className="mt-2 flex justify-center">
               <Button variant="ghost" size="sm" onClick={stopForToday}>
                 That's enough for today
               </Button>

@@ -151,6 +151,22 @@ describe('EveningCheckIn', () => {
     expect(saved?.movedTaskIds).toContain('task-1');
   });
 
+  it('stores the work journey separately from the share note', () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole('button', { name: 'steady' }));
+    fireEvent.change(screen.getByPlaceholderText(/what was hard/i), {
+      target: { value: 'No interruptions, deep work after lunch.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save the evening/i }));
+
+    const saved = loadEveningCheckIn('2026-11-20');
+    expect(saved?.journey).toBe('No interruptions, deep work after lunch.');
+    expect(saved?.journeyAnalysis?.tags.map((tag) => tag.label)).toEqual(
+      expect.arrayContaining(['interruptions', 'focus time'])
+    );
+    expect(saved?.note).toBeUndefined();
+  });
+
   it('can be deferred', () => {
     const { onLater } = renderSheet();
     fireEvent.click(screen.getByRole('button', { name: 'Later' }));

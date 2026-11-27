@@ -4,6 +4,7 @@ import type { PromptState } from '../data/nightlyReview';
 const ENTRY_PREFIX = 'vido.journal.entries.';
 const EVENING_PREFIX = 'vido.journal.evening.';
 const DEFER_PREFIX = 'vido.journal.defer.';
+const MISSED_PREFIX = 'vido.journal.missed.';
 const PAUSED_KEY = 'vido.journal.pausedUntil';
 
 function storage(): Storage | null {
@@ -208,10 +209,31 @@ export function savePausedUntil(dateKey: string | null): void {
   }
 }
 
+export function markMissedNight(dateKey: string): void {
+  const store = storage();
+  if (!store) return;
+  try {
+    store.setItem(`${MISSED_PREFIX}${dateKey}`, '1');
+  } catch {
+    // Ignore blocked storage.
+  }
+}
+
+export function listMissedNights(): string[] {
+  return listKeys(MISSED_PREFIX).map((key) => key.slice(MISSED_PREFIX.length));
+}
+
+export function clearSkippedNights(): void {
+  [DEFER_PREFIX, MISSED_PREFIX].forEach((prefix) => {
+    listKeys(prefix).forEach(remove);
+  });
+}
+
 export function loadPromptState(): PromptState {
   return {
     answeredDateKeys: listEveningCheckIns().map((entry) => entry.dateKey),
     deferredDateKeys: listKeys(DEFER_PREFIX).map((key) => key.slice(DEFER_PREFIX.length)),
+    missedDateKeys: listMissedNights(),
     pausedUntil: loadPausedUntil(),
   };
 }
@@ -235,7 +257,7 @@ export function buildJournalExport(): JournalExport {
 }
 
 export function clearJournalStorage(): void {
-  [ENTRY_PREFIX, EVENING_PREFIX, DEFER_PREFIX].forEach((prefix) => {
+  [ENTRY_PREFIX, EVENING_PREFIX, DEFER_PREFIX, MISSED_PREFIX].forEach((prefix) => {
     listKeys(prefix).forEach(remove);
   });
   remove(PAUSED_KEY);

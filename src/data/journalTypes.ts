@@ -59,5 +59,7 @@ export interface EveningCheckIn {
   timeLog: TimeLogEntry[];
   note?: string;
   analysis?: JournalAnalysis;
+  journey?: string;
+  journeyAnalysis?: JournalAnalysis;
   answeredAt: string;
 }

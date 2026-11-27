@@ -53,6 +53,69 @@
   --accent-soft: #e9eff7;
 }
 
+:root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9f0ea;
+  --muted: #a7b3ab;
+  --faint: #7f8b84;
+  --line: #2d3833;
+  --surface: #1b2320;
+  --canvas: #121815;
+  --dark: #0c110f;
+  --accent: #e08a6a;
+  --accent-soft: #3b261f;
+  --sun: #e9a768;
+  --sky: #7fb3a3;
+  --green: #86c4a2;
+  --green-soft: #1f2f27;
+  --amber: #d8a45f;
+  --amber-soft: #33291c;
+  --red: #d39184;
+  --red-soft: #352421;
+}
+
+[data-theme="dark"][data-accent="indigo"] {
+  --accent: #9aa2e8;
+  --accent-soft: #262842;
+}
+
+[data-theme="dark"][data-accent="green"] {
+  --accent: #86c4a2;
+  --accent-soft: #1f2f27;
+}
+
+[data-theme="dark"][data-accent="blue"] {
+  --accent: #9db8e0;
+  --accent-soft: #212a37;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(1100px 700px at 10% -14%, #1d2a22 0%, transparent 62%),
+    radial-gradient(900px 620px at 100% 0%, #16231e 0%, transparent 58%),
+    linear-gradient(180deg, #0f1512 0%, var(--canvas) 58%, #101714 100%);
+}
+
+[data-theme="dark"] .workspace-studio {
+  background:
+    radial-gradient(900px 560px at 8% -8%, rgba(90, 60, 45, 0.35), transparent 62%),
+    radial-gradient(760px 520px at 94% 6%, rgba(40, 70, 60, 0.35), transparent 64%),
+    radial-gradient(900px 660px at 48% 112%, rgba(70, 45, 38, 0.28), transparent 66%),
+    linear-gradient(135deg, #121a16 0%, #101713 48%, #141915 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #fff1df 0%, #f8fbf1 48%, #f8e1d3 100%);
+}
+
+[data-theme="dark"] .hero-gradient {
+  background: linear-gradient(135deg, #2a2118 0%, #17211c 48%, #2a1d18 100%);
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;

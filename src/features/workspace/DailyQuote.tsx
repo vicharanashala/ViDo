@@ -69,7 +69,7 @@ export const DailyQuote: React.FC<DailyQuoteProps> = ({ dateKey }) => {
           </div>
         </div>
       ) : (
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <p className="text-sm sm:text-base text-[var(--muted)] italic leading-relaxed">{text}</p>
           <button
             type="button"

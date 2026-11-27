@@ -29,7 +29,13 @@ import { ProfileView } from './views/ProfileView';
 import { JournalView } from './views/JournalView';
 import { EveningCheckIn } from './EveningCheckIn';
 import { nightlyPrompt, pauseUntilAfterSkips } from '../../data/nightlyReview';
-import { loadPromptState, markDeferred, savePausedUntil } from '../../lib/journalStore';
+import {
+  clearSkippedNights,
+  loadPromptState,
+  markDeferred,
+  markMissedNight,
+  savePausedUntil,
+} from '../../lib/journalStore';
 import { Doodle } from './doodles/Doodles';
 import type { DoodleKind } from './doodles/doodleMap';
 import type { CheckInKind } from './checkInTypes';
@@ -98,7 +104,6 @@ export const WorkspaceLayout: React.FC = () => {
   const [createRange, setCreateRange] = useState<{ minDate?: string; maxDate?: string }>({});
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-
   const [promptVersion, setPromptVersion] = useState(0);
   const [nightTick, setNightTick] = useState(0);
   const [eveningOpen, setEveningOpen] = useState(false);
@@ -116,7 +121,31 @@ export const WorkspaceLayout: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (nightly.kind !== 'sheet' || eveningDismissed) return;
+    const now = new Date();
+    const state = loadPromptState();
+    const answered = new Set(state.answeredDateKeys);
+    const deferred = new Set(state.deferredDateKeys);
+    for (let offset = 1; offset <= 7; offset += 1) {
+      const day = addDays(now, -offset);
+      const key = toDateKey(day);
+      if (answered.has(key) || deferred.has(key)) continue;
+      if (state.pausedUntil && key <= state.pausedUntil) continue;
+      const closeAt = addDays(day, 1);
+      closeAt.setHours(9, 0, 0, 0);
+      if (now >= closeAt) markMissedNight(key);
+    }
+    const refreshed = loadPromptState();
+    const skipped = [...refreshed.deferredDateKeys, ...(refreshed.missedDateKeys ?? [])];
+    const pause = pauseUntilAfterSkips(skipped, refreshed.answeredDateKeys, now);
+    if (pause) {
+      savePausedUntil(pause);
+      clearSkippedNights();
+      setPromptVersion((value) => value + 1);
+    }
+  }, [nightTick, promptVersion]);
+
+  useEffect(() => {
+    if (nightly.kind !== 'sheet' || !nightly.autoOpen || eveningDismissed) return;
     const overlayOpen = Boolean(
       selectedTaskId || focusTaskId || checkInTaskId || isCreateOpen || isHelpOpen || eveningOpen
     );
@@ -125,6 +154,7 @@ export const WorkspaceLayout: React.FC = () => {
   }, [
     nightly.kind,
     nightly.dateKey,
+    nightly.autoOpen,
     eveningDismissed,
     selectedTaskId,
     focusTaskId,
@@ -458,6 +488,9 @@ export const WorkspaceLayout: React.FC = () => {
           onClearFilters={() => setFilters(EMPTY_TASK_FILTERS)}
           onHelpClick={() => setIsHelpOpen(true)}
           onProfileClick={() => navigate('/app/profile')}
+          eveningReview={
+            nightlyStrip.kind === 'none' ? undefined : { onOpen: () => setEveningOpen(true) }
+          }
         />
 
         <main
@@ -512,7 +545,15 @@ export const WorkspaceLayout: React.FC = () => {
                   onCheckInStart={handleCheckInStart}
                   onOpenPath={handleOpenPath}
                   eveningReview={
-                    nightlyStrip.kind === 'none' ? undefined : { onOpen: () => setEveningOpen(true) }
+                    nightlyStrip.kind === 'none'
+                      ? undefined
+                      : {
+                          onOpen: () => setEveningOpen(true),
+                          label:
+                            nightlyStrip.dateKey && nightlyStrip.dateKey !== toDateKey(new Date())
+                              ? 'How did last night sit?'
+                              : 'How did today sit?',
+                        }
                   }
                 />
               }
@@ -523,6 +564,7 @@ export const WorkspaceLayout: React.FC = () => {
                 <TodayQueueView
                   tasks={filteredTasks}
                   onTaskClick={handleTaskClick}
+                  onNewTaskClick={() => openCreate(toDateKey(new Date()))}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}

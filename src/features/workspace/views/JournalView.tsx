@@ -359,6 +359,25 @@ export const JournalView: React.FC = () => {
                     Felt easy: {checkIn.lightTaskTitles?.join(', ')}
                   </p>
                 )}
+                {checkIn.journey && (
+                  <div className="mt-1.5">
+                    <p className="text-[11px] text-[var(--muted)] whitespace-pre-wrap">
+                      The work itself: {checkIn.journey}
+                    </p>
+                    {(checkIn.journeyAnalysis?.tags.length ?? 0) > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {checkIn.journeyAnalysis?.tags.map((tag) => (
+                          <span
+                            key={tag.label}
+                            className="px-1.5 py-0.5 rounded-md bg-[var(--green-soft)] text-[10px] text-[var(--green)]"
+                          >
+                            {tag.label} ({tag.count})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {checkIn.timeLog.length > 0 && (
                   <p className="text-[11px] text-[var(--muted)] mt-1">
                     Time:{' '}

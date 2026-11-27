@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CircleHelp, Filter, Search, UserRound, X } from 'lucide-react';
+import { CircleHelp, Filter, Moon, Search, UserRound, X } from 'lucide-react';
 import { Badge } from '../../components/ui';
 import type { TaskPriority } from '../../data/taskTypes';
 import type { DeadlineFilter } from '../../data/taskFilters';
@@ -17,6 +17,7 @@ export interface WorkspaceTopBarProps {
   onClearFilters?: () => void;
   onHelpClick?: () => void;
   onProfileClick?: () => void;
+  eveningReview?: { onOpen: () => void };
 }
 
 export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
@@ -32,6 +33,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   onClearFilters,
   onHelpClick,
   onProfileClick,
+  eveningReview,
 }) => {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -60,6 +62,18 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors cursor-pointer"
             >
               <UserRound className="w-4 h-4" />
+            </button>
+          )}
+          {eveningReview && (
+            <button
+              type="button"
+              onClick={eveningReview.onOpen}
+              aria-label="Open the evening review"
+              title="Evening review"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+            >
+              <Moon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Evening</span>
             </button>
           )}
           {onHelpClick && (

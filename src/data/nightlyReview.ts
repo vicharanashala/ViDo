@@ -2,13 +2,15 @@ import { addDays, toDateKey } from './taskDates';
 import type { MoodWord } from './journalTypes';
 
 export const NIGHT_START_HOUR = 21;
-export const NIGHT_END_HOUR = 4;
+export const NIGHT_END_HOUR = 9;
+export const AUTO_POPUP_END_HOUR = 23;
 export const PAUSE_AFTER_SKIPPED_NIGHTS = 3;
 export const PAUSE_DAYS = 7;
 
 export interface PromptState {
   answeredDateKeys: string[];
   deferredDateKeys: string[];
+  missedDateKeys?: string[];
   pausedUntil?: string | null;
 }
 
@@ -18,6 +20,8 @@ export interface NightlyPrompt {
   kind: NightlyPromptKind;
   dateKey?: string;
   reason?: 'daytime' | 'answered' | 'paused';
+  /** The sheet may open by itself only between 21:00 and 23:00. */
+  autoOpen: boolean;
 }
 
 /** The evening that the current moment belongs to, or null during the day. */
@@ -41,33 +45,36 @@ export function nightlyPrompt(
   state: PromptState,
   options: NightlyPromptOptions = {}
 ): NightlyPrompt {
+  const hour = now.getHours();
+  const autoOpen = hour >= NIGHT_START_HOUR && hour < AUTO_POPUP_END_HOUR;
   const dateKey = reviewDateKey(now);
-  if (!dateKey) return { kind: 'none', reason: 'daytime' };
+  if (!dateKey) return { kind: 'none', reason: 'daytime', autoOpen: false };
   if (state.answeredDateKeys.includes(dateKey)) {
-    return { kind: 'none', dateKey, reason: 'answered' };
+    return { kind: 'none', dateKey, reason: 'answered', autoOpen: false };
   }
   if (state.pausedUntil && dateKey <= state.pausedUntil) {
-    return { kind: 'none', dateKey, reason: 'paused' };
+    return { kind: 'none', dateKey, reason: 'paused', autoOpen: false };
   }
   if (!options.ignoreDeferrals && state.deferredDateKeys.includes(dateKey)) {
-    return { kind: 'quiet', dateKey };
+    return { kind: 'quiet', dateKey, autoOpen: false };
   }
-  return { kind: 'sheet', dateKey };
+  return { kind: 'sheet', dateKey, autoOpen };
 }
 
 /** Pause prompting for a week after three nights in a row go unanswered. */
 export function pauseUntilAfterSkips(
-  deferredDateKeys: string[],
+  skippedDateKeys: string[],
   answeredDateKeys: string[],
   now: Date
 ): string | null {
   const answered = new Set(answeredDateKeys);
+  const skipped = new Set(skippedDateKeys);
   let consecutive = 0;
   let cursor = addDays(now, -1);
   while (consecutive < PAUSE_AFTER_SKIPPED_NIGHTS) {
     const key = toDateKey(cursor);
     if (answered.has(key)) break;
-    if (!deferredDateKeys.includes(key)) break;
+    if (!skipped.has(key)) break;
     consecutive += 1;
     cursor = addDays(cursor, -1);
   }
