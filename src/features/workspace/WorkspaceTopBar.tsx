@@ -12,7 +12,6 @@ import {
   Sunset,
   Moon,
   Sparkles,
-  PanelLeft,
 } from 'lucide-react';
 import { Badge } from '../../components/ui';
 import { NotificationBell } from '../teams/NotificationBell';
@@ -53,8 +52,6 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   currentDate: propCurrentDate,
   basePath = '/preview',
   isSettings: propIsSettings,
-  isSidebarCollapsed = false,
-  onToggleSidebar,
 }) => {
   const location = useLocation();
   const isSettingsPage = propIsSettings ?? location.pathname.endsWith('/settings');
@@ -154,17 +151,6 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
       <div className="absolute inset-0 -z-10 glass-panel pointer-events-none" />
       {/* Workspace Context / Breadcrumb */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {onToggleSidebar && (
-          <button
-            type="button"
-            aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            onClick={onToggleSidebar}
-            className="p-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--canvas)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer shrink-0"
-          >
-            <PanelLeft className="w-4 h-4" />
-          </button>
-        )}
         {isSettingsPage ? (
           <div className="flex items-center gap-2">
             <Link
