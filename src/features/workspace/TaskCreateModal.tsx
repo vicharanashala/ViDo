@@ -10,6 +10,8 @@ export interface TaskCreateModalProps {
   onClose: () => void;
   onCreate?: (input: NewTaskInput) => void;
   defaultDate?: string;
+  minDate?: string;
+  maxDate?: string;
 }
 
 export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
@@ -17,6 +19,8 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   onClose,
   onCreate,
   defaultDate,
+  minDate,
+  maxDate,
 }) => {
   const today = defaultDate ?? toDateKey(new Date());
   const [title, setTitle] = useState('');
@@ -29,6 +33,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const [reminderAt, setReminderAt] = useState('');
   const [priority, setPriority] = useState<TaskPriority | ''>('medium');
   const [category, setCategory] = useState<TaskCategory>('personal');
+  const [plannedMinutes, setPlannedMinutes] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -47,12 +52,19 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       setReminderAt('');
       setPriority('medium');
       setCategory('personal');
+      setPlannedMinutes('');
       setTimeout(() => titleInputRef.current?.focus(), 50);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose, defaultDate]);
 
   if (!isOpen) return null;
+
+  const clampDate = (value: string) => {
+    if (minDate && value < minDate) return minDate;
+    if (maxDate && value > maxDate) return maxDate;
+    return value;
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -65,11 +77,12 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       description: description.trim() || undefined,
       deadlineDate: deadlineDate || parsedDeadline,
       recurrence: (recurrence || undefined) as TaskRecurrence | undefined,
-      dueDate: dueDateTouched ? dueDate : parsed.dueDate,
+      dueDate: clampDate(dueDateTouched ? dueDate : parsed.dueDate),
       dueTime: dueTime || parsed.dueTime,
       reminderAt: reminderAt || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       category,
+      plannedMinutes: Number(plannedMinutes) > 0 ? Math.round(Number(plannedMinutes)) : undefined,
     });
     onClose();
   };
@@ -128,6 +141,8 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
             label="Planned Date *"
             type="date"
             required
+            min={minDate}
+            max={maxDate}
             value={dueDate}
             onChange={(event) => {
               setDueDate(event.target.value);
@@ -140,10 +155,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
               label="Deadline Date (Optional)"
               type="date"
               value={deadlineDate}
-              onChange={(event) => {
-                setDeadlineDate(event.target.value);
-                if (!event.target.value) setRecurrence('');
-              }}
+              onChange={(event) => setDeadlineDate(event.target.value)}
             />
             <Input
               label="Deadline Time (Optional)"
@@ -156,23 +168,35 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
 
           <div>
             <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
-              Repeat until deadline
+              Repeat
             </label>
             <select
               value={recurrence}
               onChange={(event) => setRecurrence(event.target.value as TaskRecurrence | '')}
-              disabled={!deadlineDate}
-              className="w-full px-3 py-2 text-xs bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+              className="w-full px-3 py-2 text-xs bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
             >
               <option value="">Does not repeat</option>
               <option value="daily">Daily</option>
               <option value="weekdays">Weekdays</option>
               <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
             </select>
             <p className="mt-1 text-[10px] text-[var(--faint)]">
-              Set a deadline date first. Each finished occurrence schedules the next one.
+              {deadlineDate
+                ? 'Each finished occurrence schedules the next one until the deadline.'
+                : 'Each finished occurrence schedules the next one, with no end date.'}
             </p>
           </div>
+
+          <Input
+            label="Planned time in minutes (Optional)"
+            type="number"
+            min={1}
+            value={plannedMinutes}
+            onChange={(event) => setPlannedMinutes(event.target.value)}
+            helperText="Used by the evening review to compare plan and actual"
+          />
 
           <Input
             label="Reminder (Optional)"

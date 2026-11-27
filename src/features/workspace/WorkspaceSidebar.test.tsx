@@ -20,6 +20,7 @@ describe('WorkspaceSidebar', () => {
     expect(screen.getByRole('link', { name: /^past$/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /^completed$/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /^archived$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^journal$/i })).toHaveAttribute('href', '/app/journal');
     expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
     expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
   });

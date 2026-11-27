@@ -39,6 +39,7 @@ export interface HomeViewProps {
   onSaveProfile?: (profile: { prefix: string; name: string }) => void;
   intention?: string;
   onIntentionChange?: (text: string) => void;
+  eveningReview?: { onOpen: () => void };
 }
 
 function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -68,6 +69,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onSaveProfile,
   intention = '',
   onIntentionChange,
+  eveningReview,
 }) => {
   const focusPace = focusTask ? getTaskPace(focusTask) : null;
   const displayName = [userPrefix, userName].filter(Boolean).join(' ');
@@ -177,6 +179,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {onIntentionChange && <IntentionBar value={intention} onSave={onIntentionChange} />}
+
+      {eveningReview && (
+        <button
+          type="button"
+          onClick={eveningReview.onOpen}
+          className="w-full text-left rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2.5 hover:border-[var(--accent)]/40 transition-colors"
+        >
+          <span className="text-[11px] font-semibold text-[var(--ink)]">How did today sit?</span>
+          <span className="text-[11px] text-[var(--muted)]"> A few quiet questions, whenever you are ready.</span>
+        </button>
+      )}
 
       <section aria-labelledby="today-heading" className="space-y-3">
         <div className="flex items-center justify-between gap-2">

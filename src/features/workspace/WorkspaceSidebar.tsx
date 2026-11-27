@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Leaf,
   ListChecks,
+  NotebookPen,
   PanelLeftClose,
   Palette,
   Pencil,
@@ -84,6 +85,11 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           to: '/app/completed',
           label: 'Completed',
           icon: <CheckCircle2 className="w-4 h-4" />,
+        },
+        {
+          to: '/app/journal',
+          label: 'Journal',
+          icon: <NotebookPen className="w-4 h-4" />,
         },
         {
           to: '/app/archived',

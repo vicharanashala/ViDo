@@ -9,10 +9,10 @@ function clampProgress(value: number): number {
 }
 
 function createNextOccurrence(task: Task, timestamp: string): Task | null {
-  if (!task.recurrence || !task.deadlineDate) return null;
+  if (!task.recurrence) return null;
 
   const nextDate = nextRecurrenceDate(task.dueDate, task.recurrence);
-  if (nextDate > task.deadlineDate) return null;
+  if (task.deadlineDate && nextDate > task.deadlineDate) return null;
 
   return {
     ...task,

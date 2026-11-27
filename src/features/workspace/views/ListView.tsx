@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Task } from '../../../data/taskTypes';
 import { TaskRow } from '../TaskRow';
 import { Button } from '../../../components/ui';
-import { Inbox } from 'lucide-react';
+import { Inbox, Plus } from 'lucide-react';
 
 export interface ListViewProps {
   title: string;
@@ -10,6 +10,7 @@ export interface ListViewProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
   onNewTaskClick?: () => void;
+  newTaskLabel?: string;
   onToggleComplete?: (task: Task) => void;
   onFocusTask?: (task: Task) => void;
   onCheckInStart?: (task: Task) => void;
@@ -24,6 +25,7 @@ export const ListView: React.FC<ListViewProps> = ({
   tasks,
   onTaskClick,
   onNewTaskClick,
+  newTaskLabel = 'New task',
   onToggleComplete,
   onFocusTask,
   onCheckInStart,
@@ -51,20 +53,27 @@ export const ListView: React.FC<ListViewProps> = ({
           <p className="text-xs text-[var(--muted)] mt-0.5">{description}</p>
         </div>
 
-        <div className="flex items-center gap-1.5 bg-[var(--canvas)] p-1 rounded-xl border border-[var(--line)] self-start sm:self-auto flex-wrap">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                selectedCategory === category.id
-                  ? 'bg-[var(--surface)] text-[var(--ink)] shadow-xs'
-                  : 'text-[var(--muted)] hover:text-[var(--ink)]'
-              }`}
-            >
-              {category.label} ({category.count})
-            </button>
-          ))}
+        <div className="flex items-center gap-2 flex-wrap">
+          {onNewTaskClick && (
+            <Button variant="secondary" size="sm" onClick={onNewTaskClick}>
+              <Plus className="w-3.5 h-3.5" /> {newTaskLabel}
+            </Button>
+          )}
+          <div className="flex items-center gap-1.5 bg-[var(--canvas)] p-1 rounded-xl border border-[var(--line)] flex-wrap">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  selectedCategory === category.id
+                    ? 'bg-[var(--surface)] text-[var(--ink)] shadow-xs'
+                    : 'text-[var(--muted)] hover:text-[var(--ink)]'
+                }`}
+              >
+                {category.label} ({category.count})
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

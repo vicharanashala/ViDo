@@ -122,6 +122,31 @@ describe('Workspace views and modals', () => {
   });
 
   describe('TaskCreateModal', () => {
+    it('clamps the planned date to the allowed range', () => {
+      const handleCreate = vi.fn();
+      render(
+        <TaskCreateModal
+          isOpen={true}
+          onClose={vi.fn()}
+          onCreate={handleCreate}
+          defaultDate="2026-11-20"
+          maxDate="2026-11-20"
+        />
+      );
+
+      fireEvent.change(screen.getByLabelText(/task title \*/i), {
+        target: { value: 'Log yesterday' },
+      });
+      fireEvent.change(screen.getByLabelText(/planned date/i), {
+        target: { value: '2026-12-31' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /save task/i }));
+
+      expect(handleCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ dueDate: '2026-11-20' })
+      );
+    });
+
     it('submits a real task through onCreate', () => {
       const handleClose = vi.fn();
       const handleCreate = vi.fn();

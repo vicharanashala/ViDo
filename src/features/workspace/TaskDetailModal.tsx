@@ -284,18 +284,19 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5">
-                  Repeat until deadline
+                  Repeat
                 </label>
                 <select
                   value={recurrence}
                   onChange={(event) => setRecurrence(event.target.value as TaskRecurrence | '')}
-                  disabled={!deadlineDate}
-                  className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+                  className="w-full px-3.5 py-2 text-sm bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 >
                   <option value="">Does not repeat</option>
                   <option value="daily">Daily</option>
                   <option value="weekdays">Weekdays</option>
                   <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
                 </select>
               </div>
             </div>
@@ -454,6 +455,27 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   {formatDateTime(task.createdAt)}
                 </span>
               </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs">
+              <label className="flex items-center gap-1.5 text-[var(--muted)]">
+                Planned minutes
+                <input
+                  type="number"
+                  min={1}
+                  aria-label="Planned minutes"
+                  value={task.plannedMinutes ?? ''}
+                  onChange={(event) =>
+                    onUpdate?.(task.id, {
+                      plannedMinutes: Number(event.target.value) > 0 ? Math.round(Number(event.target.value)) : undefined,
+                    })
+                  }
+                  className="w-16 px-1.5 py-0.5 text-[11px] bg-[var(--canvas)] text-[var(--ink)] border border-[var(--line)] rounded font-mono"
+                />
+              </label>
+              <span className="text-[var(--muted)]">
+                {task.spentMinutes !== undefined ? `Tracked ${task.spentMinutes}m` : 'Nothing tracked yet'}
+              </span>
             </div>
 
             {task.reminderAt && (

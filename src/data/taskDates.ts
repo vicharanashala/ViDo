@@ -149,7 +149,17 @@ export function clamp(value: number, min = 0, max = 100): number {
 }
 
 export function nextRecurrenceDate(dateKey: string, recurrence: TaskRecurrence): string {
-  let next = addDays(parseDateKey(dateKey), recurrence === 'weekly' ? 7 : 1);
+  const current = parseDateKey(dateKey);
+
+  if (recurrence === 'monthly' || recurrence === 'yearly') {
+    const rawMonth = current.getMonth() + (recurrence === 'monthly' ? 1 : 12);
+    const year = current.getFullYear() + Math.floor(rawMonth / 12);
+    const month = ((rawMonth % 12) + 12) % 12;
+    const daysInTargetMonth = new Date(year, month + 1, 0).getDate();
+    return toDateKey(new Date(year, month, Math.min(current.getDate(), daysInTargetMonth)));
+  }
+
+  let next = addDays(current, recurrence === 'weekly' ? 7 : 1);
   if (recurrence === 'weekdays') {
     while (next.getDay() === 0 || next.getDay() === 6) {
       next = addDays(next, 1);

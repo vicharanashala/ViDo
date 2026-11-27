@@ -62,6 +62,7 @@ The current build is **local-first**: tasks live in the browser, no account is r
 | `/app/completed` | **Completed** | Finished work with completion timing. |
 | `/app/archived` | **Archived** | Put away, still kept, restorable. |
 | `/app/profile` | **Profile** | Prefix, name, email, date of birth, phone, and sign-in state. |
+| `/app/journal` | **Journal** | Month calendar, timed free writing, and read-only evening reviews. |
 
 Legacy `/preview/*` and `/workspace/*` links redirect to `/app/*`.
 

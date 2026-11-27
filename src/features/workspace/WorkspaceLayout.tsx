@@ -10,7 +10,7 @@ import {
   pickFocusTask,
   type TaskFilterState,
 } from '../../data/taskFilters';
-import { formatDateLong, relativeDayLabel, toDateKey } from '../../data/taskDates';
+import { addDays, formatDateLong, relativeDayLabel, toDateKey } from '../../data/taskDates';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
 import { HomeView } from './views/HomeView';
@@ -26,6 +26,10 @@ import { TaskPathView } from './TaskPathView';
 import { PathsView } from './views/PathsView';
 import { TrailView } from './views/TrailView';
 import { ProfileView } from './views/ProfileView';
+import { JournalView } from './views/JournalView';
+import { EveningCheckIn } from './EveningCheckIn';
+import { nightlyPrompt, pauseUntilAfterSkips } from '../../data/nightlyReview';
+import { loadPromptState, markDeferred, savePausedUntil } from '../../lib/journalStore';
 import { Doodle } from './doodles/Doodles';
 import type { DoodleKind } from './doodles/doodleMap';
 import type { CheckInKind } from './checkInTypes';
@@ -33,6 +37,8 @@ import { useTaskStore } from './useTaskStore';
 import { useWelcome } from './useWelcome';
 import { SystemClock } from './SystemClock';
 import { clearSession, loadSession, updateAccount, type Account } from '../../lib/accountStore';
+
+const QUICK_ADD_ROUTES = ['/app/today', '/app/upcoming'];
 
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: <LayoutDashboard className="w-3.5 h-3.5" />, end: true },
@@ -88,8 +94,47 @@ export const WorkspaceLayout: React.FC = () => {
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const [checkInTaskId, setCheckInTaskId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createDefaultDate, setCreateDefaultDate] = useState(() => toDateKey(new Date()));
+  const [createRange, setCreateRange] = useState<{ minDate?: string; maxDate?: string }>({});
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const [promptVersion, setPromptVersion] = useState(0);
+  const [nightTick, setNightTick] = useState(0);
+  const [eveningOpen, setEveningOpen] = useState(false);
+
+  const nightly = useMemo(() => nightlyPrompt(new Date(), loadPromptState()), [promptVersion, nightTick]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNightTick((value) => value + 1), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (nightly.kind !== 'sheet') return;
+    const overlayOpen = Boolean(
+      selectedTaskId || focusTaskId || checkInTaskId || isCreateOpen || isHelpOpen || eveningOpen
+    );
+    if (overlayOpen) return;
+    setEveningOpen(true);
+  }, [nightly.kind, nightly.dateKey, selectedTaskId, focusTaskId, checkInTaskId, isCreateOpen, isHelpOpen, eveningOpen]);
+
+  const handleEveningLater = () => {
+    if (nightly.dateKey) {
+      markDeferred(nightly.dateKey);
+      const state = loadPromptState();
+      const pause = pauseUntilAfterSkips(state.deferredDateKeys, state.answeredDateKeys, new Date());
+      if (pause) savePausedUntil(pause);
+    }
+    setEveningOpen(false);
+    setPromptVersion((value) => value + 1);
+  };
+
+  const handleEveningSaved = () => {
+    setEveningOpen(false);
+    setPromptVersion((value) => value + 1);
+    setNotice('Evening review saved.');
+  };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -183,6 +228,12 @@ export const WorkspaceLayout: React.FC = () => {
       if (updated) setAccount(updated);
     }
     setNotice('Profile updated.');
+  };
+
+  const openCreate = (dateKey: string, range: { minDate?: string; maxDate?: string } = {}) => {
+    setCreateDefaultDate(dateKey);
+    setCreateRange(range);
+    setIsCreateOpen(true);
   };
 
   const handleQuickAdd = (input: NewTaskInput) => {
@@ -326,6 +377,9 @@ export const WorkspaceLayout: React.FC = () => {
     if (path.endsWith('/archived')) {
       return { title: 'Archived', subtitle: 'Kept out of the way — also called Put away' };
     }
+    if (path.endsWith('/journal')) {
+      return { title: 'Journal', subtitle: 'Free writing that stays with you' };
+    }
     return { title: 'Home' };
   };
 
@@ -355,7 +409,7 @@ export const WorkspaceLayout: React.FC = () => {
         <WorkspaceSidebar
           userName={welcome.name}
           userPrefix={welcome.prefix}
-          onNewTaskClick={() => setIsCreateOpen(true)}
+          onNewTaskClick={() => openCreate(toDateKey(new Date()))}
           onClose={() => setSidebarOpen(false)}
         />
       )}
@@ -386,9 +440,21 @@ export const WorkspaceLayout: React.FC = () => {
           }}
         >
           <div className="relative px-4 sm:px-6 lg:px-8 pt-5 pb-2">
-            <div className="mx-auto w-full max-w-xl">
-              <QuickAdd onAdd={handleQuickAdd} />
-            </div>
+            {QUICK_ADD_ROUTES.includes(location.pathname) && (
+              <div className="mx-auto w-full max-w-xl">
+                <QuickAdd
+                  onAdd={handleQuickAdd}
+                  defaultDate={
+                    location.pathname === '/app/upcoming'
+                      ? toDateKey(addDays(new Date(), 1))
+                      : undefined
+                  }
+                  minDate={
+                    location.pathname === '/app/upcoming' ? toDateKey(new Date()) : undefined
+                  }
+                />
+              </div>
+            )}
             <div className="absolute right-4 top-5 hidden xl:block lg:right-8">
               <SystemClock />
             </div>
@@ -424,7 +490,6 @@ export const WorkspaceLayout: React.FC = () => {
                 <TodayQueueView
                   tasks={filteredTasks}
                   onTaskClick={handleTaskClick}
-                  onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
@@ -442,7 +507,6 @@ export const WorkspaceLayout: React.FC = () => {
                   description="For when you have room — also called Later."
                   tasks={filteredViews.upcoming}
                   onTaskClick={handleTaskClick}
-                  onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
@@ -471,6 +535,7 @@ export const WorkspaceLayout: React.FC = () => {
               }
             />
             <Route path="trail" element={<TrailView tasks={tasks} />} />
+            <Route path="journal" element={<JournalView />} />
             <Route
               path="tasks/:taskId/path"
               element={
@@ -490,13 +555,18 @@ export const WorkspaceLayout: React.FC = () => {
                   description="Earlier tasks. Pick what to do today, or leave them here."
                   tasks={filteredViews.needsAttention}
                   onTaskClick={handleTaskClick}
-                  onNewTaskClick={() => setIsCreateOpen(true)}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
                   onBringToToday={handleBringToToday}
                   onScheduleTask={handleScheduleTask}
                   onOpenPath={handleOpenPath}
+                  newTaskLabel="Log an earlier task"
+                  onNewTaskClick={() =>
+                    openCreate(toDateKey(addDays(new Date(), -1)), {
+                      maxDate: toDateKey(addDays(new Date(), -1)),
+                    })
+                  }
                 />
               }
             />
@@ -569,7 +639,9 @@ export const WorkspaceLayout: React.FC = () => {
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreate={handleCreate}
-        defaultDate={todayKey}
+        defaultDate={createDefaultDate}
+        minDate={createRange.minDate}
+        maxDate={createRange.maxDate}
       />
 
       <nav
@@ -591,7 +663,7 @@ export const WorkspaceLayout: React.FC = () => {
 
       <button
         type="button"
-        onClick={() => setIsCreateOpen(true)}
+        onClick={() => openCreate(toDateKey(new Date()))}
         aria-label="New task"
         className="md:hidden fixed bottom-20 right-5 z-30 w-12 h-12 rounded-full bg-[var(--accent)] text-white shadow-xl shadow-[var(--accent)]/20 flex items-center justify-center active:scale-95 transition-transform"
       >
@@ -621,6 +693,22 @@ export const WorkspaceLayout: React.FC = () => {
             setFocusTaskId(null);
             setSelectedTaskId(activeFocusTask.id);
           }}
+          onLogTime={(id, minutes) => {
+            const task = tasks.find((item) => item.id === id);
+            if (!task) return;
+            updateTask(id, { spentMinutes: (task.spentMinutes ?? 0) + minutes });
+            setNotice(`Logged ${minutes} min.`);
+          }}
+        />
+      )}
+
+      {eveningOpen && nightly.dateKey && (
+        <EveningCheckIn
+          dateKey={nightly.dateKey}
+          tasks={visibleTasks}
+          onClose={() => setEveningOpen(false)}
+          onLater={handleEveningLater}
+          onSaved={handleEveningSaved}
         />
       )}
 

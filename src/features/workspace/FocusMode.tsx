@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Task } from '../../data/taskTypes';
 import { Badge, Button, ProgressRing } from '../../components/ui';
 import { DoodleTitle } from './doodles/DoodleTitle';
@@ -8,6 +8,8 @@ import {
   Clock,
   History,
   Maximize2,
+  Pause,
+  Play,
   RotateCcw,
   X,
 } from 'lucide-react';
@@ -18,6 +20,7 @@ import {
   paceTone,
   relativeDayLabel,
 } from '../../data/taskDates';
+import { flushMinutes, formatElapsed } from '../../data/focusTimer';
 
 export interface FocusModeProps {
   task: Task;
@@ -26,6 +29,7 @@ export interface FocusModeProps {
   onAddCheckpoint: (id: string, note: string) => void;
   onToggleComplete: (id: string) => void;
   onOpenDetails?: () => void;
+  onLogTime?: (id: string, minutes: number) => void;
 }
 
 function paceSentence(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -44,18 +48,65 @@ export const FocusMode: React.FC<FocusModeProps> = ({
   onAddCheckpoint,
   onToggleComplete,
   onOpenDetails,
+  onLogTime,
 }) => {
   const [note, setNote] = useState('');
+  const [timerRemainder, setTimerRemainder] = useState(0);
+  const [running, setRunning] = useState(false);
+  const startedAtRef = useRef<number | null>(null);
+  const [, setTick] = useState(0);
+  const flushRef = useRef<() => void>(() => {});
   const pace = getTaskPace(task);
   const isCompleted = task.state === 'completed';
 
   useEffect(() => {
     setNote('');
+    setRunning(false);
+    setTimerRemainder(0);
+    startedAtRef.current = null;
   }, [task.id]);
 
   useEffect(() => {
+    if (!running) return;
+    const timer = window.setInterval(() => setTick((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [running]);
+
+  const elapsed =
+    timerRemainder +
+    (running && startedAtRef.current !== null
+      ? Math.floor((Date.now() - startedAtRef.current) / 1000)
+      : 0);
+
+  const flushTimer = () => {
+    if (!running || startedAtRef.current === null) return;
+    const total = timerRemainder + Math.floor((Date.now() - startedAtRef.current) / 1000);
+    const { minutes, remainderSeconds } = flushMinutes(total);
+    startedAtRef.current = null;
+    setRunning(false);
+    setTimerRemainder(remainderSeconds);
+    if (minutes > 0) onLogTime?.(task.id, minutes);
+  };
+  flushRef.current = flushTimer;
+
+  useEffect(() => {
+    return () => flushRef.current();
+  }, []);
+
+  const startTimer = () => {
+    if (running) return;
+    startedAtRef.current = Date.now();
+    setRunning(true);
+  };
+
+  const closeWithFlush = () => {
+    flushTimer();
+    onClose();
+  };
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') closeWithFlush();
     };
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -64,7 +115,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, running, timerRemainder]);
 
   const handleLog = (event: React.FormEvent) => {
     event.preventDefault();
@@ -87,7 +138,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </span>
           </div>
           <button
-            onClick={onClose}
+            onClick={closeWithFlush}
             aria-label="Close focus mode"
             className="text-[var(--muted)] hover:text-[var(--ink)] p-1.5 rounded-lg hover:bg-[var(--surface)] transition-colors cursor-pointer"
           >
@@ -187,6 +238,27 @@ export const FocusMode: React.FC<FocusModeProps> = ({
               </div>
             </div>
 
+            <div className="mt-6 flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--canvas)] px-3.5 py-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)]">
+                  Time on this
+                </p>
+                <p className="font-mono text-sm text-[var(--ink)]">{formatElapsed(elapsed)}</p>
+                <p className="text-[10px] text-[var(--faint)]">
+                  Optional. It only counts while you choose; nothing is forced.
+                </p>
+              </div>
+              <Button
+                variant={running ? 'secondary' : 'ghost'}
+                size="sm"
+                aria-label={running ? 'Pause time tracking' : 'Start time tracking'}
+                onClick={running ? flushTimer : startTimer}
+              >
+                {running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                {running ? 'Pause' : 'Start'}
+              </Button>
+            </div>
+
             <form onSubmit={handleLog} className="mt-7">
               <label
                 htmlFor="focus-checkpoint"
@@ -244,7 +316,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
                     More
                   </Button>
                 )}
-                <Button variant="secondary" size="sm" onClick={onClose}>
+                <Button variant="secondary" size="sm" onClick={closeWithFlush}>
                   Leave for now
                 </Button>
               </div>
