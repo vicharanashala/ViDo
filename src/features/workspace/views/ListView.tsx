@@ -50,14 +50,14 @@ export const ListView: React.FC<ListViewProps> = ({
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 bg-[var(--canvas)] p-1 rounded-xl border border-[var(--line)] self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 glass-panel p-1 rounded-xl self-start sm:self-auto shadow-xs">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 selectedCategory === cat.id
-                  ? 'bg-[var(--surface)] text-[var(--ink)] shadow-xs'
+                  ? 'bg-[var(--surface-glass-card)] text-[var(--ink)] shadow-xs'
                   : 'text-[var(--muted)] hover:text-[var(--ink)]'
               }`}
             >
@@ -75,7 +75,7 @@ export const ListView: React.FC<ListViewProps> = ({
           ))}
         </div>
       ) : (
-        <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] my-8 space-y-4">
+        <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line-glass)] rounded-2xl bg-[var(--surface-glass-card)] backdrop-blur-md my-8 space-y-4 shadow-xs">
           <div className="w-16 h-16 rounded-2xl bg-[var(--canvas)] text-[var(--faint)] flex items-center justify-center mx-auto shadow-xs">
             <Inbox className="w-8 h-8" />
           </div>

@@ -129,11 +129,11 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-task-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg bg-[var(--surface-glass-modal)] backdrop-blur-xl border border-[var(--line-glass)] rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button

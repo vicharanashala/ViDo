@@ -44,7 +44,7 @@ const StatCard: React.FC<{ label: string; value: string | number; hint?: string 
   value,
   hint,
 }) => (
-  <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+  <div className="rounded-xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md px-4 py-3">
     <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
       {label}
     </p>
@@ -168,7 +168,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+      <section className="rounded-2xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       </section>
 
       {period === 'week' ? (
-        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <section className="rounded-2xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md p-5 sm:p-6">
           <h3 className="text-sm font-bold text-[var(--ink)]">Daily workload</h3>
           <p className="text-[11px] text-[var(--muted)] mt-0.5">
             Tasks scheduled on each day of the selected week.
@@ -299,7 +299,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
           </div>
         </section>
       ) : (
-        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <section className="rounded-2xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md p-5 sm:p-6">
           <h3 className="text-sm font-bold text-[var(--ink)]">
             Weekly contributions to the monthly goal
           </h3>

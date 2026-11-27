@@ -116,6 +116,27 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   const [teams, setTeams] = useState<Team[]>([]);
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
 
+  // Sidebar collapsed state with localStorage persistence
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('vido_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('vido_sidebar_collapsed', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   const loadTeams = async () => {
     try {
       const repo = getTeamRepository();
@@ -303,12 +324,12 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--canvas)] text-[var(--ink)] antialiased">
+    <div className="flex flex-col min-h-screen bg-transparent text-[var(--ink)] antialiased relative">
       {/* 1. Global Persistent Demo Preview Notice Bar - ONLY in Preview mode */}
       {isPreview && (
         <aside
           aria-label="Demo environment announcement"
-          className="sticky top-0 z-50 bg-[var(--dark)] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 border-b border-white/10 shadow-sm"
+          className="sticky top-0 z-50 bg-[var(--dark)]/80 backdrop-blur-xl text-white px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 border-b border-white/10 shadow-sm"
         >
           <div className="flex items-center gap-3 min-w-0">
             <Link
@@ -365,6 +386,8 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
             archived: views.archived.length,
           }}
           teams={teams}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={handleToggleSidebar}
           onNewTaskClick={() => setIsCreateOpen(true)}
           onCreateTeamClick={() => setIsCreateTeamOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
@@ -379,6 +402,9 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
             isSettings={showSettingsModal}
             user={user}
             authMode={authMode}
+            isSidebarCollapsed={isSidebarCollapsed}
+            onToggleSidebar={handleToggleSidebar}
+            onOpenSettings={() => setIsSettingsOpen(true)}
             onSignOut={handleSignOut}
             onRespondInvitation={async (invitationId, accept) => {
               const repo = getTeamRepository();

@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
 
 describe('WorkspaceTopBar', () => {
-  it('renders workspace label, search placeholder, and preview badge', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('renders workspace label, search placeholder, preview badge, and avatar trigger', () => {
     const handleFocus = vi.fn();
     render(
       <MemoryRouter>
@@ -16,12 +20,107 @@ describe('WorkspaceTopBar', () => {
 
     expect(screen.getByText('Workspace')).toBeInTheDocument();
     expect(screen.getByText('Interactive Preview')).toBeInTheDocument();
-    expect(screen.getByText('Demo User')).toBeInTheDocument();
-    expect(screen.getByText('Personal Workspace')).toBeInTheDocument();
+
+    // Circular avatar trigger with initials "DU"
+    const avatarBtn = screen.getByRole('button', { name: /user profile menu/i });
+    expect(avatarBtn).toBeInTheDocument();
+    expect(avatarBtn).toHaveTextContent('DU');
 
     const searchInput = screen.getByLabelText(/search tasks/i);
     fireEvent.focus(searchInput);
     expect(handleFocus).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders GitHub-style sidebar toggle button and triggers onToggleSidebar', () => {
+    const handleToggle = vi.fn();
+    const { rerender } = render(
+      <MemoryRouter>
+        <WorkspaceTopBar isSidebarCollapsed={false} onToggleSidebar={handleToggle} />
+      </MemoryRouter>
+    );
+
+    const toggleBtn = screen.getByRole('button', { name: /collapse sidebar/i });
+    expect(toggleBtn).toBeInTheDocument();
+    fireEvent.click(toggleBtn);
+    expect(handleToggle).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <MemoryRouter>
+        <WorkspaceTopBar isSidebarCollapsed={true} onToggleSidebar={handleToggle} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole('button', { name: /expand sidebar/i })).toBeInTheDocument();
+  });
+
+  it('toggles profile dropdown menu on avatar click with user details and actions', () => {
+    const handleSignOut = vi.fn();
+    const handleOpenSettings = vi.fn();
+
+    render(
+      <MemoryRouter>
+        <WorkspaceTopBar
+          onSignOut={handleSignOut}
+          onOpenSettings={handleOpenSettings}
+        />
+      </MemoryRouter>
+    );
+
+    const avatarBtn = screen.getByRole('button', { name: /user profile menu/i });
+    expect(screen.queryByRole('menu', { name: /user profile options/i })).not.toBeInTheDocument();
+
+    // Click to open dropdown
+    fireEvent.click(avatarBtn);
+
+    const menu = screen.getByRole('menu', { name: /user profile options/i });
+    expect(menu).toBeInTheDocument();
+    expect(screen.getByText('Demo User')).toBeInTheDocument();
+    expect(screen.getByText('Personal Workspace')).toBeInTheDocument();
+    expect(screen.getByText('Atmosphere & Theme')).toBeInTheDocument();
+
+    // Verify theme buttons exist
+    expect(screen.getByTitle('Switch theme to Day')).toBeInTheDocument();
+    expect(screen.getByTitle('Switch theme to Dusk')).toBeInTheDocument();
+    expect(screen.getByTitle('Switch theme to Night')).toBeInTheDocument();
+    expect(screen.getByTitle('Switch theme to Auto')).toBeInTheDocument();
+
+    // Click Day theme
+    fireEvent.click(screen.getByTitle('Switch theme to Day'));
+    expect(localStorage.getItem('vido_theme_mode')).toBe('light');
+
+    // Verify links
+    const settingsLink = screen.getByRole('menuitem', { name: /workspace settings/i });
+    expect(settingsLink).toBeInTheDocument();
+    fireEvent.click(settingsLink);
+    expect(handleOpenSettings).toHaveBeenCalledTimes(1);
+
+    // Reopen menu to verify sign out
+    fireEvent.click(avatarBtn);
+    const signOutBtn = screen.getByRole('menuitem', { name: /sign out/i });
+    fireEvent.click(signOutBtn);
+    expect(handleSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('dismisses dropdown when Escape key is pressed or clicked outside', () => {
+    render(
+      <MemoryRouter>
+        <WorkspaceTopBar />
+      </MemoryRouter>
+    );
+
+    const avatarBtn = screen.getByRole('button', { name: /user profile menu/i });
+    fireEvent.click(avatarBtn);
+    expect(screen.getByRole('menu', { name: /user profile options/i })).toBeInTheDocument();
+
+    // Escape key closes menu
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('menu', { name: /user profile options/i })).not.toBeInTheDocument();
+
+    // Click outside closes menu
+    fireEvent.click(avatarBtn);
+    expect(screen.getByRole('menu', { name: /user profile options/i })).toBeInTheDocument();
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('menu', { name: /user profile options/i })).not.toBeInTheDocument();
   });
 
   it('renders notification bell with pending team invitations and allows responding', () => {

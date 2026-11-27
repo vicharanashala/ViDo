@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Badge, Card, Input } from '../../components/ui';
-import { CheckCircle2, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Clock, ArrowLeft, Sun, Sunset, Moon } from 'lucide-react';
+import { useTheme } from '../../lib/theme';
 
 export type AccentCandidate = 'blue' | 'indigo' | 'green';
 
@@ -31,16 +32,17 @@ export const ACCENTS: { id: AccentCandidate; name: string; hex: string; bgHex: s
 
 export const StyleLab: React.FC = () => {
   const [activeAccent, setActiveAccent] = useState<AccentCandidate>('blue');
+  const { mode: celestialMode, isDay, isEvening, setMode: setCelestialMode } = useTheme();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-accent', activeAccent);
   }, [activeAccent]);
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] p-6 md:p-12">
+    <div className="min-h-screen bg-transparent text-[var(--ink)] p-6 md:p-12 relative">
       <div className="max-w-5xl mx-auto space-y-10">
         {/* Navigation & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--line)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--line-glass)]">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Link
@@ -59,15 +61,130 @@ export const StyleLab: React.FC = () => {
             </div>
             <h1 className="text-3xl font-bold tracking-tight">ViDo Theme & Accent Lab</h1>
             <p className="text-sm text-[var(--muted)] mt-1">
-              Select and preview your preferred accent palette across all workspace components.
+              Select and preview your preferred celestial horizon atmosphere and accent palette across all workspace components.
             </p>
           </div>
         </div>
 
-        {/* Accent Selection Panel */}
+        {/* Section 1: Celestial Horizon Theme Switcher */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <span>1. Celestial Atmosphere & Horizon</span>
+              <Badge variant="accent">Day / Night</Badge>
+            </h2>
+            <span className="text-xs font-semibold text-[var(--muted)] flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-glass-card)] border border-[var(--line-glass)]">
+              {isDay ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-500" /> Active: Sun (Daytime)
+                </>
+              ) : isEvening ? (
+                <>
+                  <Sunset className="w-3.5 h-3.5 text-rose-500" /> Active: Evening (Sunset)
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-indigo-400" /> Active: Moon (Nighttime)
+                </>
+              )}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Auto (Clock) */}
+            <div
+              role="button"
+              tabIndex={0}
+              data-testid="stylelab-theme-auto"
+              onClick={() => setCelestialMode('auto')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('auto')}
+              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                celestialMode === 'auto'
+                  ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/30 bg-[var(--accent-soft)] shadow-md'
+                  : 'border-[var(--line-glass)] bg-[var(--surface-glass-card)] hover:bg-[var(--surface)]/90 backdrop-blur-md'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-5 h-5 text-[var(--accent)]" />
+                <span className="font-bold text-base text-[var(--ink)]">Auto (Celestial Clock)</span>
+              </div>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Switches smoothly between Sun (06:00–17:00), Evening (17:00–20:00), and Moon (20:00–06:00).
+              </p>
+            </div>
+
+            {/* Always Light (Sun) */}
+            <div
+              role="button"
+              tabIndex={0}
+              data-testid="stylelab-theme-light"
+              onClick={() => setCelestialMode('light')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('light')}
+              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                celestialMode === 'light'
+                  ? 'border-amber-400 ring-2 ring-amber-400/30 bg-amber-50 dark:bg-amber-950/20 shadow-md'
+                  : 'border-[var(--line-glass)] bg-[var(--surface-glass-card)] hover:bg-[var(--surface)]/90 backdrop-blur-md'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sun className="w-5 h-5 text-amber-500" />
+                <span className="font-bold text-base text-[var(--ink)]">Light (Always Sun)</span>
+              </div>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Golden dawn horizon with light frosted glass cards and radiant solar highlights.
+              </p>
+            </div>
+
+            {/* Always Evening (Sunset) */}
+            <div
+              role="button"
+              tabIndex={0}
+              data-testid="stylelab-theme-evening"
+              onClick={() => setCelestialMode('evening')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('evening')}
+              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                celestialMode === 'evening'
+                  ? 'border-rose-400 ring-2 ring-rose-400/30 bg-rose-50 dark:bg-rose-950/20 shadow-md'
+                  : 'border-[var(--line-glass)] bg-[var(--surface-glass-card)] hover:bg-[var(--surface)]/90 backdrop-blur-md'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sunset className="w-5 h-5 text-rose-500" />
+                <span className="font-bold text-base text-[var(--ink)]">Evening (Sunset)</span>
+              </div>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Fiery reddish horizon with setting sun, crimson aura, and warm twilight rose glass.
+              </p>
+            </div>
+
+            {/* Always Dark (Moon) */}
+            <div
+              role="button"
+              tabIndex={0}
+              data-testid="stylelab-theme-dark"
+              onClick={() => setCelestialMode('dark')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('dark')}
+              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                celestialMode === 'dark'
+                  ? 'border-indigo-400 ring-2 ring-indigo-400/30 bg-indigo-50 dark:bg-indigo-950/20 shadow-md'
+                  : 'border-[var(--line-glass)] bg-[var(--surface-glass-card)] hover:bg-[var(--surface)]/90 backdrop-blur-md'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Moon className="w-5 h-5 text-indigo-400" />
+                <span className="font-bold text-base text-[var(--ink)]">Dark (Always Moon)</span>
+              </div>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Cosmic deep night with radiant bluish lunar glow, starlight fields, and midnight glass.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 2: Accent Selection Panel */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span>1. Choose Accent Palette</span>
+            <span>2. Choose Accent Palette</span>
             <Badge variant="accent">Theme Switcher</Badge>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -77,133 +194,118 @@ export const StyleLab: React.FC = () => {
                 <div
                   key={accent.id}
                   onClick={() => setActiveAccent(accent.id)}
-                  className={`p-4 rounded-xl border bg-[var(--surface)] cursor-pointer transition-all ${
+                  className={`p-4 rounded-xl border bg-[var(--surface-glass-card)] backdrop-blur-md cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-[var(--accent)] ring-2 ring-[var(--accent)] ring-offset-2 shadow-sm'
-                      : 'border-[var(--line)] hover:border-gray-300'
+                      ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/20 shadow-sm'
+                      : 'border-[var(--line-glass)] hover:border-gray-300'
                   }`}
                   data-testid={`accent-card-${accent.id}`}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-sm">{accent.name}</span>
+                  <div className="flex items-center gap-3">
                     <span
-                      className="w-5 h-5 rounded-full border border-black/10"
+                      className="w-8 h-8 rounded-full border border-black/10 shrink-0"
                       style={{ backgroundColor: accent.hex }}
                     />
+                    <div>
+                      <span className="font-semibold text-sm block">{accent.name}</span>
+                      <span className="text-xs font-mono text-[var(--muted)]">{accent.hex}</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-[var(--muted)] mb-3 leading-relaxed">{accent.desc}</p>
-                  <div className="flex items-center justify-between text-xs font-mono text-[var(--faint)] border-t border-[var(--line)] pt-2">
-                    <span>{accent.hex}</span>
-                    <span className="text-[10px] uppercase font-bold">{isSelected ? 'Active' : 'Select'}</span>
-                  </div>
+                  <p className="text-xs text-[var(--muted)] mt-2">{accent.desc}</p>
                 </div>
               );
             })}
           </div>
         </section>
 
-        {/* Component Showcase */}
+        {/* Section 3: Component Showcase */}
         <section className="space-y-6">
-          <h2 className="text-lg font-semibold">2. Live Component Preview</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Buttons */}
-            <Card>
-              <h3 className="text-sm font-semibold mb-4 text-[var(--muted)] uppercase tracking-wider">
-                Buttons
-              </h3>
-              <div className="flex flex-wrap gap-3 mb-4">
-                <Button variant="primary">Primary Button</Button>
-                <Button variant="secondary">Secondary Button</Button>
-                <Button variant="ghost">Ghost Action</Button>
-                <Button variant="danger">Danger</Button>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button variant="primary" disabled>
-                  Disabled
-                </Button>
-                <Button variant="secondary" size="sm">
-                  Small Secondary
-                </Button>
-                <Button variant="primary" size="lg">
-                  Large Primary
-                </Button>
-              </div>
-            </Card>
+          <h2 className="text-lg font-semibold">3. Component Showcase on Frosted Glass</h2>
 
-            {/* Badges */}
-            <Card>
-              <h3 className="text-sm font-semibold mb-4 text-[var(--muted)] uppercase tracking-wider">
-                Badges & Statuses
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                <Badge variant="accent">In Progress</Badge>
-                <Badge variant="success">Completed</Badge>
-                <Badge variant="warning">Needs Attention</Badge>
-                <Badge variant="danger">Overdue</Badge>
-                <Badge variant="neutral">Draft</Badge>
-                <Badge variant="accent" size="sm">
-                  Small Tag
-                </Badge>
-              </div>
-            </Card>
-
-            {/* Form Inputs */}
-            <Card>
-              <h3 className="text-sm font-semibold mb-4 text-[var(--muted)] uppercase tracking-wider">
-                Form Inputs
-              </h3>
-              <div className="space-y-3.5">
-                <Input label="Task Title" placeholder="e.g., Prepare quarterly budget review" />
-                <Input
-                  label="Target Deadline"
-                  defaultValue="17 November 2026, 17:00"
-                  helperText="Exact date and time format"
-                />
-                <Input label="Invalid Field Example" error="Title cannot be empty" />
-              </div>
-            </Card>
-
-            {/* Card & Elevation */}
-            <Card hoverable>
-              <div className="flex items-start justify-between">
-                <div>
-                  <Badge variant="accent" size="sm" className="mb-2">
-                    Work Workspace
-                  </Badge>
-                  <h4 className="text-base font-semibold">Prepare Q4 Strategic Product Roadmap</h4>
-                  <p className="text-xs text-[var(--muted)] mt-1">
-                    Align strategic goals, team allocations, and key deliverables.
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-mono font-medium text-[var(--amber)] flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" /> Due Today
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-[var(--line)] flex items-center justify-between text-xs text-[var(--muted)]">
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green)]" /> 2 Checkpoints logged
-                </span>
-                <span className="font-semibold text-[var(--accent)]">Inspect Task →</span>
-              </div>
-            </Card>
-          </div>
-        </section>
-
-        {/* Accessibility & Focus Verification */}
-        <section className="p-5 rounded-xl border border-[var(--line)] bg-[var(--surface)]">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--accent)] shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-semibold">Keyboard Focus Accessibility</h3>
-              <p className="text-xs text-[var(--muted)] mt-1">
-                Press the <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-[10px]">Tab</kbd> key to navigate between cards, inputs, and buttons. Interactive elements feature a high-contrast focus ring with explicit offset to meet accessibility standards.
-              </p>
+          {/* Buttons */}
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider">
+              Button Variants
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="primary">Primary Button</Button>
+              <Button variant="secondary">Secondary Button</Button>
+              <Button variant="ghost">Ghost Button</Button>
+              <Button variant="danger">Danger Button</Button>
+              <Button variant="primary" disabled>
+                Disabled Button
+              </Button>
             </div>
-          </div>
+          </Card>
+
+          {/* Badges */}
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider">
+              Status Badges
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="accent">Active Accent</Badge>
+              <Badge variant="success">Completed</Badge>
+              <Badge variant="warning">In Progress</Badge>
+              <Badge variant="danger">High Priority</Badge>
+              <Badge variant="neutral">Default Status</Badge>
+            </div>
+          </Card>
+
+          {/* Form Inputs */}
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider">
+              Form Inputs & Focus Ring
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Task Title"
+                placeholder="e.g. Renew passport by end of month"
+                helperText="Focus this field to verify the visible focus indicator"
+              />
+              <Input
+                label="Disabled State"
+                value="Locked configuration value"
+                disabled
+                helperText="Disabled inputs remain readable but immutable"
+              />
+            </div>
+          </Card>
+
+          {/* Mock Task Card */}
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider">
+              Task Card Preview
+            </h3>
+            <div className="p-4 rounded-xl border border-[var(--line-glass)] bg-[var(--surface-glass)]/90 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-[var(--accent)] flex items-center justify-center shrink-0">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm">Prepare presentation deck for client review</h4>
+                  <div className="flex items-center gap-3 mt-1 text-xs text-[var(--muted)]">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" /> Due Today at 5:00 PM
+                    </span>
+                    <span>•</span>
+                    <Badge variant="warning" size="sm">
+                      Medium Priority
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" size="sm">
+                  View Details
+                </Button>
+                <Button variant="primary" size="sm">
+                  Complete Task
+                </Button>
+              </div>
+            </div>
+          </Card>
         </section>
       </div>
     </div>

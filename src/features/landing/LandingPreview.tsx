@@ -18,9 +18,9 @@ export const LandingPreview: React.FC = () => {
       </div>
 
       {/* Desktop Window Frame */}
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl overflow-hidden transition-all">
+      <div className="rounded-2xl border border-[var(--line-glass)] bg-[var(--surface-glass)]/90 backdrop-blur-md shadow-2xl overflow-hidden transition-all">
         {/* Browser Top Window Chrome */}
-        <div className="bg-[var(--canvas)] border-b border-[var(--line)] px-4 py-3 flex items-center justify-between">
+        <div className="bg-[var(--surface-glass)] border-b border-[var(--line-glass)] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-red-400 inline-block" />
             <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />

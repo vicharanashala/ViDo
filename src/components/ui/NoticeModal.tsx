@@ -37,11 +37,11 @@ export const NoticeModal: React.FC<NoticeModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-xl relative"
+        className="w-full max-w-md glass-modal rounded-2xl p-6 shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -64,7 +64,7 @@ export const NoticeModal: React.FC<NoticeModalProps> = ({
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[var(--line)] flex flex-wrap items-center justify-end gap-2.5">
+        <div className="mt-6 pt-4 border-t border-[var(--line-glass)] flex flex-wrap items-center justify-end gap-2.5">
           <Button variant="ghost" size="sm" onClick={onClose}>
             Back
           </Button>

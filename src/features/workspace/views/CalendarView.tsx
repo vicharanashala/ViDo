@@ -53,7 +53,7 @@ const EventDialog: React.FC<{
     onClick={onClose}
   >
     <div
-      className="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-xl relative"
+      className="w-full max-w-md glass-modal bg-[var(--surface-glass-modal)] border border-[var(--line-glass)] rounded-2xl p-6 shadow-2xl relative"
       onClick={(e) => e.stopPropagation()}
     >
       <button
@@ -329,7 +329,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4 bg-[var(--surface)] border-[var(--line)] shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4 bg-[var(--surface-glass-card)] backdrop-blur-md border-[var(--line-glass)] shadow-2xs">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] flex items-center justify-center shrink-0">
             <CalendarPlus className="w-5 h-5 text-[var(--accent)]" />
@@ -368,7 +368,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <section
                   key={day}
                   aria-label={formatLongDate(day)}
-                  className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-2 min-h-[220px]"
+                  className="rounded-xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md p-2 min-h-[220px]"
                 >
                   <div className="flex items-center justify-between mb-2 px-0.5">
                     <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
@@ -399,7 +399,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <section
                   key={day}
                   aria-label={formatLongDate(day)}
-                  className={`bg-[var(--surface)] min-h-[110px] p-1.5 ${
+                  className={`bg-[var(--surface-glass-card)] backdrop-blur-md min-h-[110px] p-1.5 ${
                     inMonth ? '' : 'opacity-50'
                   }`}
                 >
@@ -449,7 +449,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           onClick={() => setIsAddOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-xl relative"
+            className="w-full max-w-md glass-modal bg-[var(--surface-glass-modal)] border border-[var(--line-glass)] rounded-2xl p-6 shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button

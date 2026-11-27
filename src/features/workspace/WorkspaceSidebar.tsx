@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   CheckSquare,
   CalendarDays,
   BarChart3,
   Plus,
-  LogOut,
   Users,
   ChevronDown,
   Clock,
   AlertCircle,
   Calendar,
   CheckCircle2,
-  Settings,
+  PanelLeft,
+  PanelLeftClose,
+  UserRoundGroup
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { Team } from '../teams/types';
@@ -21,7 +22,9 @@ import { Team } from '../teams/types';
 export const DEFAULT_SIDEBAR_WIDTH = 256;
 export const MIN_SIDEBAR_WIDTH = 240;
 export const MAX_SIDEBAR_WIDTH = 480;
+export const COLLAPSED_SIDEBAR_WIDTH = 64;
 export const SIDEBAR_WIDTH_STORAGE_KEY = 'vido_sidebar_width';
+export const SIDEBAR_COLLAPSED_STORAGE_KEY = 'vido_sidebar_collapsed';
 
 export interface WorkspaceSidebarProps {
   isPreview?: boolean;
@@ -42,6 +45,8 @@ export interface WorkspaceSidebarProps {
   teams?: Team[];
   sidebarWidth?: number;
   onSidebarWidthChange?: (width: number) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
   onNewTaskClick?: () => void;
   onCreateTeamClick?: () => void;
   onOpenSettings?: () => void;
@@ -56,12 +61,39 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   teams = [],
   sidebarWidth: controlledWidth,
   onSidebarWidthChange,
+  isCollapsed: controlledCollapsed,
+  onToggleCollapse,
   onNewTaskClick,
   onCreateTeamClick,
-  onOpenSettings,
-  onSignOut,
 }) => {
   const location = useLocation();
+
+  // Collapsed state with localStorage persistence
+  const [internalCollapsed, setInternalCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const isCollapsed = controlledCollapsed ?? internalCollapsed;
+
+  const handleToggle = () => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else {
+      setInternalCollapsed((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem(SIDEBAR_COLLAPSED_STORAGE_KEY, String(next));
+        } catch {
+          // ignore
+        }
+        return next;
+      });
+    }
+  };
 
   // Resizable width state with localStorage persistence
   const [internalWidth, setInternalWidth] = useState<number>(() => {
@@ -163,7 +195,6 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const tasksPath = `${basePath}/tasks`;
   const calendarPath = `${basePath}/calendar`;
   const analyticsPath = `${basePath}/analytics`;
-  const settingsPath = `${basePath}/settings`;
 
   const isTaskRoute =
     location.pathname === tasksPath ||
@@ -221,131 +252,192 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   ];
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-      isActive
-        ? 'bg-white/15 text-white shadow-xs font-semibold'
-        : 'text-gray-300 hover:bg-white/8 hover:text-white'
+    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all group relative ${isActive
+      ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
+      : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
     }`;
+
+  const effectiveWidth = isCollapsed ? COLLAPSED_SIDEBAR_WIDTH : width;
 
   return (
     <aside
       aria-label="Workspace navigation"
       style={{
-        width: `${width}px`,
-        minWidth: `${MIN_SIDEBAR_WIDTH}px`,
-        maxWidth: `${MAX_SIDEBAR_WIDTH}px`,
+        width: `${effectiveWidth}px`,
+        minWidth: `${effectiveWidth}px`,
+        maxWidth: `${effectiveWidth}px`,
       }}
-      className={`relative bg-[var(--dark)] text-gray-200 flex flex-col justify-between shrink-0 sticky border-r border-white/10 ${
-        isPreview ? 'top-[45px] h-[calc(100vh-45px)]' : 'top-0 h-screen'
-      } workspace-sidebar-scrollbar select-none overflow-hidden ${
-        isResizing ? 'transition-none' : 'transition-[width] duration-75'
-      }`}
+      className={`relative glass-panel bg-[var(--surface-glass)]/75 backdrop-blur-2xl text-[var(--ink)] flex flex-col shrink-0 sticky border-r border-[var(--line-glass)] shadow-xl ${isPreview ? 'top-[45px] h-[calc(100vh-45px)]' : 'top-0 h-screen'
+        } workspace-sidebar-scrollbar select-none overflow-x-hidden overflow-y-hidden ${isResizing ? 'transition-none' : 'transition-[width] duration-200 ease-in-out'
+        }`}
     >
-      {/* 1. Fixed Top Header: Brand & New Task */}
-      <div className="p-5 pb-0 shrink-0">
-        {/* Brand Header */}
-        <div className="flex items-center gap-3 mb-5 px-1">
-          <div className="w-10 h-10 rounded-xl bg-white text-[var(--dark)] flex items-center justify-center font-black text-lg shadow-sm">
-            V
+      {/* 1. Header: Brand & New Task */}
+      <div className={`${isCollapsed ? 'p-3 pb-2' : 'p-4 pb-0'} shrink-0 overflow-x-hidden`}>
+        {isCollapsed ? (
+          <div className="flex flex-col items-center mb-3 gap-2 w-full">
+            <Link to={dashboardPath} title="ViDo Dashboard" className="flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-amber-300 text-[var(--accent-ink)] flex items-center justify-center font-black text-base shadow-md cursor-pointer hover:scale-105 transition-transform">
+                V
+              </div>
+            </Link>
+            <button
+              type="button"
+              onClick={handleToggle}
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              className="w-9 h-9 rounded-xl text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer group relative"
+            >
+              <PanelLeft className="w-4.5 h-4.5" />
+              <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                Expand sidebar
+              </span>
+            </button>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-white tracking-tight block">ViDo</span>
-              {isPreview ? (
-                <span className="text-xs font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
-                  DEMO
+        ) : (
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <Link to={dashboardPath} title="ViDo Dashboard" className="shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-amber-300 text-[var(--accent-ink)] flex items-center justify-center font-black text-base shadow-md cursor-pointer hover:scale-105 transition-transform">
+                  V
+                </div>
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-nowrap">
+                  <span className="font-bold text-base text-[var(--ink)] tracking-tight shrink-0">ViDo</span>
+                  {isPreview ? (
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs shrink-0">
+                      DEMO
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30 shrink-0">
+                      WORKSPACE
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-[var(--muted)] font-medium tracking-wide block truncate mt-0.5">
+                  {isPreview ? 'Logged-in demo preview' : user?.name || 'Personal Workspace'}
                 </span>
-              ) : (
-                <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/20 text-white border border-white/20">
-                  WORKSPACE
-                </span>
-              )}
+              </div>
             </div>
-            <span className="text-xs text-amber-300/90 font-medium tracking-wide block mt-0.5">
-              {isPreview ? 'Logged-in demo preview' : user?.name || 'Personal Workspace'}
-            </span>
+            <button
+              type="button"
+              onClick={handleToggle}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+              className="w-8 h-8 rounded-lg text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer shrink-0"
+            >
+              <PanelLeftClose className="w-4.5 h-4.5" />
+            </button>
           </div>
-        </div>
+        )}
 
         {/* Quick New Task Button */}
         {onNewTaskClick && (
-          <div className="mb-4">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onNewTaskClick}
-              className="w-full justify-center gap-1.5 shadow-sm text-sm py-2"
-            >
-              <Plus className="w-4 h-4" /> New Task
-            </Button>
+          <div className="mb-2">
+            {isCollapsed ? (
+              <div className="flex justify-center w-full">
+                <button
+                  type="button"
+                  onClick={onNewTaskClick}
+                  aria-label="New Task"
+                  title="New Task"
+                  className="w-9 h-9 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 flex items-center justify-center shadow-sm cursor-pointer transition-transform active:scale-95 group relative mx-auto"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                    New Task
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={onNewTaskClick}
+                className="w-full justify-center gap-1.5 shadow-sm text-sm py-2"
+              >
+                <Plus className="w-4 h-4" /> New Task
+              </Button>
+            )}
           </div>
         )}
       </div>
 
       {/* 2. Scrollable Middle Navigation Area (Tasks, Planning, Teams) */}
-      <div className="flex-1 overflow-y-auto pl-5 pr-2 py-2 mr-2 workspace-sidebar-scrollbar min-h-0">
-        <div className="text-xs uppercase font-bold tracking-wider text-gray-400 mb-2 px-2.5">
-          Workspace
-        </div>
+      <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-3 py-2' : 'pl-5 pr-2 py-2 mr-2'} workspace-sidebar-scrollbar min-h-0`}>
+        {!isCollapsed && (
+          <div className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] mb-2 px-2.5">
+            Workspace
+          </div>
+        )}
         <nav className="space-y-1">
-          <NavLink to={dashboardPath} end className={linkClass}>
-            <div className="flex items-center gap-2.5">
-              <LayoutDashboard className="w-4.5 h-4.5 text-[var(--accent)]" />
-              <span>Dashboard</span>
+          <NavLink to={dashboardPath} end className={linkClass} title={isCollapsed ? 'Dashboard' : undefined}>
+            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}>
+              <LayoutDashboard className="w-4.5 h-4.5 text-[var(--accent)] shrink-0" />
+              {!isCollapsed && <span>Dashboard</span>}
             </div>
+            {isCollapsed && (
+              <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                Dashboard
+              </span>
+            )}
           </NavLink>
 
           <div>
             <NavLink
               to={tasksPath}
               onClick={() => setIsTasksOpen(true)}
+              title={isCollapsed ? `Tasks (${totalTasks})` : undefined}
               className={() =>
-                `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isTaskRoute
-                    ? 'bg-white/15 text-white shadow-xs font-semibold'
-                    : 'text-gray-300 hover:bg-white/8 hover:text-white'
+                `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all ${isTaskRoute
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
+                  : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
                 }`
               }
             >
-              <div className="flex items-center gap-2.5">
-                <CheckSquare className="w-4.5 h-4.5 text-emerald-400" />
-                <span>Tasks</span>
+              <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}>
+                <CheckSquare className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
+                {!isCollapsed && <span>Tasks</span>}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-200 font-bold">
-                  {totalTasks}
+              {isCollapsed ? (
+                <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                  Tasks ({totalTasks})
                 </span>
-                <button
-                  type="button"
-                  aria-label={isTasksOpen ? 'Collapse task views' : 'Expand task views'}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsTasksOpen((prev) => !prev);
-                  }}
-                  className="p-0.5 text-gray-400 hover:text-white rounded transition-colors cursor-pointer"
-                >
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      isTasksOpen ? 'rotate-0' : '-rotate-90'
-                    }`}
-                  />
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--canvas)] text-[var(--muted)] border border-[var(--line-glass)] font-bold">
+                    {totalTasks}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={isTasksOpen ? 'Collapse task views' : 'Expand task views'}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsTasksOpen((prev) => !prev);
+                    }}
+                    className="p-0.5 text-[var(--faint)] hover:text-[var(--ink)] rounded transition-colors cursor-pointer !shadow-none !border-transparent"
+                  >
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${isTasksOpen ? 'rotate-0' : '-rotate-90'
+                        }`}
+                    />
+                  </button>
+                </div>
+              )}
             </NavLink>
 
-            {isTasksOpen && (
-              <div className="space-y-0.5 mt-1 mb-1 pl-3 border-l border-white/10 ml-4.5 animate-in fade-in slide-in-from-top-1 duration-150">
+            {isTasksOpen && !isCollapsed && (
+              <div className="space-y-0.5 mt-1 mb-1 pl-3 border-l border-[var(--line-glass)] ml-4.5 animate-in fade-in slide-in-from-top-1 duration-150">
                 {taskSubItems.map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
                     end
                     className={({ isActive }) =>
-                      `flex items-center justify-between px-2.5 py-1.5 rounded-lg text-sm transition-all ${
-                        isActive
-                          ? 'bg-white/12 text-white font-semibold shadow-2xs'
-                          : 'text-gray-400 hover:bg-white/6 hover:text-gray-200 font-medium'
+                      `sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-sm transition-all ${isActive
+                        ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-2xs'
+                        : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)] font-medium'
                       }`
                     }
                   >
@@ -353,8 +445,31 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                       <item.icon className={`w-4 h-4 shrink-0 ${item.iconColor}`} />
                       <span className="truncate">{item.label}</span>
                     </div>
-                    <span className="text-xs font-mono text-gray-400 font-semibold shrink-0 ml-1">
+                    <span className="text-xs font-mono text-[var(--muted)] font-semibold shrink-0 ml-1">
                       {item.count}
+                    </span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+
+            {isCollapsed && isTaskRoute && (
+              <div className="space-y-1 mt-1 pt-1 border-t border-[var(--line-glass)]">
+                {taskSubItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end
+                    className={({ isActive }) =>
+                      `sidebar-nav-item flex items-center justify-center w-9 h-9 mx-auto p-0 rounded-xl text-sm transition-all group relative ${isActive
+                        ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-2xs'
+                        : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
+                      }`
+                    }
+                  >
+                    <item.icon className={`w-4 h-4 shrink-0 ${item.iconColor}`} />
+                    <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                      {item.label} ({item.count})
                     </span>
                   </NavLink>
                 ))}
@@ -363,30 +478,44 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </div>
         </nav>
 
-        <div className="text-xs uppercase font-bold tracking-wider text-gray-400 mb-2 mt-6 px-2.5">
-          Planning
-        </div>
-        <nav className="space-y-1">
-          <NavLink to={calendarPath} className={linkClass}>
-            <div className="flex items-center gap-2.5">
-              <CalendarDays className="w-4.5 h-4.5 text-indigo-400" />
-              <span>Calendar</span>
+        {!isCollapsed && (
+          <div className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] mb-2 mt-6 px-2.5">
+            Planning
+          </div>
+        )}
+        <nav className={`space-y-1 ${isCollapsed ? 'mt-3 pt-2 border-t border-[var(--line-glass)]' : ''}`}>
+          <NavLink to={calendarPath} className={linkClass} title={isCollapsed ? 'Calendar' : undefined}>
+            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}>
+              <CalendarDays className="w-4.5 h-4.5 text-indigo-400 shrink-0" />
+              {!isCollapsed && <span>Calendar</span>}
             </div>
+            {isCollapsed && (
+              <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                Calendar
+              </span>
+            )}
           </NavLink>
 
-          <NavLink to={analyticsPath} className={linkClass}>
-            <div className="flex items-center gap-2.5">
-              <BarChart3 className="w-4.5 h-4.5 text-emerald-400" />
-              <span>Analytics</span>
+          <NavLink to={analyticsPath} className={linkClass} title={isCollapsed ? 'Analytics' : undefined}>
+            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}>
+              <BarChart3 className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
+              {!isCollapsed && <span>Analytics</span>}
             </div>
+            {isCollapsed && (
+              <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                Analytics
+              </span>
+            )}
           </NavLink>
         </nav>
 
         {/* Teams & Shared Projects Section */}
-        <div className="mt-6 mb-2">
-          <div className="text-xs uppercase font-bold tracking-wider text-gray-400 mb-2 px-2.5">
-            Teams & Shared Projects
-          </div>
+        <div className={`mb-2 ${isCollapsed ? 'mt-3 pt-2 border-t border-[var(--line-glass)]' : 'mt-6'}`}>
+          {!isCollapsed && (
+            <div className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] mb-2 px-2.5">
+              Teams & Shared Projects
+            </div>
+          )}
 
           <div className="space-y-1">
             {teams && teams.length > 0 ? (
@@ -394,125 +523,81 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 <NavLink
                   key={team.id}
                   to={`${basePath}/team/${team.id}`}
+                  title={isCollapsed ? team.name : undefined}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-white/15 text-white shadow-xs font-semibold'
-                        : 'text-gray-300 hover:bg-white/8 hover:text-white'
+                    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'justify-between px-3 py-2'} rounded-xl text-sm font-medium transition-all ${isActive
+                      ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
+                      : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
                     }`
                   }
                 >
-                  <div className="flex items-center gap-2.5 truncate">
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
                     <Users className="w-4.5 h-4.5 text-sky-400 shrink-0" />
-                    <span className="truncate">{team.name}</span>
+                    {!isCollapsed && <span className="truncate">{team.name}</span>}
                   </div>
-                  {team.leadId === (user?.id || 'demo-user-1') && (
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 bg-sky-500/20 text-sky-300 rounded font-bold shrink-0">
-                      LEAD
+                  {isCollapsed ? (
+                    <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                      {team.name} {team.leadId === (user?.id || 'demo-user-1') ? '(LEAD)' : ''}
                     </span>
+                  ) : (
+                    team.leadId === (user?.id || 'demo-user-1') && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 bg-sky-500/20 text-sky-400 rounded font-bold shrink-0">
+                        LEAD
+                      </span>
+                    )
                   )}
                 </NavLink>
               ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-gray-400 italic">No teams yet</div>
-            )}
+            ) : !isCollapsed ? (
+              <div className="px-3 py-2 text-sm text-[var(--muted)] italic">No teams yet</div>
+            ) : null}
 
             {onCreateTeamClick && (
               <button
                 type="button"
                 onClick={onCreateTeamClick}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/8 hover:text-white transition-colors cursor-pointer text-left"
+                aria-label="Create Team"
+                title={isCollapsed ? 'Create Team' : undefined}
+                className={`sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'w-full gap-2 px-3 py-2 text-left'} rounded-xl text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)] transition-colors cursor-pointer`}
               >
-                <Plus className="w-4 h-4 text-sky-400" />
-                <span>Create Team</span>
+                <UserRoundGroup className="w-4 h-4 text-sky-400" />
+                {!isCollapsed && <span>Create Team</span>}
+                {isCollapsed && (
+                  <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                    Create Team
+                  </span>
+                )}
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* 3. Fixed Bottom Settings Footer: Profile, Themes, Sign Out */}
-      <div className="p-5 pt-3 border-t border-white/10 space-y-2 text-sm shrink-0 bg-[var(--dark)]">
-        {!isPreview && (
-          <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[var(--accent)] text-white font-bold text-xs flex items-center justify-center shrink-0">
-                {(user?.name || 'Alex Morgan')
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <span className="text-sm font-semibold text-white block truncate">
-                  {user?.name || 'Alex Morgan'}
-                </span>
-                <span className="text-xs text-gray-400 block truncate">
-                  {user?.email || 'alex.morgan@gmail.com'}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <NavLink
-          to={settingsPath}
-          onClick={(e) => {
-            if (onOpenSettings) {
-              e.preventDefault();
-              onOpenSettings();
-            }
-          }}
-          className={({ isActive }) =>
-            `flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-              isActive
-                ? 'bg-white/15 text-white shadow-xs font-semibold'
-                : 'text-gray-300 hover:bg-white/8 hover:text-white'
-            }`
-          }
-        >
-          <Settings className="w-4 h-4 text-gray-400" />
-          <span>Settings</span>
-        </NavLink>
-
-        {onSignOut && (
-          <button
-            type="button"
-            onClick={onSignOut}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-red-300 hover:bg-white/5 transition-colors cursor-pointer text-left"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
-        )}
-      </div>
-
-      {/* 4. Resizable Right Gutter Handle */}
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize sidebar"
-        aria-valuenow={width}
-        aria-valuemin={MIN_SIDEBAR_WIDTH}
-        aria-valuemax={MAX_SIDEBAR_WIDTH}
-        tabIndex={0}
-        onMouseDown={handleMouseDown}
-        onDoubleClick={handleDoubleClick}
-        onKeyDown={handleKeyDown}
-        title="Drag to resize sidebar (Double-click to reset)"
-        className={`absolute top-0 -right-1 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors group flex items-center justify-center focus-visible:outline-none focus-visible:bg-[var(--accent)] ${
-          isResizing
+      {/* 3. Resizable Right Gutter Handle (Visible only when expanded) */}
+      {!isCollapsed && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          aria-valuenow={width}
+          aria-valuemin={MIN_SIDEBAR_WIDTH}
+          aria-valuemax={MAX_SIDEBAR_WIDTH}
+          tabIndex={0}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+          onKeyDown={handleKeyDown}
+          title="Drag to resize sidebar (Double-click to reset)"
+          className={`absolute top-0 -right-1 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors group flex items-center justify-center focus-visible:outline-none focus-visible:bg-[var(--accent)] ${isResizing
             ? 'bg-[var(--accent)]'
             : 'hover:bg-[var(--accent)]/60 active:bg-[var(--accent)] bg-transparent'
-        }`}
-      >
-        <div
-          className={`w-1 h-8 rounded-full transition-all ${
-            isResizing ? 'bg-white opacity-100 shadow-xs' : 'bg-white/40 opacity-0 group-hover:opacity-100'
-          }`}
-        />
-      </div>
+            }`}
+        >
+          <div
+            className={`w-1 h-8 rounded-full transition-all ${isResizing ? 'bg-white opacity-100 shadow-xs' : 'bg-white/40 opacity-0 group-hover:opacity-100'
+              }`}
+          />
+        </div>
+      )}
     </aside>
   );
 };

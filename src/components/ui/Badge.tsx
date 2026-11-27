@@ -20,7 +20,7 @@ export const Badge: React.FC<BadgeProps> = ({
   }[size];
 
   const variantStyles = {
-    neutral: 'bg-[var(--canvas)] text-[var(--muted)] border border-[var(--line)]',
+    neutral: 'bg-[var(--canvas)] text-[var(--muted)] border border-[var(--line)] backdrop-blur-xs',
     accent: 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold',
     success: 'bg-[var(--green-soft)] text-[var(--green)] font-semibold',
     warning: 'bg-[var(--amber-soft)] text-[var(--amber)] font-semibold',

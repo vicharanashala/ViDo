@@ -41,7 +41,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         }
       }}
       aria-label={`Task: ${task.title}`}
-      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-[var(--canvas)]/60 transition-colors cursor-pointer select-none"
+      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 hover:bg-[var(--surface-glass)]/90 backdrop-blur-xs transition-colors cursor-pointer select-none"
     >
       {/* Left: Status icon, Title, Category */}
       <div className="flex items-center gap-4 min-w-0">
