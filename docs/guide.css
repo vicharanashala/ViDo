@@ -395,3 +395,28 @@
 .schedule-example blockquote strong { display: block; margin-bottom: .25rem; }
 .schedule-example svg { width: 1.5rem; fill: none; stroke: var(--accent); stroke-width: 1.5; }
 .schedule-example small { display: block; margin-top: .85rem; color: var(--muted); }
+
+.chapter .wiki-intro { display: block; }
+.chapter .wiki-intro h1 { margin-bottom: 0; }
+.chapter .guide-body { padding-block: 2rem; }
+.chapter .guide-body > .section:first-child { padding-top: 0; }
+.chapter .guide-outline [aria-current] { font-weight: 700; color: var(--accent); }
+.chapter .agent-brief {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  border: 2px dotted var(--accent);
+  border-radius: .6rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+.chapter .agent-brief code { font: inherit; }
+.chapter-copy {
+  cursor: pointer;
+  padding: .4rem .8rem;
+  border: 1px solid var(--line);
+  border-radius: .4rem;
+  background: var(--surface);
+  color: var(--accent);
+  font: inherit;
+}

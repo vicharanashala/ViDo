@@ -43,3 +43,24 @@ document.getElementById('copy-setup')?.addEventListener('click', async () => {
     result.textContent = 'Prompt selected. Use your keyboard to copy.';
   }
 });
+
+for (const block of document.querySelectorAll('.chapter pre:not(.repo-tree)')) {
+  const code = block.querySelector('code');
+  if (!code || !navigator.clipboard) continue;
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'chapter-copy';
+  button.textContent = block.matches('.agent-brief') ? 'Copy prompt' : 'Copy commands';
+  const status = document.createElement('span');
+  status.setAttribute('role', 'status');
+  block.after(button, status);
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(code.textContent);
+      status.textContent = ' Copied.';
+    } catch {
+      status.textContent = ' Select the text to copy manually.';
+    }
+  });
+}
