@@ -354,6 +354,11 @@ export const JournalView: React.FC = () => {
                     Felt heavy: {checkIn.heavyTaskTitles.join(', ')}
                   </p>
                 )}
+                {(checkIn.lightTaskTitles?.length ?? 0) > 0 && (
+                  <p className="text-[11px] text-[var(--muted)] mt-1">
+                    Felt easy: {checkIn.lightTaskTitles?.join(', ')}
+                  </p>
+                )}
                 {checkIn.timeLog.length > 0 && (
                   <p className="text-[11px] text-[var(--muted)] mt-1">
                     Time:{' '}

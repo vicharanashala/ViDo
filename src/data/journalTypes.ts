@@ -54,6 +54,8 @@ export interface EveningCheckIn {
   movedTaskTitles: string[];
   heavyTaskIds: string[];
   heavyTaskTitles: string[];
+  lightTaskIds?: string[];
+  lightTaskTitles?: string[];
   timeLog: TimeLogEntry[];
   note?: string;
   analysis?: JournalAnalysis;

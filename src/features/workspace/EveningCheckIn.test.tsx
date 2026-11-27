@@ -116,6 +116,21 @@ describe('EveningCheckIn', () => {
     expect(manual).toMatchObject({ actualMinutes: 30, source: 'manual' });
   });
 
+  it('records what felt easy as well as what felt heavy', () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole('button', { name: 'steady' }));
+    const easy = within(screen.getByRole('region', { name: /what felt easy/i })).getByRole(
+      'button',
+      { name: 'Read the brief' }
+    );
+    fireEvent.click(easy);
+    fireEvent.click(screen.getByRole('button', { name: /save the evening/i }));
+
+    const saved = loadEveningCheckIn('2026-11-20');
+    expect(saved?.lightTaskTitles).toEqual(['Read the brief']);
+    expect(saved?.lightTaskIds).toEqual(['task-2']);
+  });
+
   it('can be deferred', () => {
     const { onLater } = renderSheet();
     fireEvent.click(screen.getByRole('button', { name: 'Later' }));

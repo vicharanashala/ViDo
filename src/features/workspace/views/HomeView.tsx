@@ -197,10 +197,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <button
           type="button"
           onClick={eveningReview.onOpen}
-          className="w-full text-left rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2.5 hover:border-[var(--accent)]/40 transition-colors"
+          className="inline-flex items-baseline gap-1.5 px-1 text-[11px] text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
         >
-          <span className="text-[11px] font-semibold text-[var(--ink)]">How did today sit?</span>
-          <span className="text-[11px] text-[var(--muted)]"> A few quiet questions, whenever you are ready.</span>
+          <span className="font-semibold">How did today sit?</span>
+          <span className="text-[var(--faint)]">Answer when you are ready.</span>
         </button>
       )}
 
@@ -237,7 +237,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         ) : todayTasks.items.length > 0 ? (
           <>
-            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
+            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
               {todayTasks.items.map((task) => (
                 <TaskRow
                   key={task.id}

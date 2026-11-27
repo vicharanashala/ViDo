@@ -40,6 +40,7 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
     dayTasks.filter((task) => task.state === 'completed').map((task) => task.id)
   );
   const [heavyIds, setHeavyIds] = useState<string[]>([]);
+  const [lightIds, setLightIds] = useState<string[]>([]);
   const [minutes, setMinutes] = useState<Record<string, string>>({});
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -61,10 +62,11 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
           extraIds.includes(task.id) ||
           movedIds.includes(task.id) ||
           heavyIds.includes(task.id) ||
+          lightIds.includes(task.id) ||
           task.spentMinutes !== undefined ||
           task.plannedMinutes !== undefined
       ),
-    [dayTasks, extraIds, movedIds, heavyIds]
+    [dayTasks, extraIds, movedIds, heavyIds, lightIds]
   );
   const remainingTasks = dayTasks.filter((task) => !timeRows.includes(task));
 
@@ -93,6 +95,8 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
       movedTaskTitles: dayTasks.filter((task) => movedIds.includes(task.id)).map((task) => task.title),
       heavyTaskIds: heavyIds,
       heavyTaskTitles: dayTasks.filter((task) => heavyIds.includes(task.id)).map((task) => task.title),
+      lightTaskIds: lightIds,
+      lightTaskTitles: dayTasks.filter((task) => lightIds.includes(task.id)).map((task) => task.title),
       timeLog,
       note: note.trim() || undefined,
       analysis: note.trim() ? analyseNote(note) : undefined,
@@ -229,10 +233,39 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
           </div>
         </section>
 
-        <section className="mt-5">
-          <h3 className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1.5">
-            Time against the plan
+        <section aria-label="What felt easy" className="mt-4">
+          <h3 className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1">
+            What felt easy?
           </h3>
+          <p className="text-[11px] text-[var(--faint)] mb-1.5">
+            Tasks that came more naturally than you expected.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {dayTasks.map((task) => (
+              <button
+                key={task.id}
+                type="button"
+                aria-pressed={lightIds.includes(task.id)}
+                onClick={() => setLightIds((previous) => toggle(previous, task.id))}
+                className={`max-w-full truncate px-2.5 py-1 rounded-lg border text-[11px] ${
+                  lightIds.includes(task.id)
+                    ? 'bg-[var(--green-soft)] text-[var(--green)] border-[var(--green)]/30'
+                    : 'bg-[var(--surface)] text-[var(--muted)] border-[var(--line)]'
+                }`}
+              >
+                {task.title}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-5">
+          <h3 className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)] mb-1">
+            Planned vs actual time
+          </h3>
+          <p className="text-[11px] text-[var(--faint)] mb-1.5">
+            How long each task took, against the time you planned for it.
+          </p>
           {timeRows.length === 0 ? (
             <p className="text-xs text-[var(--faint)]">
               No time was tracked. Choose a task to add about how long it took.
