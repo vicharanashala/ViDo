@@ -72,7 +72,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
       </p>
 
       {queue.today.length > 0 ? (
-        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(370px,1fr))]">
           {queue.today.map((task) => (
             <TaskRow
               key={task.id}
@@ -114,7 +114,7 @@ export const TodayQueueView: React.FC<TodayQueueViewProps> = ({
               A few suggestions from earlier. Pick one for today, or leave them where they are.
             </p>
           </div>
-          <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+          <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(370px,1fr))]">
             {recommendations.map((task) => (
               <TaskRow
                 key={task.id}

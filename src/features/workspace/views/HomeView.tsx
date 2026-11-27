@@ -187,7 +187,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </div>
 
       {onIntentionChange && (
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-2xl">
           <IntentionBar value={intention} onSave={onIntentionChange} />
         </div>
       )}
@@ -207,7 +207,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {rested ? (
-          <div className="p-8 text-center border border-[var(--line)] rounded-xl bg-[var(--surface)]">
+          <div className="mx-auto w-full max-w-md rounded-xl border border-[var(--line)] bg-transparent p-8 text-center">
             <div className="w-12 h-12 mx-auto mb-3">
               <Doodle kind="plants" />
             </div>
@@ -218,22 +218,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </Button>
           </div>
         ) : todayTasks.items.length > 0 ? (
-          <div className="rounded-xl bg-[var(--surface)] px-4 py-3 text-center">
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-xs text-[var(--muted)]">
-                <span className="font-semibold text-[var(--ink)]">{todayTasks.totalCount}</span>{' '}
-                {todayTasks.totalCount === 1 ? 'task' : 'tasks'} due today
-                {todayMomentum.completed > 0 ? (
-                  <span className="text-[var(--faint)]"> · {todayMomentum.completed} done</span>
-                ) : null}
-              </p>
-              <Link
-                to="/app/today"
-                className="text-xs font-semibold text-[var(--accent)] hover:underline inline-flex items-center gap-1"
-              >
-                Open Today <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+          <div className="mx-auto w-full max-w-md rounded-xl border border-[var(--line)] bg-transparent px-4 py-3 text-center">
+            <p className="text-xs text-[var(--muted)]">
+              <span className="font-semibold text-[var(--ink)]">{todayTasks.totalCount}</span>{' '}
+              {todayTasks.totalCount === 1 ? 'task' : 'tasks'} due today
+              {todayMomentum.completed > 0 ? (
+                <span className="text-[var(--faint)]"> · {todayMomentum.completed} done</span>
+              ) : null}
+            </p>
             <div className="mt-2 flex justify-center">
               <Button variant="ghost" size="sm" onClick={stopForToday}>
                 That's enough for today
@@ -241,7 +233,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-10 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)]">
+          <div className="mx-auto w-full max-w-md rounded-xl border border-dashed border-[var(--line)] bg-transparent p-10 text-center">
             <p className="text-xs text-[var(--muted)]">No tasks due today. You are fully caught up.</p>
           </div>
         )}

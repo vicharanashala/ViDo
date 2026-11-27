@@ -17,7 +17,7 @@ export const IntentionBar: React.FC<IntentionBarProps> = ({ value, onSave }) => 
   const submit = () => onSave(draft);
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 flex flex-col items-center gap-2 text-center">
+    <section className="rounded-2xl border border-[var(--line)] bg-transparent px-4 py-3 flex flex-col items-center gap-2 text-center">
       <div className="flex items-center justify-center gap-2 shrink-0">
         <Sparkles className="w-4 h-4 text-[var(--accent)]" />
         <span className="text-xs font-semibold text-[var(--ink)]">A small intention for today</span>

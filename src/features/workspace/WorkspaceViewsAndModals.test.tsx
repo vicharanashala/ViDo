@@ -47,7 +47,7 @@ describe('Workspace views and modals', () => {
 
       expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
       expect(screen.getByText(/tasks? due today/i)).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /open today/i })).toHaveAttribute('href', '/app/today');
+      expect(screen.getByRole('link', { name: /open queue/i })).toHaveAttribute('href', '/app/today');
       expect(screen.getByText(/a little progress today/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/7-day momentum/i)).toBeInTheDocument();
 
@@ -76,7 +76,7 @@ describe('Workspace views and modals', () => {
       fireEvent.click(screen.getByRole('button', { name: /that's enough for today/i }));
       expect(screen.getByText(/you can stop here/i)).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /show the list/i }));
-      expect(screen.getByRole('link', { name: /open today/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /open queue/i })).toBeInTheDocument();
     });
   });
 

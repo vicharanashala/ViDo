@@ -69,7 +69,7 @@ export const ListView: React.FC<ListViewProps> = ({
       </div>
 
       {filteredTasks.length > 0 ? (
-        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(370px,1fr))]">
           {filteredTasks.map((task) => (
             <TaskRow
               key={task.id}
