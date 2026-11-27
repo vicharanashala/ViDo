@@ -15,11 +15,7 @@ export const SystemClock: React.FC = () => {
     second: '2-digit',
   });
   const weekday = now.toLocaleDateString('en-GB', { weekday: 'long' });
-  const date = now.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const date = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
 
   return (
     <span

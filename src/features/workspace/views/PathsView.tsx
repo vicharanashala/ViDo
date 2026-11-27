@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ListChecks, Sparkles } from 'lucide-react';
 import type { Task } from '../../../data/taskTypes';
+import { formatDateKey } from '../../../data/taskDates';
 import { getFilteredTasks } from '../../../data/taskFilters';
 import { DoodleTitle } from '../doodles/DoodleTitle';
 
@@ -37,7 +38,7 @@ const PathCard: React.FC<{ task: Task }> = ({ task }) => {
 
       <div className="mt-auto flex flex-wrap items-center gap-1.5 text-[10px]">
         <span className="rounded-full border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-2 py-0.5 font-bold text-[var(--accent)]">
-          {task.deadlineDate ? 'Deadline' : 'Planned'} {deadline}
+          {task.deadlineDate ? 'Deadline' : 'Planned'} {formatDateKey(deadline)}
         </span>
         {task.recurrence && (
           <span className="rounded-full border border-[var(--line)] bg-[var(--canvas)] px-2 py-0.5 text-[var(--muted)]">
