@@ -29,7 +29,7 @@ ViDo/
 │   │   ├── style-lab/       # Theme, accent palette, and visual lab (/style-lab route)
 │   │   └── workspace/       # Dashboard shell for the live app (/workspace) and demo (/preview)
 │   │       └── views/       # Subroute view components (Home, Today, Upcoming, etc.)
-│   ├── lib/                 # Firebase init, auth helpers, task/calendar/settings stores
+│   ├── lib/                 # Auth request headers and user API stores (tasks, calendar, categories, targets)
 │   ├── test/                # Global test setup and environment configuration
 │   ├── App.tsx              # Central client-side routing
 │   ├── index.css            # Global CSS variables, theme variables, and Tailwind v4 setup
@@ -38,8 +38,8 @@ ViDo/
 ├── .env.example             # Firebase/emulator environment overrides
 ├── .firebaserc              # Firebase project alias (demo-vido)
 ├── firebase.json            # Emulator ports and rules/index references
-├── firestore.rules          # Per-user Firestore security rules
-├── firestore.indexes.json   # Firestore composite indexes
+├── firestore.rules          # Firestore emulator rules (user data now lives in the NestJS backend)
+├── firestore.indexes.json   # Firestore emulator indexes
 ├── .gitignore               # Ignored build artifacts, dependencies, and caches
 ├── AGENTS.md                # AI Agent guidelines and execution standards
 ├── FOLDER_STRUCTURE.md      # This file: Directory layout and placement rules
@@ -91,9 +91,7 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
   - `WorkspaceLayout.tsx`: Shared shell layout with persistent banner, sidebar, topbar, and subroutes.
   - `WorkspaceTopBar.tsx`: Sticky top navigation bar with title, search, filter, and user profile.
   - `WorkspaceSidebar.tsx`: Left navigation sidebar with view links, badges, and theme link.
-  - `LiveWorkspace.tsx`: Authenticated live shell wired to Firestore task, calendar, and target hooks.
-  - `useUserTasks.ts`: Live task subscription and write helpers.
-  - `useCalendar.ts` / `usePlanningTargets.ts`: Mode-aware hooks selecting Firestore or preview `localStorage`.
+  - `useCalendar.ts` / `usePlanningTargets.ts` / `useCategories.ts`: Mode-aware hooks selecting the NestJS user API stores in `src/lib/` (live) or preview `localStorage`.
   - `TaskRow.tsx`: Horizontal, scannable task row with priority badge, progress bar, and checkpoint counts.
   - `TaskCard.tsx`: Detailed card representation of a task.
   - `TaskDetailModal.tsx` & `TaskCreateModal.tsx`: Interactive modals for inspecting and creating tasks.
@@ -103,7 +101,7 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
   - `views/AnalyticsView.tsx`: Completion percentages, target progress, and monthly roll-up charts.
 - **Rules**:
   - Preview mode must remain clearly designated as an **interactive preview** with sample data.
-  - Live mode requires Firebase emulator sign-in and stores data under `users/{uid}`.
+  - Live mode requires Firebase emulator sign-in and stores user data through the NestJS `/api/user/*` endpoints (Prisma, scoped by `userId`).
   - Must provide the left-aligned **Back to Landing Page** navigation on the persistent top banner.
 
 #### 3. `src/features/teams/`
@@ -135,6 +133,7 @@ Each subfolder under `src/features/` encapsulates a complete user-facing product
   - `server/prisma/`: SQLite schema (`schema.prisma`) for zero-setup local development and PostgreSQL production configuration.
   - `server/src/auth/`: Firebase ID token decoder and `FirebaseAuthGuard` supporting the local Firebase Auth Emulator (`127.0.0.1:9099`).
   - `server/src/teams/`, `invitations/`, `milestones/`, `tasks/`: Domain controllers and services.
+  - `server/src/tasks/user-tasks.*`, `calendar/`, `categories/`, `planning/`: Signed-in user data under `/api/user/*` (tasks, calendar events, custom categories, planning targets).
   - `server/src/events/`: Real-time SSE event broadcaster (`/api/events/stream`).
 
 ### `openspec/` & `.agents/` — Spec-Driven Workflow

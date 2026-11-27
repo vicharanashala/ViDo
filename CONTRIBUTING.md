@@ -113,6 +113,7 @@ git checkout -b fix/issue-number-bug-description
      ```bash
      npm run emulators
      ```
+   - **Signed-in data**: The `/workspace` routes store tasks, calendar events, categories, and planning targets through the NestJS backend. Run `npm run dev:all` to start Vite and the backend together (see the [server README](./server/README.md) for first-time Prisma setup). Without the backend, signed-in changes are kept only in memory and disappear on reload.
 
 ### Step 4: Making Changes
 

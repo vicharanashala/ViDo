@@ -74,7 +74,7 @@ Instead of relying on constant status meetings or ambiguous binary to-do lists, 
 | Route | Description |
 |---|---|
 | `/` | Public landing page with preview, design principles, and sign-in flow. |
-| `/workspace/*` | Authenticated workspace (Firebase Auth `:9099`, Firestore `:8080`, `demo-vido` project). |
+| `/workspace/*` | Authenticated workspace (Firebase Auth emulator `:9099`, `demo-vido` project) backed by the NestJS user API on `:3001`. |
 | `/preview/*` | Full guest demo with deterministic sample data and browser-local planning state. |
 | `/preview\|workspace/tasks` | Filterable task management view for active responsibilities. |
 | `/preview\|workspace/today`, `/upcoming`, `/needs-attention`, `/completed`, `/archived` | Section-specific task lists derived from shared filters. |
@@ -91,7 +91,7 @@ Instead of relying on constant status meetings or ambiguous binary to-do lists, 
 ### 🔐 Authentication & Session Management
 - **Google sign-in (emulator)**: Popup-based sign-in powered by Firebase Authentication against the local Auth emulator.
 - **No real credentials required**: The default `demo-vido` project and emulator suite run entirely on your machine.
-- **Per-user planning data**: Calendar events and weekly/monthly targets are stored in Firestore under `users/{uid}` for signed-in users.
+- **Per-user data**: Tasks, calendar events, custom categories, and weekly/monthly targets are stored by the NestJS backend (Prisma, scoped to the signed-in user) through the `/api/user/*` endpoints.
 - **Zero-barrier demo**: `/preview/*` is fully interactive without an account.
 
 ### 👥 Team Workspaces & Shared Coordination
@@ -110,12 +110,12 @@ Instead of relying on constant status meetings or ambiguous binary to-do lists, 
 - Unified **weekly** and **monthly** layouts showing ViDo tasks and calendar commitments together.
 - Create and manage planning calendar events alongside tasks in weekly and monthly views.
 - **Task ↔ event flows**: add a task to the calendar as a linked event, import an event as a task, or create/remove manual events.
-- Live events are stored at `users/{uid}/calendarEvents`; preview events are stored in `localStorage`.
+- Live events are stored by the NestJS backend (`/api/user/calendar-events`); preview events are stored in `localStorage`.
 
 ### 📊 Completion Analytics
 - Weekly completion percentage and progress against a user-set weekly target.
 - Monthly goal tracking with cumulative totals contributed by each week.
-- Editable targets persisted per user in Firestore (live) or in `localStorage` (preview), with progress bars and roll-up charts.
+- Editable targets persisted per user by the NestJS backend (live, `/api/user/planning-targets`) or in `localStorage` (preview), with progress bars and roll-up charts.
 
 ### 🎨 Living Design System
 - Desktop-first, contrast-compliant UI with semantic CSS custom properties.
@@ -175,7 +175,7 @@ Instead of relying on constant status meetings or ambiguous binary to-do lists, 
 ViDo is configured for **zero-friction local testing**. No Google Cloud account, credit card, or live Firebase credentials are required.
 
 - **Auth emulator**: `127.0.0.1:9099`
-- **Firestore emulator**: `127.0.0.1:8080`
+- **Firestore emulator**: `127.0.0.1:8080` (still started with the suite; user data now lives in the NestJS backend, not Firestore)
 - **Emulator UI**: `127.0.0.1:4000` (when running `npm run emu` / `npm run emulators`)
 - **Project ID**: `demo-vido`
 
@@ -251,8 +251,8 @@ ViDo follows a **feature-driven, modular frontend architecture**. For the comple
 - **UI Primitives (`src/components/ui/`)**: Reusable, accessible, domain-agnostic components (`Button`, `Card`, `Badge`, `Input`, `NoticeModal`). They never import domain models.
 - **Feature Slices (`src/features/`)**: Vertical slices for `landing/`, `auth/`, `workspace/`, `teams/`, and `style-lab/`.
 - **Data & Pure Logic (`src/data/`)**: Types, deterministic fixtures, filters, calendar helpers, and analytics calculations.
-- **Firebase & Persistence (`src/lib/`)**: Firebase/Firestore initialization, calendar event store, and planning-target settings store.
-- **Backend Service (`server/`)**: NestJS controllers, services, DTOs, and Prisma schemas for team/backend APIs.
+- **Client Persistence (`src/lib/`)**: Auth request headers and the user API stores for tasks, calendar events, categories, and planning targets.
+- **Backend Service (`server/`)**: NestJS controllers, services, DTOs, and Prisma schemas for team and per-user data APIs.
 - **Colocated Tests**: Tests live alongside the code they verify.
 
 ---
@@ -284,7 +284,7 @@ ViDo uses Tailwind CSS v4 with semantic CSS custom properties:
 | **Backend Framework** | [NestJS 11](https://nestjs.com/) | Dedicated TypeScript backend service (`server/`). |
 | **ORM & Database** | [Prisma 6](https://www.prisma.io/) + [SQLite](https://www.sqlite.org/) | Local database (`dev.db`) with PostgreSQL production compatibility. |
 | **Real-Time Push** | Server-Sent Events (SSE) | Push delivery for team invites and notification/task updates. |
-| **Auth & Data** | [Firebase 13](https://firebase.google.com/) | Google sign-in and Firestore-backed planning data (local emulator by default). |
+| **Auth** | [Firebase 13](https://firebase.google.com/) | Google sign-in through Firebase Authentication (local emulator by default). |
 | **Bundler & Tooling** | [Vite 6](https://vite.dev/) | Fast HMR dev server and optimized builds. |
 | **Language** | [TypeScript 5.7](https://www.typescriptlang.org/) | Strict compile-time safety and self-documenting models. |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first styling with semantic CSS variables. |

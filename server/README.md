@@ -19,15 +19,18 @@ A dedicated, enterprise-grade TypeScript backend for ViDo powering team workspac
 ```text
 server/
 ├── prisma/
-│   ├── schema.prisma       # Relational models (Team, Member, Invitation, Milestone, Task, Checkpoint)
+│   ├── schema.prisma       # Relational models (teams, milestones, checkpoints, and per-user tasks, events, categories, targets)
 │   └── dev.db              # Local SQLite database file (gitignored)
 ├── src/
 │   ├── auth/               # Firebase token decoding & FirebaseAuthGuard
+│   ├── calendar/           # Per-user calendar events (/api/user/calendar-events)
+│   ├── categories/         # Per-user custom categories (/api/user/categories)
 │   ├── events/             # Real-time SSE broadcaster & controller
 │   ├── invitations/        # Team email invitations, pending invites & respond actions
 │   ├── milestones/         # Phased project milestones & status toggles
+│   ├── planning/           # Per-user weekly/monthly targets (/api/user/planning-targets)
 │   ├── prisma/             # PrismaService lifecycle management
-│   ├── tasks/              # Shared team tasks, checkpoints & progress tracking
+│   ├── tasks/              # Shared team tasks, checkpoints & progress, plus personal tasks (/api/user/tasks)
 │   ├── teams/              # Team creation, members & team space queries
 │   ├── app.module.ts       # Central NestJS application module
 │   └── main.ts             # Application entry point with CORS and port binding
@@ -102,6 +105,13 @@ All protected endpoints require `Authorization: Bearer <firebaseIdToken>` header
 | `POST` | `/api/teams/:id/tasks` | Create team task deliverable | Team Lead |
 | `PATCH`| `/api/tasks/:id/progress` | Update 0–100% progress & log checkpoint | Assignee or Lead |
 | `GET` | `/api/events/stream` | Server-Sent Events real-time event stream | Public / Client |
+| `GET` / `POST` | `/api/user/tasks` | List or create the user's personal tasks | Authenticated User |
+| `PATCH` / `DELETE` | `/api/user/tasks/:id` | Update or delete a personal task | Task Owner |
+| `GET` / `POST` | `/api/user/calendar-events` | List or create the user's calendar events | Authenticated User |
+| `DELETE` | `/api/user/calendar-events/:id` | Delete a calendar event | Event Owner |
+| `GET` / `POST` | `/api/user/categories` | List or create the user's custom categories | Authenticated User |
+| `DELETE` | `/api/user/categories/:id` | Delete a custom category | Category Owner |
+| `GET` / `PUT` | `/api/user/planning-targets` | Read or replace weekly/monthly targets | Authenticated User |
 
 ---
 
