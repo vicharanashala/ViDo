@@ -6,9 +6,12 @@ import { parseQuickAdd } from '../../data/quickAddParser';
 
 export interface QuickAddProps {
   onAdd: (input: NewTaskInput) => void;
+  defaultDate?: string;
+  minDate?: string;
+  maxDate?: string;
 }
 
-export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
+export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd, defaultDate, minDate, maxDate }) => {
   const [title, setTitle] = useState('');
   const [manualPriority, setManualPriority] = useState<TaskPriority | 'auto'>('auto');
   const [manualDueDate, setManualDueDate] = useState('');
@@ -19,8 +22,16 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
   const parsed = parseQuickAdd(title);
   const meta = parsed.meta;
   const effectivePriority = manualPriority === 'auto' ? parsed.priority : manualPriority;
-  const effectiveDueDate = manualDueDate || parsed.dueDate;
-  const effectiveDeadlineDate = manualDeadlineDate || parsed.deadlineDate;
+  const clampDate = (value: string) => {
+    if (minDate && value < minDate) return minDate;
+    if (maxDate && value > maxDate) return maxDate;
+    return value;
+  };
+  const hasExplicitDate = Boolean(manualDueDate || meta.dateLabel);
+  const chosenDueDate = manualDueDate || parsed.dueDate;
+  const effectiveDueDate = clampDate(hasExplicitDate ? chosenDueDate : defaultDate ?? chosenDueDate);
+  const rawDeadlineDate = manualDeadlineDate || parsed.deadlineDate;
+  const effectiveDeadlineDate = rawDeadlineDate ? clampDate(rawDeadlineDate) : undefined;
   const effectiveDueTime = manualDeadlineTime || parsed.dueTime;
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -103,6 +114,8 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
                 <input
                   type="date"
                   value={manualDueDate}
+                  min={minDate}
+                  max={maxDate}
                   onChange={(event) => setManualDueDate(event.target.value)}
                   className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 />
@@ -112,10 +125,9 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
                 <input
                   type="date"
                   value={manualDeadlineDate}
-                  onChange={(event) => {
-                    setManualDeadlineDate(event.target.value);
-                    if (!event.target.value) setManualRecurrence('');
-                  }}
+                  min={minDate}
+                  max={maxDate}
+                  onChange={(event) => setManualDeadlineDate(event.target.value)}
                   className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 />
               </label>
@@ -129,17 +141,18 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
                 />
               </label>
               <label className="mt-2 block text-[10px] font-semibold text-[var(--muted)]">
-                Repeat until deadline
+                Repeat
                 <select
                   value={manualRecurrence}
                   onChange={(event) => setManualRecurrence(event.target.value as TaskRecurrence | '')}
-                  disabled={!effectiveDeadlineDate}
-                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+                  className="mt-1 w-full rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-xs text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 >
                   <option value="">Does not repeat</option>
                   <option value="daily">Daily</option>
                   <option value="weekdays">Weekdays</option>
                   <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
                 </select>
               </label>
               <p className="mt-2 text-[10px] text-[var(--faint)]">

@@ -28,8 +28,19 @@ describe('ViDo app routes', () => {
     fireEvent.click(screen.getByRole('button', { name: /open app/i }));
 
     expect(screen.getByRole('heading', { name: /^home$/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/new task title/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/new task title/i)).not.toBeInTheDocument();
     expect(screen.queryByText('DEMO PREVIEW')).not.toBeInTheDocument();
+  });
+
+  it('keeps quick capture on Today and Upcoming only', () => {
+    window.history.pushState({}, '', '/app/today');
+    const { unmount } = render(<App />);
+    expect(screen.getByLabelText(/new task title/i)).toBeInTheDocument();
+    unmount();
+
+    window.history.pushState({}, '', '/app/upcoming');
+    render(<App />);
+    expect(screen.getByLabelText(/new task title/i)).toBeInTheDocument();
   });
 
   it('redirects the old preview route to the real workspace', () => {

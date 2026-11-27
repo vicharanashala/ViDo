@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Task } from '../../../data/taskTypes';
 import { formatTimeLabel, getTaskPace, greeting, paceTone, relativeDayLabel, toDateKey } from '../../../data/taskDates';
-import { TaskRow } from '../TaskRow';
 import { DoodleTitle } from '../doodles/DoodleTitle';
 import { WelcomeCard } from '../WelcomeCard';
 import { IntentionBar } from '../IntentionBar';
+import { DailyQuote } from '../DailyQuote';
 import { MomentumStrip } from '../MomentumStrip';
 import { Doodle } from '../doodles/Doodles';
 import { loadRested, saveRested } from '../../../lib/welcomeStore';
-import { ArrowRight, Clock, Dot, Maximize2 } from 'lucide-react';
+import { ArrowRight, Clock, Dot, Maximize2, Moon } from 'lucide-react';
 import { Badge, Button, ProgressRing } from '../../../components/ui';
 
 export interface TodayMomentum {
@@ -39,6 +39,7 @@ export interface HomeViewProps {
   onSaveProfile?: (profile: { prefix: string; name: string }) => void;
   intention?: string;
   onIntentionChange?: (text: string) => void;
+  eveningReview?: { onOpen: () => void; label?: string };
 }
 
 function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -48,26 +49,20 @@ function focusMessage(status: ReturnType<typeof getTaskPace>['status']): string 
   return 'One thing at a time.';
 }
 
-const HERO_GRADIENT =
-  'linear-gradient(135deg, #fff1df 0%, #f8fbf1 48%, #f8e1d3 100%)';
-
 export const HomeView: React.FC<HomeViewProps> = ({
   todayTasks,
   todayLabel,
   todayMomentum,
   focusTask,
   allTasks,
-  onTaskClick,
-  onToggleComplete,
   onFocusTask,
-  onCheckInStart,
-  onOpenPath,
   userName,
   userPrefix,
   welcomed = true,
   onSaveProfile,
   intention = '',
   onIntentionChange,
+  eveningReview,
 }) => {
   const focusPace = focusTask ? getTaskPace(focusTask) : null;
   const displayName = [userPrefix, userName].filter(Boolean).join(' ');
@@ -91,17 +86,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : 0;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {!welcomed && onSaveProfile && <WelcomeCard onSave={onSaveProfile} />}
+    <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {!welcomed && onSaveProfile && (
+        <div className="mx-auto w-full max-w-5xl">
+          <WelcomeCard onSave={onSaveProfile} />
+        </div>
+      )}
 
-      <section
-        className="relative overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
-        style={{ background: HERO_GRADIENT }}
-      >
+      <section className="hero-gradient relative mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm">
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[rgba(131,184,168,0.18)] blur-3xl" />
 
-        <div className="relative flex items-start justify-between gap-4">
+        <div className="relative flex flex-col items-center gap-3 text-center">
           <div>
             <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted)]">
               {todayLabel}
@@ -121,10 +117,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
             subLabel="done today"
             className="hidden sm:inline-flex"
           />
+          {eveningReview && (
+            <button
+              type="button"
+              onClick={eveningReview.onOpen}
+              aria-label="Open the evening review"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--surface)]/80 px-4 py-1.5 text-[11px] text-[var(--muted)] shadow-xs transition-colors hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            >
+              <Moon className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" />
+              <span className="font-semibold text-[var(--ink)]">
+                {eveningReview.label ?? 'How did today sit?'}
+              </span>
+              <span className="text-[var(--faint)]">Answer when you are ready.</span>
+            </button>
+          )}
         </div>
 
         {focusTask && focusPace ? (
-          <div className="relative mt-6 grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-[var(--surface)]/85 border border-[var(--line)] p-5">
+          <div className="relative mx-auto mt-6 grid w-full gap-5 sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-[var(--surface)]/85 border border-[var(--line)] p-5 text-center sm:text-left">
             <div>
               <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--accent)]">
                 One small thing
@@ -165,21 +175,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         )}
 
-        <div className="relative mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">7-day momentum</span>
-            <div className="mt-2">
-              <MomentumStrip tasks={allTasks} />
-            </div>
-          </div>
+        <div className="relative mt-5 flex flex-col items-center gap-2 text-center">
+          <span className="text-[10px] uppercase tracking-wider text-[var(--muted)]">7-day momentum</span>
+          <MomentumStrip tasks={allTasks} />
           <span className="text-xs text-[var(--muted)]">A little progress today.</span>
         </div>
       </section>
 
-      {onIntentionChange && <IntentionBar value={intention} onSave={onIntentionChange} />}
+      <div className="mx-auto w-full max-w-5xl px-1 text-center">
+        <DailyQuote dateKey={toDateKey(new Date())} />
+      </div>
+
+      {onIntentionChange && (
+        <div className="mx-auto w-full max-w-2xl">
+          <IntentionBar value={intention} onSave={onIntentionChange} />
+        </div>
+      )}
 
       <section aria-labelledby="today-heading" className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col items-center gap-1 text-center">
           <h2 id="today-heading" className="text-lg font-bold text-[var(--ink)] tracking-tight">
             Today
           </h2>
@@ -192,14 +206,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </Link>
         </div>
 
-        {!rested && todayTasks.items.length > 0 && (
-          <p className="text-[11px] text-[var(--muted)]">
-            Tip: drag a task image into a check-in zone — or tap the circle.
-          </p>
-        )}
-
         {rested ? (
-          <div className="p-8 text-center border border-[var(--line)] rounded-xl bg-[var(--surface)]">
+          <div className="mx-auto w-full max-w-md rounded-xl border border-[var(--line)] bg-transparent p-8 text-center">
             <div className="w-12 h-12 mx-auto mb-3">
               <Doodle kind="plants" />
             </div>
@@ -210,28 +218,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </Button>
           </div>
         ) : todayTasks.items.length > 0 ? (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {todayTasks.items.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  onClick={onTaskClick}
-                  onToggleComplete={onToggleComplete}
-                  onFocus={onFocusTask}
-                  onCheckInStart={onCheckInStart}
-                  onOpenPath={onOpenPath}
-                />
-              ))}
-            </div>
-            <div className="flex justify-center pt-1">
+          <div className="mx-auto w-full max-w-md rounded-xl border border-[var(--line)] bg-transparent px-4 py-3 text-center">
+            <p className="text-xs text-[var(--muted)]">
+              <span className="font-semibold text-[var(--ink)]">{todayTasks.totalCount}</span>{' '}
+              {todayTasks.totalCount === 1 ? 'task' : 'tasks'} due today
+              {todayMomentum.completed > 0 ? (
+                <span className="text-[var(--faint)]"> · {todayMomentum.completed} done</span>
+              ) : null}
+            </p>
+            <div className="mt-2 flex justify-center">
               <Button variant="ghost" size="sm" onClick={stopForToday}>
                 That's enough for today
               </Button>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="p-10 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)]">
+          <div className="mx-auto w-full max-w-md rounded-xl border border-dashed border-[var(--line)] bg-transparent p-10 text-center">
             <p className="text-xs text-[var(--muted)]">No tasks due today. You are fully caught up.</p>
           </div>
         )}

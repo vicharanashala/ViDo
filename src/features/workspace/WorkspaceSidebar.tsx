@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
+import { ThemeToggle } from './ThemeToggle';
 import {
   Archive,
   AlertCircle,
@@ -10,6 +11,7 @@ import {
   LayoutDashboard,
   Leaf,
   ListChecks,
+  NotebookPen,
   PanelLeftClose,
   Palette,
   Pencil,
@@ -86,8 +88,13 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           icon: <CheckCircle2 className="w-4 h-4" />,
         },
         {
+          to: '/app/journal',
+          label: 'Journal',
+          icon: <NotebookPen className="w-4 h-4" />,
+        },
+        {
           to: '/app/archived',
-          label: 'Archived',
+          label: 'Shelved',
           icon: <Archive className="w-4 h-4" />,
         },
       ],
@@ -168,6 +175,9 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       </div>
 
       <div className="pt-3 border-t border-[var(--line)] space-y-1">
+        <div className="px-1 pb-1">
+          <ThemeToggle />
+        </div>
         <Link
           to="/style-lab"
           className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] transition-colors"

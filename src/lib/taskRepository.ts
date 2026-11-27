@@ -46,6 +46,14 @@ function normalizeTask(raw: Partial<Task>, reference: Date = new Date()): Task |
     category: raw.category ?? 'personal',
     state,
     progress: state === 'completed' ? 100 : Math.min(progress, 99),
+    plannedMinutes:
+      typeof raw.plannedMinutes === 'number' && raw.plannedMinutes > 0
+        ? Math.round(raw.plannedMinutes)
+        : undefined,
+    spentMinutes:
+      typeof raw.spentMinutes === 'number' && raw.spentMinutes > 0
+        ? Math.round(raw.spentMinutes)
+        : undefined,
     createdAt: raw.createdAt ?? now,
     updatedAt: raw.updatedAt ?? now,
     completedAt: raw.completedAt,

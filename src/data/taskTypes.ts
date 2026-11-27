@@ -1,7 +1,7 @@
 export type TaskPriority = 'high' | 'medium' | 'low';
 export type TaskCategory = 'personal' | 'home' | 'work';
 export type TaskState = 'active' | 'completed';
-export type TaskRecurrence = 'daily' | 'weekdays' | 'weekly';
+export type TaskRecurrence = 'daily' | 'weekdays' | 'weekly' | 'monthly' | 'yearly';
 
 export interface TaskCheckpoint {
   id: string;
@@ -31,6 +31,8 @@ export interface Task {
   category: TaskCategory;
   state: TaskState;
   progress: number;
+  plannedMinutes?: number;
+  spentMinutes?: number;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -54,6 +56,7 @@ export interface NewTaskInput {
   reminderAt?: string;
   priority?: TaskPriority;
   category?: TaskCategory;
+  plannedMinutes?: number;
 }
 
 export type PaceStatus = 'done' | 'ahead' | 'on-track' | 'at-risk' | 'behind' | 'no-deadline';

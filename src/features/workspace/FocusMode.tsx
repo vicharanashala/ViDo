@@ -8,6 +8,8 @@ import {
   Clock,
   History,
   Maximize2,
+  Pause,
+  Play,
   RotateCcw,
   X,
 } from 'lucide-react';
@@ -18,6 +20,9 @@ import {
   paceTone,
   relativeDayLabel,
 } from '../../data/taskDates';
+import { formatElapsed } from '../../data/focusTimer';
+import { useTaskTimer } from './useTaskTimer';
+import { timeVerdict } from '../../data/timeVerdict';
 
 export interface FocusModeProps {
   task: Task;
@@ -26,6 +31,7 @@ export interface FocusModeProps {
   onAddCheckpoint: (id: string, note: string) => void;
   onToggleComplete: (id: string) => void;
   onOpenDetails?: () => void;
+  onLogTime?: (id: string, minutes: number) => void;
 }
 
 function paceSentence(status: ReturnType<typeof getTaskPace>['status']): string {
@@ -44,18 +50,30 @@ export const FocusMode: React.FC<FocusModeProps> = ({
   onAddCheckpoint,
   onToggleComplete,
   onOpenDetails,
+  onLogTime,
 }) => {
   const [note, setNote] = useState('');
+  const timer = useTaskTimer(task.id, onLogTime);
   const pace = getTaskPace(task);
   const isCompleted = task.state === 'completed';
+  const verdict = timeVerdict({
+    plannedMinutes: task.plannedMinutes,
+    actualMinutes: task.spentMinutes,
+    completed: isCompleted,
+  });
 
   useEffect(() => {
     setNote('');
   }, [task.id]);
 
+  const closeWithFlush = () => {
+    timer.pause();
+    onClose();
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') closeWithFlush();
     };
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -87,7 +105,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </span>
           </div>
           <button
-            onClick={onClose}
+            onClick={closeWithFlush}
             aria-label="Close focus mode"
             className="text-[var(--muted)] hover:text-[var(--ink)] p-1.5 rounded-lg hover:bg-[var(--surface)] transition-colors cursor-pointer"
           >
@@ -187,6 +205,36 @@ export const FocusMode: React.FC<FocusModeProps> = ({
               </div>
             </div>
 
+            <div className="mt-6 flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--canvas)] px-3.5 py-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted)]">
+                  Time on this task
+                </p>
+                <p className="font-mono text-sm text-[var(--ink)]">{formatElapsed(timer.elapsed)}</p>
+                <p className="text-[10px] text-[var(--faint)]">
+                  Optional. It only counts while you choose; nothing is forced.
+                </p>
+              </div>
+              <Button
+                variant={timer.running ? 'secondary' : 'ghost'}
+                size="sm"
+                aria-label={timer.running ? 'Pause timer' : 'Start timer'}
+                onClick={timer.running ? timer.pause : timer.start}
+              >
+                {timer.running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                {timer.running ? 'Pause timer' : 'Start timer'}
+              </Button>
+            </div>
+            {verdict && !timer.running && (
+              <p
+                className={`mt-2 text-[11px] leading-relaxed ${
+                  verdict.kind === 'appreciated' ? 'text-[var(--green)]' : 'text-[var(--muted)]'
+                }`}
+              >
+                {verdict.message}
+              </p>
+            )}
+
             <form onSubmit={handleLog} className="mt-7">
               <label
                 htmlFor="focus-checkpoint"
@@ -244,7 +292,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
                     More
                   </Button>
                 )}
-                <Button variant="secondary" size="sm" onClick={onClose}>
+                <Button variant="secondary" size="sm" onClick={closeWithFlush}>
                   Leave for now
                 </Button>
               </div>

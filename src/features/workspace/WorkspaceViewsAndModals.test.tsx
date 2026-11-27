@@ -46,15 +46,13 @@ describe('Workspace views and modals', () => {
       expect(screen.getAllByText(focusTask.title).length).toBeGreaterThan(0);
 
       expect(screen.getByRole('heading', { name: /^today$/i })).toBeInTheDocument();
-      expect(screen.getByText(/review q4 budget/i)).toBeInTheDocument();
+      expect(screen.getByText(/tasks? due today/i)).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /open queue/i })).toHaveAttribute('href', '/app/today');
       expect(screen.getByText(/a little progress today/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/7-day momentum/i)).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole('button', { name: /^begin$/i }));
       expect(handleFocus).toHaveBeenCalledWith(focusTask);
-
-      fireEvent.click(screen.getByLabelText(/task: review q4 budget/i));
-      expect(handleClick).toHaveBeenCalled();
     });
 
     it('can put the list away for today', () => {
@@ -78,7 +76,7 @@ describe('Workspace views and modals', () => {
       fireEvent.click(screen.getByRole('button', { name: /that's enough for today/i }));
       expect(screen.getByText(/you can stop here/i)).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /show the list/i }));
-      expect(screen.getByLabelText(/task: review q4 budget/i)).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /open queue/i })).toBeInTheDocument();
     });
   });
 
@@ -122,6 +120,31 @@ describe('Workspace views and modals', () => {
   });
 
   describe('TaskCreateModal', () => {
+    it('clamps the planned date to the allowed range', () => {
+      const handleCreate = vi.fn();
+      render(
+        <TaskCreateModal
+          isOpen={true}
+          onClose={vi.fn()}
+          onCreate={handleCreate}
+          defaultDate="2026-11-20"
+          maxDate="2026-11-20"
+        />
+      );
+
+      fireEvent.change(screen.getByLabelText(/task title \*/i), {
+        target: { value: 'Log yesterday' },
+      });
+      fireEvent.change(screen.getByLabelText(/planned date/i), {
+        target: { value: '2026-12-31' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /save task/i }));
+
+      expect(handleCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ dueDate: '2026-11-20' })
+      );
+    });
+
     it('submits a real task through onCreate', () => {
       const handleClose = vi.fn();
       const handleCreate = vi.fn();

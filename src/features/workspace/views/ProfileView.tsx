@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ThemeToggle } from '../ThemeToggle';
 import { Link } from 'react-router-dom';
 import { Check, LogIn, LogOut, UserRound } from 'lucide-react';
 import { Button } from '../../../components/ui';
@@ -43,6 +44,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
+      <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] mb-2">
+          Theme
+        </h2>
+        <ThemeToggle />
+        <p className="text-[11px] text-[var(--faint)] mt-2">
+          System follows your device. Day is the warm light theme. Night is the calm dark theme.
+        </p>
+      </section>
+
       <section className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-xl font-bold text-[var(--accent)]">

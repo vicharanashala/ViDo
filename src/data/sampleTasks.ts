@@ -40,6 +40,9 @@ interface TaskSpec {
   completedOffset?: number;
   completedTime?: string;
   archivedOffset?: number;
+  plannedMinutes?: number;
+  spentMinutes?: number;
+  subtasks?: { title: string; done: boolean }[];
 }
 
 const TASK_SPECS: TaskSpec[] = [
@@ -52,9 +55,16 @@ const TASK_SPECS: TaskSpec[] = [
     priority: 'high',
     category: 'work',
     progress: 60,
+    plannedMinutes: 60,
+    spentMinutes: 45,
     checkpoints: [
       { offset: -2, time: '11:00', note: 'Draft spreadsheets collected from finance team.', progress: 30 },
       { offset: -1, time: '15:30', note: 'Initial discrepancies addressed in payroll projections.', progress: 60 },
+    ],
+    subtasks: [
+      { title: 'Collect finance spreadsheets', done: true },
+      { title: 'Resolve payroll discrepancies', done: true },
+      { title: 'Write the runway summary', done: false },
     ],
   },
   {
@@ -86,9 +96,15 @@ const TASK_SPECS: TaskSpec[] = [
     priority: 'high',
     category: 'work',
     progress: 75,
+    plannedMinutes: 90,
     checkpoints: [
       { offset: -1, time: '10:00', note: 'Offline queue draft reviewed with the team.', progress: 50 },
       { offset: 0, time: '09:00', note: 'Conflict matrix completed; remaining section is the rollout plan.', progress: 75 },
+    ],
+    subtasks: [
+      { title: 'Draft the conflict matrix', done: true },
+      { title: 'Define the offline delta queue', done: false },
+      { title: 'Write the rollout plan', done: false },
     ],
   },
   {
@@ -100,6 +116,7 @@ const TASK_SPECS: TaskSpec[] = [
     priority: 'medium',
     category: 'home',
     progress: 10,
+    plannedMinutes: 30,
   },
   {
     id: 'task-today-6',
@@ -323,11 +340,19 @@ export function createSeedTasks(reference: Date = new Date()): Task[] {
       category: spec.category,
       state: completedAt ? 'completed' : 'active',
       progress: completedAt ? 100 : spec.progress,
+      plannedMinutes: spec.plannedMinutes,
+      spentMinutes: spec.spentMinutes,
       createdAt: created,
       updatedAt: completedAt ?? created,
       completedAt,
       archivedAt,
       checkpoints,
+      subtasks: (spec.subtasks ?? []).map((subtask, index) => ({
+        id: `${spec.id}-step-${index + 1}`,
+        title: subtask.title,
+        done: subtask.done,
+        createdAt: created,
+      })),
     };
   });
 }
@@ -350,6 +375,7 @@ export function createTaskFromInput(input: NewTaskInput, now: Date = new Date())
     category: input.category ?? 'personal',
     state: 'active',
     progress: 0,
+    plannedMinutes: input.plannedMinutes,
     createdAt: timestamp,
     updatedAt: timestamp,
     checkpoints: [],

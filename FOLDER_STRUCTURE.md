@@ -70,6 +70,16 @@ ViDo/
   - Keep functions pure and side-effect free.
   - Dates are calculated from the current date; there is no fixed benchmark date.
 
+### `intelligent-layer/` — Offline Intelligence
+- **Purpose**: Self-contained, deterministic intelligence modules that run entirely in the browser with no network calls. Each feature gets its own subfolder and a barrel `index.ts`.
+- **Rules**:
+  - No external runtime dependencies and no network access.
+  - Pure, explainable logic with colocated tests.
+  - The UI imports only from the module's `index.ts`; internal files stay private.
+  - Never send user writing or task text off-device.
+- **Current Contents**:
+  - `evening-review/`: work-signal analysis for the evening check-in write-up. It deliberately ignores personal-life vocabulary, so personal asides produce no signal.
+
 ### `src/lib/` — Browser Persistence
 - **Purpose**: Side-effectful infrastructure such as the localStorage task repository.
 - **Current Contents**:
@@ -152,6 +162,7 @@ When adding or modifying files, follow this decision tree:
 | Data type, interface, or sample fixture | `src/data/` | `camelCase.ts` |
 | Pure business logic or filtering algorithm | `src/data/` | `camelCase.ts` |
 | Browser persistence or storage adapter | `src/lib/` | `camelCase.ts` |
+| Offline intelligent feature | `intelligent-layer/<feature>/` | `camelCase.ts` + `index.ts` barrel |
 | Future API client, backend integration, or Supabase client | `src/lib/` or `src/services/` | `camelCase.ts` |
 | Unit / integration test | Colocated with feature/component | `<TargetName>.test.tsx` or `.test.ts` |
 | Task image asset | `public/doodles/` | kebab-case `.svg` / `.png` |
