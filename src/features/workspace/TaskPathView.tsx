@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Circle, Plus, Sparkles, Trash2 } from 'lucide-react';
 import type { Task } from '../../data/taskTypes';
 import { getFilteredTasks } from '../../data/taskFilters';
+import { formatDateKey } from '../../data/taskDates';
 import { Button } from '../../components/ui';
 import { DoodleTitle } from './doodles/DoodleTitle';
 import { PathAssistantModal } from './PathAssistantModal';
@@ -105,7 +106,7 @@ export const TaskPathView: React.FC<TaskPathViewProps> = ({
             {task.recurrence ? `Repeats ${task.recurrence}` : 'One-time task'}
           </span>
           <span className="rounded-full border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-2 py-0.5 font-bold text-[var(--accent)]">
-            Deadline {deadline}{task.dueTime ? ` · ${task.dueTime}` : ''}
+            Deadline {formatDateKey(deadline)}{task.dueTime ? ` · ${task.dueTime}` : ''}
           </span>
           <span>
             {done} of {subtasks.length} steps done

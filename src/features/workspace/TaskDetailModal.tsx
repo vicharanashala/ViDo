@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import {
   completionTiming,
+  formatDateKey,
   formatDateTime,
   formatTimeLabel,
   getTaskPace,
@@ -428,7 +429,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">Planned date</span>
                 <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
                   <Calendar className="w-3.5 h-3.5 text-[var(--muted)]" />
-                  {parked ? 'Pick up again' : task.dueDate}
+                  {parked ? 'Pick up again' : formatDateKey(task.dueDate)}
                 </span>
               </div>
               <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
@@ -442,7 +443,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   {parked
                     ? 'No set date'
                     : task.deadlineDate
-                      ? `${task.deadlineDate}${task.dueTime ? ` · ${formatTimeLabel(task.dueTime)}` : ''}`
+                      ? `${formatDateKey(task.deadlineDate)}${task.dueTime ? ` · ${formatTimeLabel(task.dueTime)}` : ''}`
                       : task.dueTime
                         ? `Planned day ${formatTimeLabel(task.dueTime)}`
                         : 'No deadline'}

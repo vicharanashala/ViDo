@@ -302,7 +302,7 @@ export function getWeeklyMomentum(tasks: Task[], reference: Date = new Date()): 
     ).length;
     days.push({
       date: key,
-      label: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+      label: `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}`,
       weekday: date.toLocaleDateString('en-GB', { weekday: 'short' }),
       count,
     });

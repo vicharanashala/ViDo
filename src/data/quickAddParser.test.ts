@@ -71,7 +71,7 @@ describe('parseQuickAdd', () => {
     expect(parsed.title).toBe('Project submission');
     expect(parsed.dueDate).toBe(toDateKey(reference));
     expect(parsed.deadlineDate).toBe('2026-12-14');
-    expect(parsed.meta.dateLabel).toBe('14 Dec 2026');
+    expect(parsed.meta.dateLabel).toBe('14-12-2026');
   });
 
   it('treats “on <date>” as the planned task date', () => {
@@ -80,7 +80,7 @@ describe('parseQuickAdd', () => {
     expect(parsed.title).toBe('Go out for a walk');
     expect(parsed.dueDate).toBe('2026-12-01');
     expect(parsed.deadlineDate).toBeUndefined();
-    expect(parsed.meta.dateLabel).toBe('1 Dec 2026');
+    expect(parsed.meta.dateLabel).toBe('01-12-2026');
   });
 
   it('supports “on the 1st of December” and month-first dates', () => {

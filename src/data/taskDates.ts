@@ -96,13 +96,13 @@ export function formatTimeLabel(value?: string): string {
   return `${hour}:${String(mins).padStart(2, '0')} ${hours < 12 ? 'AM' : 'PM'}`;
 }
 
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
 export function formatDateLong(date: Date): string {
-  return date.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const weekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+  return `${weekday}, ${formatDateShort(date)}`;
 }
 
 export function greeting(date: Date = new Date()): string {
@@ -113,21 +113,17 @@ export function greeting(date: Date = new Date()): string {
 }
 
 export function formatDateShort(date: Date): string {
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  return `${pad2(date.getDate())}-${pad2(date.getMonth() + 1)}-${date.getFullYear()}`;
+}
+
+/** Format a stored `YYYY-MM-DD` key for display as `DD-MM-YYYY`. */
+export function formatDateKey(dateKey: string): string {
+  return formatDateShort(parseDateKey(dateKey));
 }
 
 export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const date = new Date(iso);
+  return `${formatDateShort(date)}, ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
 export function relativeDayLabel(dateKey: string, now = new Date()): string {
