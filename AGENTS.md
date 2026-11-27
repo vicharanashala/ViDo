@@ -28,7 +28,7 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
   - `src/features/workspace/` — Dashboard shell shared by the live workspace (`/workspace`) and the demo (`/preview`).
   - `src/features/style-lab/` — Theme and palette lab (`/style-lab`).
 - **Data & Pure Logic**: Place data models, types, sample fixtures, and pure filtering/calculation functions in `src/data/`.
-- **Firebase & Persistence**: Keep Firebase initialization, auth helpers, and Firestore task/calendar/target reads and writes in `src/lib/` (never inside view components).
+- **Client Persistence**: Keep auth request headers and the user API stores (`taskStore.ts`, `calendarStore.ts`, `categoryStore.ts`, `settingsStore.ts`) in `src/lib/` (never inside view components). Stores call the NestJS `/api/user/*` endpoints; do not add new Firestore reads or writes.
 - **Backend Service (`server/`)**: Place backend controllers, services, DTOs, and Prisma schemas inside `server/`.
 - **Tests**: Colocate tests alongside the files they verify (e.g., `TaskRow.tsx` -> `TaskRow.test.tsx` or `src/features/workspace/WorkspaceViewsAndModals.test.tsx`).
 - **Never create loose folders in the project root**: Root is strictly for configuration files and top-level documentation markdown.
@@ -40,8 +40,8 @@ You must strictly maintain the directory structure documented in `FOLDER_STRUCTU
 
 - **Product, Not a School Project**: ViDo is presented as a high-end, distraction-free SaaS product. **Never** include references to "Milestone 1", "Milestone 2", "Student Project", "Homework", or "Review Gates" in any user-facing UI text.
 - **Preview Route**: The dashboard demo is hosted at `/preview/*` with subroutes (`/preview/today`, `/preview/upcoming`, `/preview/needs-attention`, `/preview/completed`, `/preview/archived`, `/preview/calendar`, `/preview/analytics`).
-- **Live Route**: `/workspace/*` mirrors those subroutes but requires sign-in and reads/writes Firestore through the local emulator. Demo components must accept `mode`/`basePath` so links never leak between the two shells.
-- **Planning Persistence**: Calendar events live at `users/{uid}/calendarEvents`, while weekly/monthly targets live on `users/{uid}`. Preview equivalents are stored in `localStorage`.
+- **Live Route**: `/workspace/*` mirrors those subroutes but requires Firebase sign-in (local Auth emulator) and reads/writes user data through the NestJS backend. Demo components must accept `mode`/`basePath` so links never leak between the two shells.
+- **User Data Persistence**: Signed-in tasks, calendar events, custom categories, and weekly/monthly targets are served by the NestJS backend at `/api/user/tasks`, `/api/user/calendar-events`, `/api/user/categories`, and `/api/user/planning-targets`, and stored through Prisma (`UserTask`, `UserCalendarEvent`, `UserCustomCategory`, `UserPlanningTargets`, scoped by `userId`). Preview tasks come from fixtures; preview events, categories, and targets are stored in `localStorage`.
 - **Demo Banner & Exit Button**: The preview shell **must always** retain the persistent top demo preview banner with the **left-aligned** `Back to Landing Page` button.
 - **User Identity**: The default preview user profile is `"Demo User"`.
 - **Deterministic Fixtures**: All sample dates and timelines are anchored around **Tuesday, 17 November 2026**.

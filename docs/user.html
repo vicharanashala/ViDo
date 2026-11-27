@@ -1,198 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViDo — User & Product Guide</title>
-  <meta name="description" content="Visual walkthrough of ViDo's product philosophy, calm dashboard, task lifecycle, and team coordination.">
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-
-  <!-- Top Navigation Bar -->
-  <header class="top-nav">
-    <a href="./index.html" class="brand-wrapper">
-      <div class="brand-badge">V</div>
-      <div>
-        <span class="brand-title">ViDo</span>
-        <span class="brand-tag">User Guide</span>
-      </div>
-    </a>
-
-    <!-- Page Navigation Links -->
-    <div class="nav-controls">
-      <nav class="page-nav-pill-group" aria-label="Documentation Pages">
-        <a href="./index.html" class="page-nav-pill">Home</a>
-        <a href="./user.html" class="page-nav-pill active">👤 User Guide</a>
-        <a href="./developer.html" class="page-nav-pill">💻 Developer Guide</a>
-      </nav>
-
-      <!-- GitHub Link -->
-      <a href="https://github.com/vicharanashala/ViDo" target="_blank" rel="noopener noreferrer" class="icon-btn" title="ViDo GitHub Repository" aria-label="GitHub Repository">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-        </svg>
-      </a>
-    </div>
-  </header>
-
-  <main class="page-container">
-
-    <!-- Hero Header -->
-    <section class="visual-hero" style="margin-bottom: 28px;">
-      <div class="kicker-pill">
-        <span>👤 User & Product Guide</span>
-      </div>
-      <h1>Designed for Calm Productivity</h1>
-      <p class="lead">
-        Learn how ViDo organizes your responsibilities without endless red lists, stress, or complexity.
-      </p>
-    </section>
-
-    <!-- 1. Life Contexts -->
-    <section style="margin-bottom: 40px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">1. Universal Life Contexts</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">
-        ViDo replaces office jargon with clean, universal terminology that works anywhere:
-      </p>
-
-      <div class="feature-grid-4">
-        <div class="v-card">
-          <div class="v-card-icon">🏠</div>
-          <h4>Personal & Household</h4>
-          <p>Medical checkups, vehicle maintenance, home repairs, and grocery routines tracked with calm accountability.</p>
-        </div>
-        <div class="v-card">
-          <div class="v-card-icon">🎓</div>
-          <h4>Students & Learning</h4>
-          <p>Semester coursework, exams, and thesis chapters broken down into measurable progress increments.</p>
-        </div>
-        <div class="v-card">
-          <div class="v-card-icon">💼</div>
-          <h4>Professionals & Freelancers</h4>
-          <p>Client deliverables, invoices, and project milestones with exact due times and timestamped notes.</p>
-        </div>
-        <div class="v-card">
-          <div class="v-card-icon">👥</div>
-          <h4>Teams & Workspaces</h4>
-          <p>Shared milestone roadmaps, explicit task assignees, and progress visibility without recurring status meetings.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. Calm Dashboard -->
-    <section style="margin-bottom: 40px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">2. The Calm Dashboard</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">
-        Endless backlogs cause fatigue. ViDo intentionally caps the home dashboard:
-      </p>
-
-      <!-- 4 Visual Limit Chips -->
-      <div class="feature-grid-4" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
-        <div class="v-card" style="text-align: center; padding: 14px;">
-          <div style="font-size: 28px; font-weight: 900; color: var(--accent);">5</div>
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Today Max</div>
-        </div>
-        <div class="v-card" style="text-align: center; padding: 14px;">
-          <div style="font-size: 28px; font-weight: 900; color: var(--danger);">3</div>
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Attention Max</div>
-        </div>
-        <div class="v-card" style="text-align: center; padding: 14px;">
-          <div style="font-size: 28px; font-weight: 900; color: var(--warning);">3</div>
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Upcoming Max</div>
-        </div>
-        <div class="v-card" style="text-align: center; padding: 14px;">
-          <div style="font-size: 28px; font-weight: 900; color: var(--success);">3</div>
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Delivered Max</div>
-        </div>
-      </div>
-
-      <!-- Interactive Widget: Calm Dashboard Filter Simulation -->
-      <div class="interactive-widget" id="widgetDashboardLimiter">
-        <div class="widget-header">
-          <h4 class="widget-title">Interactive Demo: Calm Filter in Action</h4>
-          <span class="widget-badge">Interactive</span>
-        </div>
-        <div class="dashboard-limit-toggle">
-          <button class="toggle-pill-btn active" id="btnFilterCalm">ViDo Calm Mode (Capped)</button>
-          <button class="toggle-pill-btn" id="btnFilterAll">Uncurated Backlog (All 10 Tasks)</button>
-        </div>
-        <div class="task-preview-list" id="taskPreviewContainer">
-          <!-- Dynamically rendered via app.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Task Lifecycle -->
-    <section style="margin-bottom: 40px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">3. The Task Lifecycle</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">
-        Every task moves through a transparent 4-stage progression:
-      </p>
-
-      <div class="step-pipeline">
-        <div class="step-box">
-          <div class="step-num">1</div>
-          <h5>Create</h5>
-          <p>Clean modal form with exact deadline date & time.</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num">2</div>
-          <h5>Progress</h5>
-          <p>Incremental slider moves smoothly from 0% to 99%.</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num">3</div>
-          <h5>Checkpoints</h5>
-          <p>Timestamped notes record blockers and decisions.</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num">4</div>
-          <h5>Complete</h5>
-          <p>Confirm at 100%, audit on-time delivery with quick Undo.</p>
-        </div>
-      </div>
-
-      <!-- Interactive Widget: Progress & Checkpoint Simulator -->
-      <div class="interactive-widget" id="widgetProgressSimulator">
-        <div class="widget-header">
-          <h4 class="widget-title">Interactive Demo: Progress & Checkpoint Simulator</h4>
-          <span class="widget-badge">Interactive</span>
-        </div>
-        <div class="slider-control">
-          <label>
-            <span>Drag slider to simulate updating a task:</span>
-            <span id="sliderPercentDisplay" style="color: var(--accent);">65% Progress</span>
-          </label>
-          <input type="range" id="progressRangeInput" min="0" max="100" value="65" aria-label="Progress slider">
-        </div>
-        <div class="checkpoint-timeline" id="checkpointTimelineDisplay">
-          <!-- Dynamically rendered via app.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Team Workspaces -->
-    <section style="margin-bottom: 40px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">4. Team Workspaces & Coordination</h2>
-      
-      <div class="feature-grid-2">
-        <div class="v-card">
-          <div class="v-card-icon">🎯</div>
-          <h4>Phased Milestones</h4>
-          <p>Group team responsibilities into delivery milestones (Phase 1 → Phase 2 → Alpha release) with targeted dates.</p>
-        </div>
-        <div class="v-card">
-          <div class="v-card-icon">🔔</div>
-          <h4>In-App Notifications</h4>
-          <p>Invited teammates receive an instant notification alert via the top utility bell icon with one-click Accept and Reject controls.</p>
-        </div>
-      </div>
-    </section>
-
-
-  </main>
-
-  <script src="./app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ViDo — User guide</title><link rel="stylesheet" href="./guide.css"></head><body><header class="masthead"><a class="brand" href="./index.html"><span class="brand-mark">V</span> ViDo <small>An interactive wiki for an interactive to-do</small></a><nav aria-label="Documentation"><a href="./index.html">Home</a><a href="./user.html" aria-current="page">For users</a><a href="./developer.html" >For developers</a></nav></header><main class="guide-page"><div class="intro user-intro"><div><h1>A clearer way<br>through your day.</h1><p class="lead">ViDo is being built to help you understand your workload, make realistic plans, and make progress on the things that matter to you.</p><a class="text-link" href="#vision">Explore the idea <span aria-hidden="true">↓</span></a></div><aside class="schedule-example" aria-labelledby="schedule-question">
+  <h2 id="schedule-question">What if your To-Do <em>could say:</em></h2>
+  <blockquote>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6m-2-2 2 2-2 2"/></svg>
+    <p><strong>“Today looks full.</strong> This task is lower priority, and you have room in two days. Would you like to move it?”</p>
+  </blockquote>
+  <small>Intelligent scheduling is under development.</small>
+</aside></div>
+<div class="guide-layout">
+<details class="guide-outline" open>
+  <summary>On this page</summary>
+  <nav aria-label="On this page"><a href="#vision">The vision</a><a href="#work">Your work</a><a href="#planning">Planning</a><a href="#together">Working together</a><a href="#today">ViDo today</a><a href="#get-started">Get started</a></nav>
+</details>
+<div class="guide-body">
+<section id="vision" class="section split"><div><p class="eyebrow">The idea</p><h2>A plan that understands your life.</h2><p>ViDo’s long-term goal is to learn from how you complete tasks and help you build <em class="vision-highlight">a schedule that fits.</em></p></div><div class="vision-flow"><p class="vision-flow-label">A future suggestion could consider:</p><ul aria-label="Inputs for a scheduling suggestion"><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>Your commitments</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 1h13l-2 4 2 4H5"/></svg>Task priority</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v14h16M8 15l4-4 3 2 5-6"/></svg>Past progress</li></ul><p class="vision-outcome">Then help you find a better day or spot a deadline at risk.</p><div class="vision-result"><strong>You decide what happens next.</strong></div><p class="vision-caption">Tasks, deadlines, calendar events, and checkpoints are the foundations being built today.</p></div></section>
+<section id="work" class="section"><p class="eyebrow">Everyday work</p><h2>Give each task a place to begin.</h2><div class="feature-list"><article><span>01</span><div><h3>Capture the responsibility</h3><p>Add a title and deadline, with a description, priority, or start date when useful. A task can be a home repair, a study session, or a work deliverable.</p></div></article><article><span>02</span><div><h3>Show how it’s moving</h3><p>Mark a personal task complete or reopen it to record the change in its history. On an assigned team task, update the percentage and add a checkpoint about what changed.</p></div></article><article><span>03</span><div><h3>Finish and look back</h3><p>Completed and archived views keep past work accessible. The dashboard surfaces the work that needs your attention today.</p></div></article></div></section>
+<section id="planning" class="section tint"><div><p class="eyebrow">A broader view</p><h2>See the shape of your time.</h2><p>Explore tasks by day, see upcoming commitments, and use the calendar to plan alongside events. Analytics gives you a view of completed work and your weekly and monthly targets.</p><p>Lists and boards are part of the direction for organizing work in ways that fit different projects. Intelligent scheduling is the longer-term aim.</p></div><div class="planning-art"><div class="art-top">A week at a glance</div><p class="planner-hint">Select a day to explore its schedule.</p><div class="planner-days" role="group" aria-label="Select a day"><button type="button" aria-pressed="true" data-day="Monday">Mon</button><button type="button" aria-pressed="false" data-day="Tuesday">Tue</button><button type="button" aria-pressed="false" data-day="Wednesday">Wed</button><button type="button" aria-pressed="false" data-day="Thursday">Thu</button><button type="button" aria-pressed="false" data-day="Friday">Fri</button></div><div class="planner-detail" aria-live="polite"><h3 id="planner-title">Monday</h3><p id="planner-summary">A balanced start to the week.</p><div id="planner-tasks"><div class="planner-task sage"><time>9:00</time><span>Plan the week</span></div><div class="planner-task sand"><time>14:00</time><span>Review priorities</span></div></div></div><p class="planner-footnote">Sample schedule to explore</p></div></section>
+<section id="together" class="section split"><div><p class="eyebrow">Shared work</p><h2>Make progress visible to the people involved.</h2><p>Team spaces give everyone a shared view of the work and its history.</p></div><div class="collaboration"><article><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5v1"/></svg><div><h3>Assign work</h3><p>Give each responsibility a clear owner.</p></div></article><article><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 1h13l-2 4 2 4H5"/></svg><div><h3>Organize milestones</h3><p>Bring related tasks together around a shared goal.</p></div></article><article><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5zM8 9h8M8 13h5"/></svg><div><h3>Share checkpoints</h3><p>Record progress, decisions, and blockers for the next handoff.</p></div></article></div></section>
+<section id="today" class="section status"><p class="eyebrow">Availability</p><h2>Where ViDo is today</h2><div class="status-grid"><div><h3>Explore now</h3><p>The preview includes task views, progress and checkpoints, a calendar, analytics, and sample team spaces.</p><a href="http://localhost:5173/preview">Open the local product preview →</a></div><div><h3>In development</h3><p>The personal task detail panel supports completing and reopening tasks. Editing a saved deadline or priority is still open work. Lists, boards, and intelligent scheduling are part of the evolving vision.</p></div></div></section>
+<section id="get-started" class="section setup-guide">
+  <div class="setup-intro">
+    <p class="eyebrow">Getting started</p>
+    <h2>Set up your first day.</h2>
+    <p>Take a look around with the sample workspace, then add a task and see how it fits into your plans.</p>
+    <a href="http://localhost:5173/preview">Open the local product preview →</a>
+  </div>
+  <ol class="setup-steps">
+    <li><div><h3>Choose how to enter</h3><p>Open the preview to explore as Demo User without signing in. To use a personal workspace where sign-in is configured, choose <strong>Continue with Google</strong> on the landing page and complete the sign-in prompt.</p></div></li>
+    <li><div><h3>Add your first task</h3><p>Choose <strong>New Task</strong> in the sidebar. Enter a <strong>Task Title</strong> and <strong>Target Due Date</strong>. Add a description, start date, due time, or priority if useful, then select <strong>Create Task</strong>.</p></div></li>
+    <li><div><h3>Make a plan</h3><p>Use the dashboard and task views to see what is due. Open <strong>Calendar</strong> in the sidebar to explore your week or month and add events alongside tasks.</p></div></li>
+    <li><div><h3>Keep progress visible</h3><p>Open a personal task and choose <strong>Mark as Complete</strong>. Find it in Completed and choose <strong>Reopen Task</strong> if more work comes up. Use <strong>Analytics</strong> to see completed work and planning targets.</p></div></li>
+  </ol>
+  <p class="setup-note">The preview starts with sample tasks. Reloading the preview restores its sample tasks. In the signed-in workspace, saving tasks, calendar events and targets requires the local backend. See the <a href="./developer.html#setup">local service setup</a> to run it.</p>
+  <div class="local-setup">
+    <div class="local-setup-heading"><p class="eyebrow">Run it on your computer</p><h3>Set up the local preview</h3><p>Follow these steps to run ViDo on your own computer. You’ll need a terminal, <a href="https://nodejs.org/">Node.js and npm</a>, and <a href="https://git-scm.com/">Git</a>.</p></div>
+    <ol>
+      <li><strong>Download the project.</strong> Open a terminal and run:
+        <pre><code>git clone https://github.com/vicharanashala/ViDo.git
+cd ViDo</code></pre>
+        <p>If you already have the project, open its folder in your terminal instead.</p>
+      </li>
+      <li><strong>Install and start ViDo.</strong> From the project folder, run:
+        <pre><code>npm install
+npm run dev</code></pre>
+        <p>Keep this terminal open. Open the local address printed by Vite, usually <a href="http://localhost:5173/">http://localhost:5173</a>, then choose <strong>Live Preview</strong>. If port 5173 is occupied, use the address printed in the terminal.</p>
+      </li>
+      <li><strong>Try local sign-in.</strong> The preview works without sign-in. For a personal workspace using mock accounts, install <a href="https://firebase.google.com/docs/cli">Firebase CLI</a> and a compatible Java runtime, then check the first terminal. If the emulators are already running, continue to sign-in. Otherwise, run this in a second terminal from the project folder:
+        <pre><code>npm run emu</code></pre>
+        <p>Return to the local landing page, choose <strong>Continue with Google</strong>, and select a mock account in the emulator prompt. The local demo uses test accounts and does not require real Google credentials.</p>
+      </li>
+    </ol>
+    <p class="local-setup-help">The app attempts to start missing emulators automatically when available. If sign-in cannot connect, check that the emulator terminal is running. To stop a running terminal command, press <kbd>Ctrl</kbd> + <kbd>C</kbd>. For full setup and team backend details, see the <a href="https://github.com/vicharanashala/ViDo/blob/main/README.md">project README</a> and <a href="./developer.html#setup">developer setup guide</a>.</p>
+  </div>
+</section></div>
+</div>
+</main><footer><a href="./index.html">ViDo documentation</a><span>Thoughtful tools to get your work from “doing” to “done”.</span></footer><script src="./guide.js"></script></body></html>

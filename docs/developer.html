@@ -1,308 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ViDo — Developer & Open Source Guide</title>
-  <meta name="description" content="Official engineering specifications, contribution rules, GitHub Discussions guidelines, PR checklist, and OpenSpec workflow for ViDo.">
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ViDo — Developer guide</title><link rel="stylesheet" href="./guide.css"></head><body><header class="masthead"><a class="brand" href="./index.html"><span class="brand-mark">V</span> ViDo <small>An interactive wiki for an interactive to-do</small></a><nav aria-label="Documentation"><a href="./index.html">Home</a><a href="./user.html" >For users</a><a href="./developer.html" aria-current="page">For developers</a></nav></header><main class="dev-wiki guide-page"><div class="wiki-intro"><div><h1>Developer guide</h1><p class="lead">The product is moving toward intelligent planning grounded in a dependable task workspace. This guide maps the implementation and the principles behind it.</p><a class="text-link" href="#principles">Start with the principles <span aria-hidden="true">↓</span></a> · <a href="#contribute">Developer’s handbook</a></div><aside class="note"><span class="note-label">Product direction</span><p>Help people make realistic decisions about their time, with suggestions they can understand and choose.</p><small>Intelligent scheduling is a future capability</small></aside></div>
+<div class="guide-layout">
+<aside class="guide-outline outline-groups">
+<details open>
+  <summary>Developer guide</summary>
+  <nav aria-label="On this page"><a href="#principles">Principles</a><a href="#milestones">Milestones</a><a href="#status">Current work</a><a href="#architecture">Architecture</a><a href="#tree">Repository tree</a><a href="#stack">Tech stack</a><a href="#setup">Local setup</a><a href="#testing">Testing</a><a href="#contribute">Contribute</a></nav>
+</details>
+<details open>
+  <summary>Developer’s handbook</summary>
+  <nav aria-label="Developer’s handbook">
+    <a href="developer/contribution.html">Contributing to ViDo</a>
+    <a href="developer/openspec.html">Working with OpenSpec</a>
+    <a href="developer/working-with-agents.html">Working with coding agents</a>
+    <a href="developer/folder-structure.html">Repository structure</a>
+  </nav>
+</details>
+</aside>
+<div class="guide-body">
+<section id="principles" class="section">
+  <h2>Design principles</h2>
+  <p>The product brief sets six working principles for decisions about language, layout, and task behavior. <a href="https://github.com/vicharanashala/ViDo/blob/main/concept.html">Read the concept brief</a>.</p>
+  <div class="principles">
+    <div><h3>Universal language</h3><p>Avoid terminology that assumes office work. The same interaction should make sense for groceries, schoolwork, maintenance, or client delivery.</p></div>
+    <div><h3>Clarity before density</h3><p>Organize information through sections, hierarchy, and progressive disclosure instead of displaying every property at once.</p></div>
+    <div><h3>Motivation without guilt</h3><p>Help users act on overdue work without confronting them with a discouraging wall of red tasks or punitive language.</p></div>
+    <div><h3>Professional and minimal</h3><p>Use restrained visuals, predictable interactions, strong spacing, and clear typography rather than decoration or gamification.</p></div>
+    <div><h3>Simple states</h3><p>Tasks begin with only Active and Completed. Today, Upcoming, and Needs Attention are calculated views, not extra statuses to maintain.</p></div>
+    <div><h3>Build capability gradually</h3><p>Private tasks establish the core. Shared tasks, richer organization, reminders, dark mode, and AI arrive only when their foundations are clear.</p></div>
+  </div>
+</section>
+<section id="milestones" class="section">
+  <h2>Implementation milestones</h2>
+  <p>The original roadmap runs from discovery through Phase 1 release review. Each milestone ends with a review before the next begins. Expand a milestone for its planned scope and the evidence in the current repository.</p>
+  <details class="dev-detail"><summary>M0 · Product Discovery</summary>
+    <p><strong>Original scope.</strong> The concept records the audiences, first task journey, and scope agreed during discovery.</p>
+    <p><strong>Current implementation.</strong> The living brief and original roadmap are available in the repository.</p>
+  </details>
+  <details class="dev-detail"><summary>M1 · Static Visual Foundation</summary>
+    <p><strong>Original scope.</strong> Establish the design system, public landing page, and sample dashboard before connecting services.</p>
+    <p><strong>Current implementation.</strong> The visual foundation change is archived. The landing page, style lab, and interactive preview are available.</p>
+  </details>
+  <details class="dev-detail"><summary>M2 · Google Authentication</summary>
+    <p><strong>Original scope.</strong> The roadmap proposed Google OAuth through Supabase, with private routes, session handling, profile display, and sign-out.</p>
+    <p><strong>Current implementation.</strong> The archived authentication change delivered Google sign-in through Firebase. The current authentication spec describes session and sign-out behavior.</p>
+  </details>
+  <details class="dev-detail"><summary>M3 · Private Task Storage</summary>
+    <p><strong>Original scope.</strong> Provide durable, owner-scoped private tasks with PostgreSQL, row-level security, typed access, and isolation checks.</p>
+    <p><strong>Current implementation.</strong> Signed-in tasks use the NestJS user API and Prisma. Verify persistence by reloading the workspace and checking that a second test account has its own tasks.</p>
+  </details>
+  <details class="dev-detail"><summary>M4 · Core Task Lifecycle</summary>
+    <p><strong>Original scope.</strong> Create, inspect, edit, complete, undo, and reopen tasks, including consistent deadlines and completion timing.</p>
+    <p><strong>Current implementation.</strong> Creation, details, completion, and reopening are implemented. Editing an existing deadline or priority is tracked separately.</p>
+  </details>
+  <details class="dev-detail"><summary>M5 · Dashboard and Derived Views</summary>
+    <p><strong>Original scope.</strong> Derive Home, Today, Upcoming, Needs Attention, Completed, and Archived from task data. Review section limits, ordering, and date boundaries.</p>
+    <p><strong>Current implementation.</strong> The workspace provides the derived views. The historical Home targets were five Today items and three each for Needs Attention, Upcoming, and Recently Completed.</p>
+  </details>
+  <details class="dev-detail"><summary>M6 · Search and Filters</summary>
+    <p><strong>Original scope.</strong> Combine keyword search with priority, deadline, and state filters. Make active filters visible and support clearing them together.</p>
+    <p><strong>Current implementation.</strong> The Tasks view includes search and filter controls. The detailed roadmap lists the original acceptance checks.</p>
+  </details>
+  <details class="dev-detail"><summary>M7 · Archive, Delete, and Reliability</summary>
+    <p><strong>Original scope.</strong> Support archiving, restoring, and confirmed permanent deletion. Exercise interrupted requests, retries, and expired sessions.</p>
+    <p><strong>Current implementation.</strong> The Archived view exists. End-to-end restore, deletion, and failure recovery still require verification against the roadmap.</p>
+  </details>
+  <details class="dev-detail"><summary>M8 · Phase 1 Polish and Release Readiness</summary>
+    <p><strong>Original scope.</strong> Review mobile layout, keyboard and modal behavior, contrast, reduced motion, documentation, and critical task tests before release.</p>
+    <p><strong>Current implementation.</strong> Automated coverage and setup guides are present. The original release criteria also call for privacy checks and a review of the complete user journey.</p>
+  </details>
+  <p><a href="https://github.com/vicharanashala/ViDo/blob/main/MILESTONES.md">Detailed milestone checklist</a> · <a href="https://github.com/vicharanashala/ViDo/tree/main/openspec/changes/archive">Archived implementation changes</a> · <a href="https://github.com/vicharanashala/ViDo/tree/main/openspec/specs">Current specifications</a></p>
+</section>
+<section id="status" class="section"><h2>Implementation status</h2><p>The original milestone checklist captures the earlier roadmap. This snapshot reflects the current repository and should be revisited as changes land.</p><div class="tracker"><div><span class="dot sage"></span><h3>Available</h3><p>Landing page, preview, Firebase sign-in, task creation, progress and checkpoints, dashboard views, search and filters, calendar, analytics, and team workspace flows.</p></div><div><span class="dot clay"></span><h3>In progress</h3><p>Review reliability with the API offline, check accessibility, and verify account isolation on the local backend before assessing release readiness.</p></div><div><span class="dot blue"></span><h3>On the horizon</h3><p>Lists, boards, routines, and intelligent scheduling are part of the product direction. The scheduling system is not implemented yet.</p></div></div><a href="https://github.com/vicharanashala/ViDo/blob/main/MILESTONES.md">Read the original roadmap →</a></section>
+<section id="architecture" class="section">
 
-  <!-- Top Navigation Bar -->
-  <header class="top-nav">
-    <a href="./index.html" class="brand-wrapper">
-      <div class="brand-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">V</div>
-      <div>
-        <span class="brand-title">ViDo</span>
-        <span class="brand-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Dev Guide</span>
-      </div>
-    </a>
-
-    <!-- Page Navigation Links -->
-    <div class="nav-controls">
-      <nav class="page-nav-pill-group" aria-label="Documentation Pages">
-        <a href="./index.html" class="page-nav-pill">Home</a>
-        <a href="./user.html" class="page-nav-pill">👤 User Guide</a>
-        <a href="./developer.html" class="page-nav-pill active">💻 Developer Guide</a>
-      </nav>
-
-      <!-- GitHub Link -->
-      <a href="https://github.com/vicharanashala/ViDo" target="_blank" rel="noopener noreferrer" class="icon-btn" title="ViDo GitHub Repository" aria-label="GitHub Repository">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-        </svg>
-      </a>
+  <h2>Workspace architecture</h2>
+  <p>The landing page leads into two versions of the same React shell. The route determines the identity, the starting data, and where updates go.</p>
+  <figure class="arch-map">
+    <figcaption>From screen to storage</figcaption>
+    <div class="arch-layer sage"><strong>Entry</strong><span><code>/preview/*</code> opens the demo. <code>/workspace/*</code> requires a Firebase session.</span></div>
+    <div class="arch-layer sand"><strong>Workspace</strong><span><code>WorkspaceLayout</code> supplies tasks, actions, and the reference date to the dashboard, lists, calendar, and analytics.</span></div>
+    <div class="arch-layer blue"><strong>Domain rules</strong><span>Filters decide which tasks belong in each view. Calendar and analytics helpers turn dates, events, and completions into schedules and totals.</span></div>
+    <div class="arch-stores">
+      <div><h3>Personal tasks</h3><p>The preview starts from fixtures. Signed-in work passes through <code>taskStore.ts</code> to <code>/api/user/tasks</code>. The server persists tasks through Prisma. The client can fall back to an in-memory cache when requests fail.</p></div>
+      <div><h3>Planning</h3><p>Demo events, categories and targets use browser storage. Signed-in calendar events, categories and targets use <code>/api/user/calendar-events</code>, <code>/api/user/categories</code> and <code>/api/user/planning-targets</code>, stored through Prisma.</p></div>
+      <div><h3>Teams</h3><p>Views call a team repository. Its adapter talks to the local mock, the NestJS API, or Supabase.</p></div>
     </div>
-  </header>
-
-  <main class="page-container">
-
-    <!-- Hero Header -->
-    <section class="visual-hero" style="margin-bottom: 24px;">
-      <div class="kicker-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
-        <span>💻 Developer & Contributor Hub</span>
-      </div>
-      <h1>Engineering, Contribution & OpenSpec</h1>
-      <p class="lead">
-        Architecture specifications, contribution guidelines, discussions forum alignment, and quality gate standards.
-      </p>
-    </section>
-
-    <!-- Interactive Topic Selector: Quick Jumper for Contribution Rules and Architecture -->
-    <section style="margin-bottom: 32px;">
-      <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); margin-bottom: 10px;">
-        Quick Jump to Topic:
-      </h3>
-      <div class="dev-topic-selector" role="navigation" aria-label="Developer Topics">
-        <a href="#topic-discussions" class="topic-card-btn">
-          <span>💬</span>
-          <span>1. Discussions Forum Rules</span>
-        </a>
-        <a href="#topic-pr-rules" class="topic-card-btn">
-          <span>🌿</span>
-          <span>2. Pull Request (PR) Rules</span>
-        </a>
-        <a href="#topic-openspec" class="topic-card-btn">
-          <span>📋</span>
-          <span>3. OpenSpec Workflow</span>
-        </a>
-        <a href="#topic-architecture" class="topic-card-btn">
-          <span>🏗️</span>
-          <span>4. System Architecture</span>
-        </a>
-        <a href="#topic-boundaries" class="topic-card-btn">
-          <span>📁</span>
-          <span>5. Codebase Boundaries</span>
-        </a>
-        <a href="#topic-quality-gates" class="topic-card-btn">
-          <span>⚡</span>
-          <span>6. Testing & Quality Gates</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- 1. GitHub Discussions Forum Rules -->
-    <section id="topic-discussions" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">1. GitHub Discussions Forum Rules</h2>
-      <p style="color: var(--text-muted); margin-bottom: 14px;">
-        ViDo maintains strict visual restraint. To prevent wasted effort on unaligned work, all UI changes must be discussed first:
-      </p>
-
-      <!-- Visual 4-Step Pipeline -->
-      <div class="step-pipeline" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 18px;">
-        <div class="step-box">
-          <div class="step-num">1</div>
-          <h5>Propose Idea</h5>
-          <p>Identify need or UX friction</p>
-        </div>
-        <div class="step-box" style="border-color: var(--accent); background: var(--accent-soft);">
-          <div class="step-num" style="background: var(--accent); color: #fff;">2</div>
-          <h5>Discussion</h5>
-          <p>Post in GitHub Discussions (Ideas / UI/UX)</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num">3</div>
-          <h5>Maintainer Review</h5>
-          <p>Align on tokens, layout & scope</p>
-        </div>
-        <div class="step-box">
-          <div class="step-num">4</div>
-          <h5>Implement</h5>
-          <p>OpenSpec change & PR</p>
-        </div>
-      </div>
-
-      <div class="visual-alert danger">
-        <div class="alert-icon">⚠️</div>
-        <div class="alert-body">
-          <strong>Mandatory PR Requirement for Visual Work:</strong>
-          <p>Every PR touching UI must link to its approved GitHub Discussion in <strong>Ideas</strong> or <strong>UI/UX</strong> and attach before/after screenshots or screen recordings.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. Pull Request (PR) Rules -->
-    <section id="topic-pr-rules" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">2. Pull Request (PR) Guidelines & Checklist</h2>
-      
-      <div class="feature-grid-2">
-        <div class="v-card">
-          <h4>🌿 Branch Naming Conventions</h4>
-          <p style="font-size: 12px; margin-bottom: 6px;">Always branch off an updated <code>main</code> branch:</p>
-          <pre><code>git checkout -b feature/your-feature-name
-# or for bug fixes:
-git checkout -b fix/issue-12-task-due-date</code></pre>
-        </div>
-
-        <div class="v-card">
-          <h4>📝 Conventional Commit Standard</h4>
-          <p style="font-size: 12px; margin-bottom: 6px;">Use clear, atomic commit messages:</p>
-          <pre><code>feat: add real-time notification bell
-fix: resolve modal focus trap
-docs: update setup steps for Windows
-test: add unit tests for taskFilters</code></pre>
-        </div>
-      </div>
-
-      <div class="v-card" style="margin-top: 14px;">
-        <h4>PR Submission Checklist</h4>
-        <ul style="font-size: 13px; color: var(--text); padding-left: 20px; margin: 8px 0 0;">
-          <li>Target branch is clean and rebased on <code>main</code>.</li>
-          <li>Linked GitHub Issue (e.g. <code>Fixes #12</code>) or approved Discussion link attached.</li>
-          <li>All 3 verification gates pass (<code>typecheck</code>, <code>test</code>, <code>build</code>).</li>
-          <li>Zero secrets or <code>.env</code> files committed.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- 3. OpenSpec Workflow for Major Changes -->
-    <section id="topic-openspec" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">3. OpenSpec Workflow for Major Changes</h2>
-      
-      <div class="visual-alert" style="background: var(--purple-soft); border-left-color: var(--purple);">
-        <div class="alert-icon">📋</div>
-        <div class="alert-body">
-          <strong>Mandatory for Major Updates:</strong>
-          <p>To keep long-term delivery on track and prevent feature creep, <strong>any major capability, architectural change, or milestone task MUST use OpenSpec</strong> before writing code.</p>
-        </div>
-      </div>
-
-      <!-- OpenSpec 4-Step Pipeline -->
-      <div class="step-pipeline" style="grid-template-columns: repeat(4, 1fr); margin-top: 16px;">
-        <div class="step-box" style="border-top: 3px solid var(--purple);">
-          <div class="step-num" style="background: var(--purple-soft); color: var(--purple);">1</div>
-          <h5>Propose</h5>
-          <p><code>openspec propose</code>: Define why & what changes</p>
-        </div>
-        <div class="step-box" style="border-top: 3px solid var(--purple);">
-          <div class="step-num" style="background: var(--purple-soft); color: var(--purple);">2</div>
-          <h5>Specs</h5>
-          <p>Declare testable delta requirements</p>
-        </div>
-        <div class="step-box" style="border-top: 3px solid var(--purple);">
-          <div class="step-num" style="background: var(--purple-soft); color: var(--purple);">3</div>
-          <h5>Design</h5>
-          <p>Resolve technical decisions & trade-offs</p>
-        </div>
-        <div class="step-box" style="border-top: 3px solid var(--purple);">
-          <div class="step-num" style="background: var(--purple-soft); color: var(--purple);">4</div>
-          <h5>Apply</h5>
-          <p><code>openspec apply</code>: Execute verified checklist</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Full-Stack System Architecture -->
-    <section id="topic-architecture" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">4. Full-Stack System Architecture</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">
-        ViDo is decoupled into an interactive React client and a high-performance NestJS microservice:
-      </p>
-
-      <div class="arch-stack">
-        <div class="arch-layer">
-          <div class="arch-layer-info">
-            <div class="arch-icon">🎨</div>
-            <div>
-              <strong>Client Layer (Frontend)</strong>
-              <span>Vite 6, React 19, TypeScript, Tailwind CSS v4</span>
-            </div>
-          </div>
-          <div class="arch-tech-tags">
-            <span class="tech-tag">React 19</span>
-            <span class="tech-tag">Tailwind v4</span>
-          </div>
-        </div>
-
-        <div class="arch-layer">
-          <div class="arch-layer-info">
-            <div class="arch-icon">⚡</div>
-            <div>
-              <strong>Real-Time Stream</strong>
-              <span>Server-Sent Events (SSE) for realtime task and invite push</span>
-            </div>
-          </div>
-          <div class="arch-tech-tags">
-            <span class="tech-tag">SSE</span>
-            <span class="tech-tag">Push Events</span>
-          </div>
-        </div>
-
-        <div class="arch-layer">
-          <div class="arch-layer-info">
-            <div class="arch-icon">⚙️</div>
-            <div>
-              <strong>Service Layer (Backend)</strong>
-              <span>NestJS 11 microservice, REST controllers, DTOs in <code>server/</code></span>
-            </div>
-          </div>
-          <div class="arch-tech-tags">
-            <span class="tech-tag">NestJS 11</span>
-            <span class="tech-tag">TypeScript</span>
-          </div>
-        </div>
-
-        <div class="arch-layer">
-          <div class="arch-layer-info">
-            <div class="arch-icon">🗄️</div>
-            <div>
-              <strong>Data Layer (ORM & DB)</strong>
-              <span>Prisma ORM 6 with local SQLite and PostgreSQL support</span>
-            </div>
-          </div>
-          <div class="arch-tech-tags">
-            <span class="tech-tag">Prisma 6</span>
-            <span class="tech-tag">SQLite / Postgres</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Codebase Boundaries & Tree Explorer -->
-    <section id="topic-boundaries" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">5. Codebase Layout & Strict Invariants</h2>
-      <p style="color: var(--text-muted); margin-bottom: 16px;">
-        Strict adherence to <code>FOLDER_STRUCTURE.md</code> is mandatory:
-      </p>
-
-      <!-- Interactive Widget: Architecture Tree Explorer -->
-      <div class="interactive-widget" id="widgetTreeExplorer">
-        <div class="widget-header">
-          <h4 class="widget-title">Interactive Demo: Codebase Directory Explorer</h4>
-          <span class="widget-badge">Click Folders to Inspect Rules</span>
-        </div>
-        <div id="treeContainer">
-          <!-- Populated dynamically via app.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. Testing & Quality Gates -->
-    <section id="topic-quality-gates" style="margin-bottom: 44px; scroll-margin-top: 84px;">
-      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">6. Testing & Mandatory Quality Gates</h2>
-      
-      <div class="feature-grid-2">
-        <div class="v-card">
-          <div class="v-card-icon">⚡</div>
-          <h4>Firebase Auth Emulator (Port 9099)</h4>
-          <p>Zero cloud credentials required. Run local dev server with automatic emulator detection:</p>
-          <pre><code>npm run dev</code></pre>
-        </div>
-
-        <div class="v-card">
-          <div class="v-card-icon">🛡️</div>
-          <h4>Mandatory Verification Gates</h4>
-          <p>Must exit with 0 errors before submitting code:</p>
-          <pre><code>npm run typecheck
+  </figure>
+  <details class="dev-detail" open><summary>Storage rules for contributors</summary>
+    <p>Signed-in user data lives in the NestJS backend. Each <code>/api/user/*</code> request carries the Firebase ID token, and the server scopes every read and write to that user’s <code>userId</code>. Keep client calls in the stores under <code>src/lib/</code> (<code>taskStore.ts</code>, <code>calendarStore.ts</code>, <code>categoryStore.ts</code>, <code>settingsStore.ts</code>), never in view components, and do not add new Firestore reads or writes. See <a href="https://github.com/vicharanashala/ViDo/blob/main/AGENTS.md">AGENTS.md</a>.</p>
+    <p>To check isolation, sign in with two mock accounts and confirm that each sees only its own tasks, events and targets after a reload.</p>
+  </details>
+  <details class="dev-detail"><summary>Trace a personal task completion</summary><p>In the detail modal, <strong>Mark as Complete</strong> calls the toggle handler in WorkspaceLayout. The handler sets the completion time and appends a checkpoint. The derived views then pick up the new state. Reopening the task clears its completion time.</p></details>
+  <details class="dev-detail"><summary>Trace a shared task update</summary><p>A team lead assigns a task within a milestone. The assignee updates progress and can add a note. Team components call the methods in <code>teamRepository.ts</code>. With NestJS selected, the API validates the user’s Firebase token and its services read or write team records through Prisma. The events module provides a Server-Sent Events stream for updates.</p></details>
+  <details class="dev-detail"><summary>Where intelligent planning fits</summary><p>Imagine adding a low-priority errand on an already full Tuesday. Calendar commitments describe the available time, task deadlines describe urgency, and checkpoints provide a history of how work progressed. The proposed planner would use those signals to suggest Thursday, explain why, and let the user accept or keep Tuesday. This is the product direction. The existing date filters and analytics are deterministic calculations.</p></details>
+</section>
+<section id="tree" class="section"><h2>Repository tree</h2>
+<p>Trace a screen from its route to its feature, data store and tests. Use the folder explorer to review placement decisions.</p><a href="developer/folder-structure.html">Explore the repository structure →</a>
+</section>
+<section id="stack" class="section"><h2>Technology stack</h2>
+  <div class="stack-cards">
+    <article>
+      <h3>Interface and routing</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#react"/></svg>React 19</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#reactrouter"/></svg>React Router</li>
+      </ul>
+      <p>Feature slices provide routed screens. UI primitives stay independent of task and user types.</p>
+    </article>
+    <article>
+      <h3>Build and styling</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#vite"/></svg>Vite</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#typescript"/></svg>TypeScript</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#tailwindcss"/></svg>Tailwind CSS v4</li>
+      </ul>
+      <p>Vite serves the app and proxies local API requests. TypeScript checks component and data contracts. Semantic CSS variables in <code>src/index.css</code> define the product palette.</p>
+    </article>
+    <article>
+      <h3>Identity</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#firebase"/></svg>Firebase Auth</li>
+      </ul>
+      <p>Firebase Auth identifies the workspace user, and the backend verifies its ID token on each request. The local emulator configuration is in <code>firebase.json</code>.</p>
+    </article>
+    <article>
+      <h3>API and storage</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#nestjs"/></svg>NestJS 11</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#prisma"/></svg>Prisma 6</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#sqlite"/></svg>SQLite</li>
+      </ul>
+      <p>The NestJS backend serves team membership, invitations, milestones and checkpoints, alongside each signed-in user’s tasks, calendar events, categories and planning targets. Inspect <code>server/prisma/schema.prisma</code> for relationships and <code>server/src/</code> for service behavior.</p>
+    </article>
+    <article>
+      <h3>Testing</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#vitest"/></svg>Vitest</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#testinglibrary"/></svg>Testing Library</li>
+      </ul>
+      <p>Tests exercise pure calculations and rendered workflows with Happy DOM. Start with the colocated test for the feature you are changing.</p>
+    </article>
+    <article>
+      <h3>Documentation</h3>
+      <ul class="stack-brands">
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#html5"/></svg>HTML</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#css"/></svg>CSS</li>
+        <li><svg aria-hidden="true" width="24" height="24"><use href="./stack-logos.svg#javascript"/></svg>JavaScript</li>
+      </ul>
+      <p>The wiki runs directly from <code>docs/</code>. All seven documentation pages share <code>guide.css</code>. The weekday sample in the user guide uses <code>guide.js</code>.</p>
+    </article>
+  </div>
+</section>
+<section id="setup" class="section"><div><h2>Local setup</h2><p>Run commands from the repository root. Keep the frontend terminal open while you work. The preview and documentation can be explored with Vite alone.</p><p><a href="./user.html#get-started">First-time setup and app walkthrough →</a></p></div>
+  <div class="commands"><h3>Frontend and documentation</h3><pre><code>npm ci
+npm run dev</code></pre><p>Open the address Vite prints. Try <code>/preview</code>, <code>/style-lab</code>, or <code>/docs/user.html</code>.</p>
+  <h3>Sign-in emulators</h3><p>Install the Firebase CLI and a compatible Java runtime. If the dev server has already started the emulators, use those processes. For manual startup, run the following before starting Vite.</p><pre><code>npm run emu</code></pre><p>The local project is <code>demo-vido</code>. Auth listens on 9099, Firestore on 8080, and the emulator UI on 4000.</p>
+  <h3>Backend API</h3><p>The signed-in workspace stores tasks, calendar events, categories and targets through the NestJS backend, which also serves teams. For a fresh checkout, create the server environment file from its example. Keep any existing local configuration. The root example already sets <code>VITE_BACKEND_TYPE=nestjs</code>. Stop the standalone Vite process before starting both services.</p><pre><code>cp -n .env.example .env.local
+cp -n server/.env.example server/.env
+npm ci --prefix server
+npm --prefix server run prisma:generate
+npm --prefix server run prisma:push
+npm run dev:all</code></pre><p>Prisma uses the configured SQLite file. Vite proxies user and team API requests to port 3001. Its local development middleware handles the mock team endpoints.</p>
+  <details class="dev-detail"><summary>Which team adapter is active?</summary><p><code>getTeamRepository()</code> selects NestJS first when <code>VITE_BACKEND_TYPE=nestjs</code> or an API URL is supplied. Otherwise, a configured Supabase URL and anon key select Supabase. With neither configured, the factory uses the mock repository. Restart Vite after changing environment settings.</p></details>
+  </div></section>
+<section id="testing" class="section">
+  <h2>Testing and required checks</h2>
+  <h3>Check local sign-in</h3>
+  <p>Run <code>npm run dev</code> to start Vite. With Java and the Firebase CLI available, Vite checks for the local emulators and attempts to start missing services. Auth listens on port <strong>9099</strong>. Use a mock account in the sign-in popup. See <a href="#setup">local setup</a> for manual startup.</p>
+  <h3>Before submitting a change</h3>
+  <p>From the repository root, run all three checks and confirm each exits successfully.</p>
+  <pre><code>npm run typecheck
 npm test
-npm run build:server && npm run build</code></pre>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <script src="./app.js"></script>
-</body>
-</html>
+npm run build</code></pre>
+  <p>For changes involving the backend service, also compile the NestJS server.</p>
+  <pre><code>npm run build:server</code></pre>
+  <p><a href="https://github.com/vicharanashala/ViDo/blob/main/AGENTS.md">Repository verification rules</a></p>
+</section>
+<section id="contribute" class="section"><h2>Developer’s handbook</h2>
+<p>Choose a guide to set up the project, plan a change, or verify your agent’s work.</p><ul><li><a href="developer/contribution.html">Contributing to ViDo</a></li>
+<li><a href="developer/openspec.html">Working with OpenSpec</a></li>
+<li><a href="developer/working-with-agents.html">Working with coding agents</a></li>
+<li><a href="developer/folder-structure.html">Repository structure</a></li>
+</ul>
+</section></div>
+</div>
+</main><footer><a href="./index.html">ViDo documentation</a><span>Thoughtful tools to get your work from “doing” to “done”.</span></footer><script src="./guide.js"></script></body></html>

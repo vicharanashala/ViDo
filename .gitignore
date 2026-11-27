@@ -73,3 +73,6 @@ Thumbs.db
 *.sw?
 *.sublime-workspace
 *.sublime-project
+
+# Personal workbench
+/vish-workbench/

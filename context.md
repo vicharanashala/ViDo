@@ -62,14 +62,16 @@ Before sign-in, users see a complete landing page containing:
 ### Authentication and Storage
 
 - Google sign-in only
-- Supabase Auth for identity
-- Supabase PostgreSQL for persistent task storage
-- Row-Level Security must enforce task ownership
+- Firebase Authentication for identity (local Auth emulator in development)
+- The NestJS backend in `server/` stores tasks, calendar events, custom categories, and planning targets through Prisma (SQLite locally, PostgreSQL in production)
+- Every `/api/user/*` request must verify the Firebase ID token and scope reads and writes to that user's `userId`
 - Private tasks come before shared tasks
 - The signed-in dashboard may display the user’s Google name and profile photo
 - Email should remain less prominent in account settings
 
-Do not expose a Supabase service-role key or any backend secret in frontend code.
+The original plan used Supabase Auth and PostgreSQL with Row-Level Security. The project has since moved to Firebase Authentication and the NestJS backend. Supabase remains only as an optional team repository adapter.
+
+Do not expose a Supabase service-role key, database URL, or any backend secret in frontend code.
 
 ## Initial Task Model
 
