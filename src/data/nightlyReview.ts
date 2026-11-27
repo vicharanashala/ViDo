@@ -28,7 +28,19 @@ export function reviewDateKey(now: Date): string | null {
   return null;
 }
 
-export function nightlyPrompt(now: Date, state: PromptState): NightlyPrompt {
+export interface NightlyPromptOptions {
+  /**
+   * A night deferred earlier only quiets the current session; a fresh app open
+   * may ask again. Set true to treat a deferral as still due.
+   */
+  ignoreDeferrals?: boolean;
+}
+
+export function nightlyPrompt(
+  now: Date,
+  state: PromptState,
+  options: NightlyPromptOptions = {}
+): NightlyPrompt {
   const dateKey = reviewDateKey(now);
   if (!dateKey) return { kind: 'none', reason: 'daytime' };
   if (state.answeredDateKeys.includes(dateKey)) {
@@ -37,7 +49,7 @@ export function nightlyPrompt(now: Date, state: PromptState): NightlyPrompt {
   if (state.pausedUntil && dateKey <= state.pausedUntil) {
     return { kind: 'none', dateKey, reason: 'paused' };
   }
-  if (state.deferredDateKeys.includes(dateKey)) {
+  if (!options.ignoreDeferrals && state.deferredDateKeys.includes(dateKey)) {
     return { kind: 'quiet', dateKey };
   }
   return { kind: 'sheet', dateKey };

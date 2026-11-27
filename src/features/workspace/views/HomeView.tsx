@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Task } from '../../../data/taskTypes';
 import { formatTimeLabel, getTaskPace, greeting, paceTone, relativeDayLabel, toDateKey } from '../../../data/taskDates';
-import { TaskRow } from '../TaskRow';
 import { DoodleTitle } from '../doodles/DoodleTitle';
 import { WelcomeCard } from '../WelcomeCard';
 import { IntentionBar } from '../IntentionBar';
@@ -10,7 +9,7 @@ import { DailyQuote } from '../DailyQuote';
 import { MomentumStrip } from '../MomentumStrip';
 import { Doodle } from '../doodles/Doodles';
 import { loadRested, saveRested } from '../../../lib/welcomeStore';
-import { ArrowRight, Clock, Dot, Maximize2 } from 'lucide-react';
+import { ArrowRight, Clock, Dot, Maximize2, Moon } from 'lucide-react';
 import { Badge, Button, ProgressRing } from '../../../components/ui';
 
 export interface TodayMomentum {
@@ -59,11 +58,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   todayMomentum,
   focusTask,
   allTasks,
-  onTaskClick,
-  onToggleComplete,
   onFocusTask,
-  onCheckInStart,
-  onOpenPath,
   userName,
   userPrefix,
   welcomed = true,
@@ -194,14 +189,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
       )}
 
       {eveningReview && (
-        <button
-          type="button"
-          onClick={eveningReview.onOpen}
-          className="inline-flex items-baseline gap-1.5 px-1 text-[11px] text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
-        >
-          <span className="font-semibold">How did today sit?</span>
-          <span className="text-[var(--faint)]">Answer when you are ready.</span>
-        </button>
+        <div className="mx-auto w-full max-w-5xl">
+          <button
+            type="button"
+            onClick={eveningReview.onOpen}
+            aria-label="Open the evening review"
+            className="flex w-full items-center gap-2 rounded-lg bg-[var(--accent-soft)]/70 px-3 py-2 text-left text-[11px] text-[var(--muted)] transition-colors hover:bg-[var(--accent-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+          >
+            <Moon className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" />
+            <span className="font-semibold text-[var(--ink)]">How did today sit?</span>
+            <span className="text-[var(--faint)]">Answer when you are ready.</span>
+          </button>
+        </div>
       )}
 
       <section aria-labelledby="today-heading" className="space-y-3">
@@ -218,12 +217,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </Link>
         </div>
 
-        {!rested && todayTasks.items.length > 0 && (
-          <p className="text-[11px] text-[var(--muted)]">
-            Tip: drag a task image into a check-in zone — or tap the circle.
-          </p>
-        )}
-
         {rested ? (
           <div className="p-8 text-center border border-[var(--line)] rounded-xl bg-[var(--surface)]">
             <div className="w-12 h-12 mx-auto mb-3">
@@ -236,26 +229,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </Button>
           </div>
         ) : todayTasks.items.length > 0 ? (
-          <>
-            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
-              {todayTasks.items.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  onClick={onTaskClick}
-                  onToggleComplete={onToggleComplete}
-                  onFocus={onFocusTask}
-                  onCheckInStart={onCheckInStart}
-                  onOpenPath={onOpenPath}
-                />
-              ))}
+          <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-[var(--muted)]">
+                <span className="font-semibold text-[var(--ink)]">{todayTasks.totalCount}</span>{' '}
+                {todayTasks.totalCount === 1 ? 'task' : 'tasks'} due today
+                {todayMomentum.completed > 0 ? (
+                  <span className="text-[var(--faint)]"> · {todayMomentum.completed} done</span>
+                ) : null}
+              </p>
+              <Link
+                to="/app/today"
+                className="text-xs font-semibold text-[var(--accent)] hover:underline inline-flex items-center gap-1"
+              >
+                Open Today <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-            <div className="flex justify-center pt-1">
+            <div className="mt-2">
               <Button variant="ghost" size="sm" onClick={stopForToday}>
                 That's enough for today
               </Button>
             </div>
-          </>
+          </div>
         ) : (
           <div className="p-10 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)]">
             <p className="text-xs text-[var(--muted)]">No tasks due today. You are fully caught up.</p>

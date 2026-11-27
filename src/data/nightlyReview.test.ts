@@ -57,6 +57,33 @@ describe('nightlyPrompt', () => {
     ).toEqual({ kind: 'none', dateKey: '2026-11-20', reason: 'paused' });
   });
 
+  it('asks again on a fresh session once a deferral is ignored', () => {
+    expect(
+      nightlyPrompt(
+        at(22),
+        { answeredDateKeys: [], deferredDateKeys: ['2026-11-20'] },
+        { ignoreDeferrals: true }
+      )
+    ).toEqual({ kind: 'sheet', dateKey: '2026-11-20' });
+  });
+
+  it('still respects answers and pauses when deferrals are ignored', () => {
+    expect(
+      nightlyPrompt(
+        at(22),
+        { answeredDateKeys: ['2026-11-20'], deferredDateKeys: [] },
+        { ignoreDeferrals: true }
+      ).kind
+    ).toBe('none');
+    expect(
+      nightlyPrompt(
+        at(22),
+        { answeredDateKeys: [], deferredDateKeys: [], pausedUntil: '2026-11-27' },
+        { ignoreDeferrals: true }
+      ).kind
+    ).toBe('none');
+  });
+
   it('does nothing during the day', () => {
     expect(nightlyPrompt(at(14), empty)).toEqual({ kind: 'none', reason: 'daytime' });
   });

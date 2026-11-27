@@ -41,6 +41,22 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
   );
   const [heavyIds, setHeavyIds] = useState<string[]>([]);
   const [lightIds, setLightIds] = useState<string[]>([]);
+
+  const toggleHeavy = (id: string) => {
+    setHeavyIds((previous) => {
+      const next = toggle(previous, id);
+      if (next.includes(id)) setLightIds((light) => light.filter((item) => item !== id));
+      return next;
+    });
+  };
+
+  const toggleLight = (id: string) => {
+    setLightIds((previous) => {
+      const next = toggle(previous, id);
+      if (next.includes(id)) setHeavyIds((heavy) => heavy.filter((item) => item !== id));
+      return next;
+    });
+  };
   const [minutes, setMinutes] = useState<Record<string, string>>({});
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -220,7 +236,7 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
                 key={task.id}
                 type="button"
                 aria-pressed={heavyIds.includes(task.id)}
-                onClick={() => setHeavyIds((previous) => toggle(previous, task.id))}
+                onClick={() => toggleHeavy(task.id)}
                 className={`max-w-full truncate px-2.5 py-1 rounded-lg border text-[11px] ${
                   heavyIds.includes(task.id)
                     ? 'bg-[var(--amber-soft)] text-[var(--amber)] border-[var(--amber)]/30'
@@ -246,7 +262,7 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
                 key={task.id}
                 type="button"
                 aria-pressed={lightIds.includes(task.id)}
-                onClick={() => setLightIds((previous) => toggle(previous, task.id))}
+                onClick={() => toggleLight(task.id)}
                 className={`max-w-full truncate px-2.5 py-1 rounded-lg border text-[11px] ${
                   lightIds.includes(task.id)
                     ? 'bg-[var(--green-soft)] text-[var(--green)] border-[var(--green)]/30'

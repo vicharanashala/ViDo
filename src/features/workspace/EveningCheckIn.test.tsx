@@ -131,6 +131,26 @@ describe('EveningCheckIn', () => {
     expect(saved?.lightTaskIds).toEqual(['task-2']);
   });
 
+  it('keeps heavy and easy exclusive while got done stays independent', () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole('button', { name: 'steady' }));
+
+    const heavySection = screen.getByRole('region', { name: /what felt heavy/i });
+    const easySection = screen.getByRole('region', { name: /what felt easy/i });
+    fireEvent.click(within(heavySection).getByRole('button', { name: 'Read the brief' }));
+    fireEvent.click(within(easySection).getByRole('button', { name: 'Read the brief' }));
+
+    expect(
+      within(heavySection).getByRole('button', { name: 'Read the brief' })
+    ).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(screen.getByRole('button', { name: /save the evening/i }));
+    const saved = loadEveningCheckIn('2026-11-20');
+    expect(saved?.lightTaskTitles).toEqual(['Read the brief']);
+    expect(saved?.heavyTaskTitles).toEqual([]);
+    expect(saved?.movedTaskIds).toContain('task-1');
+  });
+
   it('can be deferred', () => {
     const { onLater } = renderSheet();
     fireEvent.click(screen.getByRole('button', { name: 'Later' }));

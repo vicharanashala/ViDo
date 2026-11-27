@@ -102,8 +102,13 @@ export const WorkspaceLayout: React.FC = () => {
   const [promptVersion, setPromptVersion] = useState(0);
   const [nightTick, setNightTick] = useState(0);
   const [eveningOpen, setEveningOpen] = useState(false);
+  const [eveningDismissed, setEveningDismissed] = useState(false);
 
-  const nightly = useMemo(() => nightlyPrompt(new Date(), loadPromptState()), [promptVersion, nightTick]);
+  const nightly = useMemo(
+    () => nightlyPrompt(new Date(), loadPromptState(), { ignoreDeferrals: true }),
+    [promptVersion, nightTick]
+  );
+  const nightlyStrip = useMemo(() => nightlyPrompt(new Date(), loadPromptState()), [promptVersion, nightTick]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNightTick((value) => value + 1), 60000);
@@ -111,15 +116,26 @@ export const WorkspaceLayout: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (nightly.kind !== 'sheet') return;
+    if (nightly.kind !== 'sheet' || eveningDismissed) return;
     const overlayOpen = Boolean(
       selectedTaskId || focusTaskId || checkInTaskId || isCreateOpen || isHelpOpen || eveningOpen
     );
     if (overlayOpen) return;
     setEveningOpen(true);
-  }, [nightly.kind, nightly.dateKey, selectedTaskId, focusTaskId, checkInTaskId, isCreateOpen, isHelpOpen, eveningOpen]);
+  }, [
+    nightly.kind,
+    nightly.dateKey,
+    eveningDismissed,
+    selectedTaskId,
+    focusTaskId,
+    checkInTaskId,
+    isCreateOpen,
+    isHelpOpen,
+    eveningOpen,
+  ]);
 
   const handleEveningLater = () => {
+    setEveningDismissed(true);
     if (nightly.dateKey) {
       markDeferred(nightly.dateKey);
       const state = loadPromptState();
@@ -495,6 +511,9 @@ export const WorkspaceLayout: React.FC = () => {
                   onIntentionChange={welcome.updateIntention}
                   onCheckInStart={handleCheckInStart}
                   onOpenPath={handleOpenPath}
+                  eveningReview={
+                    nightlyStrip.kind === 'none' ? undefined : { onOpen: () => setEveningOpen(true) }
+                  }
                 />
               }
             />
