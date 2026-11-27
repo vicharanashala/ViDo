@@ -64,7 +64,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       }}
       aria-label={`Task: ${task.title}`}
       aria-keyshortcuts="Enter Space F C"
-      className="group flex h-full flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/25 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] motion-reduce:transform-none cursor-pointer select-none"
+      className="group @container flex h-full flex-col gap-2.5 @[380px]:gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 @[380px]:p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]/25 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] motion-reduce:transform-none cursor-pointer select-none"
     >
       <div className="flex items-start gap-2.5">
         <button
@@ -119,7 +119,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                 customImageKey={task.customImageKey}
                 size="md"
                 wrapTitle
-                className={`text-xs font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
+                className={`text-xs @[380px]:text-[13px] font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
                   isCompleted ? 'line-through opacity-60' : ''
                 }`}
                 onImageClick={
@@ -208,7 +208,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center justify-between text-[10px] font-mono text-[var(--faint)]">
+          <div className="mb-1 flex items-center justify-between text-[10px] @[380px]:text-[11px] font-mono text-[var(--faint)]">
             <span>Progress</span>
             <span style={{ color: barColor }} className="font-semibold">
               {task.progress}%
@@ -225,7 +225,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           )}
         </div>
 
-        <div className="shrink-0 text-right font-mono text-[11px]">
+        <div className="shrink-0 text-right font-mono text-[11px] @[420px]:text-xs">
           {isCompleted ? (
             <span className="text-[var(--green)] inline-flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 check-pop" />
