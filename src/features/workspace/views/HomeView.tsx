@@ -6,6 +6,7 @@ import { TaskRow } from '../TaskRow';
 import { DoodleTitle } from '../doodles/DoodleTitle';
 import { WelcomeCard } from '../WelcomeCard';
 import { IntentionBar } from '../IntentionBar';
+import { DailyQuote } from '../DailyQuote';
 import { MomentumStrip } from '../MomentumStrip';
 import { Doodle } from '../doodles/Doodles';
 import { loadRested, saveRested } from '../../../lib/welcomeStore';
@@ -93,11 +94,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
       : 0;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {!welcomed && onSaveProfile && <WelcomeCard onSave={onSaveProfile} />}
+    <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {!welcomed && onSaveProfile && (
+        <div className="mx-auto w-full max-w-5xl">
+          <WelcomeCard onSave={onSaveProfile} />
+        </div>
+      )}
 
       <section
-        className="relative overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
+        className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-[var(--line)] p-6 sm:p-8 shadow-sm"
         style={{ background: HERO_GRADIENT }}
       >
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-3xl" />
@@ -178,7 +183,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {onIntentionChange && <IntentionBar value={intention} onSave={onIntentionChange} />}
+      <div className="mx-auto w-full max-w-5xl px-1">
+        <DailyQuote dateKey={toDateKey(new Date())} />
+      </div>
+
+      {onIntentionChange && (
+        <div className="mx-auto w-full max-w-5xl">
+          <IntentionBar value={intention} onSave={onIntentionChange} />
+        </div>
+      )}
 
       {eveningReview && (
         <button
@@ -224,7 +237,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         ) : todayTasks.items.length > 0 ? (
           <>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
               {todayTasks.items.map((task) => (
                 <TaskRow
                   key={task.id}

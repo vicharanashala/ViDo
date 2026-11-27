@@ -48,7 +48,7 @@ const MOBILE_NAV = [
   { to: '/app/trail', label: 'Trail', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
   { to: '/app/needs-attention', label: 'Past', icon: <AlertCircle className="w-3.5 h-3.5" /> },
   { to: '/app/completed', label: 'Completed', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  { to: '/app/archived', label: 'Archived', icon: <Archive className="w-3.5 h-3.5" /> },
+  { to: '/app/archived', label: 'Shelved', icon: <Archive className="w-3.5 h-3.5" /> },
 ];
 
 function deliveryNotice(task: Task): string {
@@ -236,6 +236,20 @@ export const WorkspaceLayout: React.FC = () => {
     setIsCreateOpen(true);
   };
 
+  const openCreateForPath = () => {
+    const today = toDateKey(new Date());
+    if (location.pathname.endsWith('/needs-attention')) {
+      const yesterday = toDateKey(addDays(new Date(), -1));
+      openCreate(yesterday, { maxDate: yesterday });
+      return;
+    }
+    if (location.pathname.endsWith('/upcoming')) {
+      openCreate(toDateKey(addDays(new Date(), 1)), { minDate: today });
+      return;
+    }
+    openCreate(today);
+  };
+
   const handleQuickAdd = (input: NewTaskInput) => {
     const task = addTask(input);
     if (account) updateTask(task.id, { ownerId: account.email });
@@ -337,7 +351,7 @@ export const WorkspaceLayout: React.FC = () => {
     archiveTask(id);
     setSelectedTaskId(null);
     if (focusTaskId === id) setFocusTaskId(null);
-    setNotice(task ? `Archived "${task.title}".` : 'Task archived.');
+    setNotice(task ? `Shelved "${task.title}".` : 'Task shelved.');
   };
 
   const handleDelete = (id: string) => {
@@ -375,7 +389,7 @@ export const WorkspaceLayout: React.FC = () => {
       return { title: 'Completed', subtitle: 'What you finished — also called Done' };
     }
     if (path.endsWith('/archived')) {
-      return { title: 'Archived', subtitle: 'Kept out of the way — also called Put away' };
+      return { title: 'Shelved', subtitle: 'Put away on a shelf — also called Archived' };
     }
     if (path.endsWith('/journal')) {
       return { title: 'Journal', subtitle: 'Free writing that stays with you' };
@@ -409,7 +423,7 @@ export const WorkspaceLayout: React.FC = () => {
         <WorkspaceSidebar
           userName={welcome.name}
           userPrefix={welcome.prefix}
-          onNewTaskClick={() => openCreate(toDateKey(new Date()))}
+          onNewTaskClick={openCreateForPath}
           onClose={() => setSidebarOpen(false)}
         />
       )}
@@ -507,6 +521,7 @@ export const WorkspaceLayout: React.FC = () => {
                   description="For when you have room — also called Later."
                   tasks={filteredViews.upcoming}
                   onTaskClick={handleTaskClick}
+                  onNewTaskClick={openCreateForPath}
                   onToggleComplete={handleToggleComplete}
                   onFocusTask={handleStartFocus}
                   onCheckInStart={handleCheckInStart}
@@ -561,12 +576,7 @@ export const WorkspaceLayout: React.FC = () => {
                   onBringToToday={handleBringToToday}
                   onScheduleTask={handleScheduleTask}
                   onOpenPath={handleOpenPath}
-                  newTaskLabel="Log an earlier task"
-                  onNewTaskClick={() =>
-                    openCreate(toDateKey(addDays(new Date(), -1)), {
-                      maxDate: toDateKey(addDays(new Date(), -1)),
-                    })
-                  }
+                  onNewTaskClick={openCreateForPath}
                 />
               }
             />
@@ -587,8 +597,8 @@ export const WorkspaceLayout: React.FC = () => {
               path="archived"
               element={
                 <ListView
-                  title="Archived"
-                  description="Kept out of the way — also called Put away."
+                  title="Shelved"
+                  description="Put away on a shelf — also called Archived."
                   tasks={filteredViews.archived}
                   onTaskClick={handleTaskClick}
                 />
@@ -663,7 +673,7 @@ export const WorkspaceLayout: React.FC = () => {
 
       <button
         type="button"
-        onClick={() => openCreate(toDateKey(new Date()))}
+        onClick={openCreateForPath}
         aria-label="New task"
         className="md:hidden fixed bottom-20 right-5 z-30 w-12 h-12 rounded-full bg-[var(--accent)] text-white shadow-xl shadow-[var(--accent)]/20 flex items-center justify-center active:scale-95 transition-transform"
       >

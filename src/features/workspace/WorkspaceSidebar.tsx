@@ -93,7 +93,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         },
         {
           to: '/app/archived',
-          label: 'Archived',
+          label: 'Shelved',
           icon: <Archive className="w-4 h-4" />,
         },
       ],

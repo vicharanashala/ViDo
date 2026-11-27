@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Task, TaskCategory, TaskPriority, TaskRecurrence } from '../../data/taskTypes';
+import { formatElapsed } from '../../data/focusTimer';
+import { timeVerdict } from '../../data/timeVerdict';
+import { useTaskTimer } from './useTaskTimer';
+import { Play, Pause } from 'lucide-react';
 import { Badge, Button } from '../../components/ui';
 import { DoodleTitle } from './doodles/DoodleTitle';
 import { CustomImageEditor } from './CustomImageEditor';
@@ -95,6 +99,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [category, setCategory] = useState<TaskCategory>('personal');
   const [progress, setProgress] = useState(0);
   const [checkpointNote, setCheckpointNote] = useState('');
+  const timer = useTaskTimer(task?.id ?? '', (id, minutes) => {
+    if (!task) return;
+    onUpdate?.(id, { spentMinutes: (task.spentMinutes ?? 0) + minutes });
+  });
+  const verdict = task
+    ? timeVerdict({
+        plannedMinutes: task.plannedMinutes,
+        actualMinutes: task.spentMinutes,
+        completed: task.state === 'completed',
+      })
+    : null;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -473,10 +488,29 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   className="w-16 px-1.5 py-0.5 text-[11px] bg-[var(--canvas)] text-[var(--ink)] border border-[var(--line)] rounded font-mono"
                 />
               </label>
-              <span className="text-[var(--muted)]">
+              <button
+                type="button"
+                aria-label={timer.running ? 'Pause timer' : 'Start timer'}
+                onClick={timer.running ? timer.pause : timer.start}
+                className="inline-flex items-center gap-1 rounded-md border border-[var(--line)] bg-[var(--canvas)] px-2 py-1 text-[11px] font-semibold text-[var(--muted)] hover:text-[var(--ink)]"
+              >
+                {timer.running ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                {timer.running ? 'Pause timer' : 'Start timer'}
+              </button>
+              <span className="text-[var(--muted)] font-mono text-[11px]">
+                {timer.elapsed > 0 ? `${formatElapsed(timer.elapsed)} · ` : ''}
                 {task.spentMinutes !== undefined ? `Tracked ${task.spentMinutes}m` : 'Nothing tracked yet'}
               </span>
             </div>
+            {verdict && (
+              <p
+                className={`mt-1.5 text-[11px] leading-relaxed ${
+                  verdict.kind === 'appreciated' ? 'text-[var(--green)]' : 'text-[var(--muted)]'
+                }`}
+              >
+                {verdict.message}
+              </p>
+            )}
 
             {task.reminderAt && (
               <p className="mt-3 rounded-lg border border-[var(--line)] bg-[var(--canvas)] px-3 py-2 text-[11px] text-[var(--muted)]">

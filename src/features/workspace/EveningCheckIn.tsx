@@ -4,6 +4,7 @@ import type { EveningCheckIn as EveningCheckInRecord, MoodWord, TimeLogEntry } f
 import { MOOD_WORDS } from '../../data/journalTypes';
 import { followUpQuestions, TIME_CHIPS } from '../../data/nightlyReview';
 import { analyseNote } from '../../../intelligent-layer/evening-review';
+import { timeVerdict } from '../../data/timeVerdict';
 import { saveEveningCheckIn } from '../../lib/journalStore';
 import { saveIntention } from '../../lib/welcomeStore';
 import { addDays, parseDateKey, toDateKey } from '../../data/taskDates';
@@ -273,6 +274,25 @@ export const EveningCheckIn: React.FC<EveningCheckInProps> = ({
                       className="w-16 px-1.5 py-0.5 text-[11px] bg-[var(--surface)] text-[var(--ink)] border border-[var(--line)] rounded-md"
                     />
                   </div>
+                  {(() => {
+                    const typed = Number(minutes[task.id]);
+                    const actual = Number.isFinite(typed) && typed > 0 ? typed : task.spentMinutes;
+                    const verdict = timeVerdict({
+                      plannedMinutes: task.plannedMinutes,
+                      actualMinutes: actual,
+                      completed: task.state === 'completed',
+                    });
+                    if (!verdict) return null;
+                    return (
+                      <p
+                        className={`mt-1 text-[10px] leading-relaxed ${
+                          verdict.kind === 'appreciated' ? 'text-[var(--green)]' : 'text-[var(--muted)]'
+                        }`}
+                      >
+                        {verdict.message}
+                      </p>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
