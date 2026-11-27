@@ -1,6 +1,8 @@
+// @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SettingsView } from './SettingsView';
+import { DEFAULT_PRIORITY_COLORS } from '../../../utils/priorityColor';
 
 describe('SettingsView', () => {
   it('renders settings sections navigation tabs and allows switching views', () => {
@@ -13,10 +15,11 @@ describe('SettingsView', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: /^settings$/i })).toBeInTheDocument();
 
-    // Verify all 5 navigation tabs exist
+    // Verify navigation tabs exist
     expect(screen.getByRole('tab', { name: /account/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /theme & appearance/i })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /personalised categories/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /priority colors/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /task lists & categories/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /preferences/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /workspace actions/i })).toBeInTheDocument();
 
@@ -30,9 +33,9 @@ describe('SettingsView', () => {
     expect(screen.getByText('Deep Indigo')).toBeInTheDocument();
     expect(screen.getByText('Forest Green')).toBeInTheDocument();
 
-    // Switch to Personalised Categories tab
-    fireEvent.click(screen.getByRole('tab', { name: /personalised categories/i }));
-    expect(screen.getByRole('heading', { name: /personalised categories/i })).toBeInTheDocument();
+    // Switch to Task Lists & Categories tab
+    fireEvent.click(screen.getByRole('tab', { name: /task lists & categories/i }));
+    expect(screen.getByRole('heading', { name: /task lists & categories/i })).toBeInTheDocument();
 
     // Switch to Preferences tab
     fireEvent.click(screen.getByRole('tab', { name: /preferences/i }));
@@ -138,21 +141,166 @@ describe('SettingsView', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: /personalised categories/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /task lists & categories/i })).toBeInTheDocument();
     expect(screen.getByText('Fitness & Health')).toBeInTheDocument();
-    expect(screen.getByText('Personalized')).toBeInTheDocument();
 
     // Create new category
-    const catInput = screen.getByLabelText(/category name \*/i);
+    const catInput = screen.getByLabelText(/list \/ category name \*/i);
     fireEvent.change(catInput, { target: { value: 'Finance' } });
-    const createBtn = screen.getByRole('button', { name: /create category/i });
+    const createBtn = screen.getByRole('button', { name: /add list \/ category/i });
     fireEvent.click(createBtn);
 
     expect(handleAddCat).toHaveBeenCalledWith({ name: 'Finance', color: '#305fdd' });
 
     // Delete custom category
-    const deleteBtn = screen.getByRole('button', { name: /delete fitness & health category/i });
+    const deleteBtn = screen.getByRole('button', { name: /delete fitness & health list/i });
     fireEvent.click(deleteBtn);
     expect(handleDeleteCat).toHaveBeenCalledWith('fitness');
+  });
+
+  it('switches to Priority Colors tab and renders color pickers and live card previews', () => {
+    const handleUpdate = vi.fn();
+    render(
+      <SettingsView
+        priorityColors={DEFAULT_PRIORITY_COLORS}
+        onUpdatePriorityColors={handleUpdate}
+      />
+    );
+
+    // Click Priority Colors tab in left sub-nav
+    const priorityTabBtn = screen.getByRole('tab', { name: /priority colors/i });
+    fireEvent.click(priorityTabBtn);
+
+    // Verify Priority Colors view
+    expect(screen.getByRole('heading', { name: /^priority colors$/i })).toBeInTheDocument();
+    expect(screen.getByText('High Priority Tasks')).toBeInTheDocument();
+    expect(screen.getByText('Medium Priority Tasks')).toBeInTheDocument();
+    expect(screen.getByText('Low Priority Tasks')).toBeInTheDocument();
+
+    // Presets are present
+    expect(screen.getByTitle('Red')).toBeInTheDocument();
+    expect(screen.getByTitle('Yellow')).toBeInTheDocument();
+    expect(screen.getByTitle('Emerald')).toBeInTheDocument();
+
+    // Click Crimson preset for High Priority
+    const crimsonBtn = screen.getByTitle('Crimson');
+    fireEvent.click(crimsonBtn);
+    expect(handleUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        high: '#dc2626',
+      })
+    );
+
+    // Live preview cards are rendered
+    expect(screen.getByText(/live preview: how cards appear on your board/i)).toBeInTheDocument();
+    expect(screen.getByText('Submit Quarterly Review')).toBeInTheDocument();
+    expect(screen.getByText('Weekly Product Sync')).toBeInTheDocument();
+    expect(screen.getByText('Organize Workspace Notes')).toBeInTheDocument();
+  });
+
+  it('filters navigation items based on search query', () => {
+    const handleUpdate = vi.fn();
+    render(
+      <SettingsView
+        priorityColors={DEFAULT_PRIORITY_COLORS}
+        onUpdatePriorityColors={handleUpdate}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText('Find a setting...');
+    fireEvent.change(searchInput, { target: { value: 'priority' } });
+
+    expect(screen.getByRole('tab', { name: /priority colors/i })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /account/i })).not.toBeInTheDocument();
+  });
+
+  it('resets priority colors to default when Reset to Defaults is clicked', () => {
+    const handleUpdate = vi.fn();
+    render(
+      <SettingsView
+        priorityColors={{ high: '#000000', medium: '#111111', low: '#222222' }}
+        onUpdatePriorityColors={handleUpdate}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /priority colors/i }));
+
+    const resetBtn = screen.getByRole('button', { name: /reset to defaults/i });
+    fireEvent.click(resetBtn);
+
+    expect(handleUpdate).toHaveBeenCalledWith(DEFAULT_PRIORITY_COLORS);
+  });
+
+  it('switches to Task Lists tab and supports adding a new list', () => {
+    const handleCreateList = vi.fn();
+    render(
+      <SettingsView
+        priorityColors={DEFAULT_PRIORITY_COLORS}
+        onUpdatePriorityColors={vi.fn()}
+        onCreateList={handleCreateList}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /task lists & categories/i }));
+
+    expect(screen.getByRole('heading', { name: /task lists & categories/i })).toBeInTheDocument();
+    const input = screen.getByLabelText(/list \/ category name \*/i);
+    fireEvent.change(input, { target: { value: 'Academics & Research' } });
+
+    const addBtn = screen.getByTestId('create-list-submit-btn');
+    fireEvent.click(addBtn);
+
+    expect(handleCreateList).toHaveBeenCalledWith('Academics & Research');
+    expect(screen.getByText(/created successfully/i)).toBeInTheDocument();
+  });
+
+  it('supports quick Add list button in the sidebar', () => {
+    render(
+      <SettingsView
+        priorityColors={DEFAULT_PRIORITY_COLORS}
+        onUpdatePriorityColors={vi.fn()}
+      />
+    );
+
+    const quickAddBtn = screen.getByTestId('sidebar-add-list-btn');
+    fireEvent.click(quickAddBtn);
+
+    expect(screen.getByRole('heading', { name: /task lists & categories/i })).toBeInTheDocument();
+  });
+
+  it('supports renaming and deleting lists in Task Lists tab', () => {
+    const handleRenameList = vi.fn();
+    const handleDeleteList = vi.fn();
+    const customLists = [
+      { id: 'personal', title: 'Personal & Routine' },
+      { id: 'custom-1', title: 'Coders High' },
+    ];
+
+    render(
+      <SettingsView
+        priorityColors={DEFAULT_PRIORITY_COLORS}
+        onUpdatePriorityColors={vi.fn()}
+        customLists={customLists}
+        onRenameList={handleRenameList}
+        onDeleteList={handleDeleteList}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /task lists & categories/i }));
+
+    const renameButtons = screen.getAllByTitle('Rename List');
+    fireEvent.click(renameButtons[1]);
+
+    const editInput = screen.getByDisplayValue('Coders High');
+    fireEvent.change(editInput, { target: { value: 'Coders Elite' } });
+    fireEvent.click(screen.getByTitle('Save'));
+
+    expect(handleRenameList).toHaveBeenCalledWith('custom-1', 'Coders Elite');
+
+    const deleteBtns = screen.getAllByTitle('Delete List');
+    expect(deleteBtns.length).toBeGreaterThanOrEqual(2);
+    fireEvent.click(deleteBtns[1]);
+
+    expect(handleDeleteList).toHaveBeenCalledWith('custom-1');
   });
 });

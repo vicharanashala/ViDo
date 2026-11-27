@@ -34,6 +34,21 @@
   --accent-soft: #eef3ff;
 }
 
+[data-accent="amber"] {
+  --accent: #d97706;
+  --accent-soft: #fffbeb;
+}
+
+[data-accent="rose"] {
+  --accent: #e11d48;
+  --accent-soft: #fff1f2;
+}
+
+[data-accent="purple"] {
+  --accent: #7c3aed;
+  --accent-soft: #f5f3ff;
+}
+
 @theme {
   --color-ink: var(--ink);
   --color-muted: var(--muted);
@@ -56,6 +71,128 @@
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Aesthetic Mild Transparent Scrollbars
+   ========================================================================== */
+
+/* Modern Standard (Firefox, Safari 16+, Chrome 121+) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
+}
+
+/* WebKit & Chromium Browsers (Chrome, Edge, Safari, Brave, Opera) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.48);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark surface scrollbars (such as WorkspaceSidebar) */
+aside[aria-label="Workspace navigation"],
+[data-theme="dark"],
+.bg-dark,
+.bg-\[var\(--dark\)\] {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+aside[aria-label="Workspace navigation"]::-webkit-scrollbar-thumb,
+[data-theme="dark"]::-webkit-scrollbar-thumb,
+.bg-dark::-webkit-scrollbar-thumb,
+.bg-\[var\(--dark\)\]::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+aside[aria-label="Workspace navigation"]::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"]::-webkit-scrollbar-thumb:hover,
+.bg-dark::-webkit-scrollbar-thumb:hover,
+.bg-\[var\(--dark\)\]::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ==========================================================================
+   Task Board Feed Scrollbars: ONLY VISIBLE ON HOVER OF THAT PARTICULAR BOARD
+   ========================================================================== */
+
+/* By default, the task board feed scrollbar is completely invisible */
+.board-task-feed {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.board-task-feed::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.board-task-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.board-task-feed::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Scrollbar appears ONLY when hovering on that particular task board */
+.board-task-column:hover .board-task-feed,
+.board-task-feed:hover {
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+}
+
+.board-task-column:hover .board-task-feed::-webkit-scrollbar-thumb,
+.board-task-feed:hover::-webkit-scrollbar-feed {
+  background-color: rgba(100, 116, 139, 0.3);
+}
+
+.board-task-column:hover .board-task-feed::-webkit-scrollbar-thumb,
+.board-task-feed:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.3);
+}
+
+.board-task-column:hover .board-task-feed::-webkit-scrollbar-thumb:hover,
+.board-task-feed:hover::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.55);
+}
+
+/* Dark theme hover support */
+[data-theme="dark"] .board-task-column:hover .board-task-feed,
+[data-theme="dark"] .board-task-feed:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+[data-theme="dark"] .board-task-column:hover .board-task-feed::-webkit-scrollbar-thumb,
+[data-theme="dark"] .board-task-feed:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.22);
+}
+
+[data-theme="dark"] .board-task-column:hover .board-task-feed::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .board-task-feed:hover::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.42);
 }
 
 /* Keep the workspace navigation scrollbar quiet, compact, and palette-aware. */

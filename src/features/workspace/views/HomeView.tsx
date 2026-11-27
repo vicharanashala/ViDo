@@ -8,9 +8,10 @@ import {
 import { BENCHMARK_DATE_STR } from '../../../data/sampleTasks';
 import { getTodayDateString, formatTopBarDate } from '../../../utils/dateUtils';
 import { TaskRow } from '../TaskRow';
+import { TasksBoardView, CustomListDefinition } from '../board';
+import { PriorityColors } from '../../../utils/priorityColor';
 import { Button } from '../../../components/ui';
 import {
-  CheckSquare,
   Clock,
   AlertCircle,
   Calendar,
@@ -18,7 +19,6 @@ import {
   Sparkles,
   Filter,
   Plus,
-  X,
   ArrowRight,
 } from 'lucide-react';
 import { DEFAULT_CATEGORIES, type UserCategory } from '../../../data/categories';
@@ -35,13 +35,43 @@ export interface HomeViewProps {
   dashboard?: HomeDashboardTasks;
   initialTab?: 'dashboard' | 'tasks';
   initialStatus?: 'today' | 'needsAttention' | 'upcoming' | 'completed' | 'all';
+  statusFilter?: StatusFilter;
+  categoryFilter?: CategoryFilter;
+  selectedCategories?: string[];
+  priorityFilter?: PriorityFilter;
+  priorityColors?: PriorityColors;
+  onStatusFilterChange?: (status: StatusFilter) => void;
+  onClearFilters?: () => void;
   onTaskClick: (task: SampleTask) => void;
   onToggleTask?: (task: SampleTask) => void;
   onNewTaskClick?: () => void;
+  onUpdateTask?: (taskId: string, updates: Partial<SampleTask>) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onToggleStar?: (taskId: string) => void;
+  onQuickAddTask?: (
+    category: string,
+    title: string,
+    options?: {
+      description?: string;
+      dueDate?: string;
+      dueTime?: string;
+      deadline?: string;
+      priority?: 'high' | 'medium' | 'low';
+      starred?: boolean;
+    }
+  ) => void;
+  customLists?: CustomListDefinition[];
+  onCreateList?: (title: string) => void;
+  onRenameList?: (id: string, newTitle: string) => void;
+  onDeleteList?: (id: string) => void;
+  onReorderLists?: (newOrder: CustomListDefinition[]) => void;
+  onMoveTask?: (taskId: string, targetColId: string, targetTaskId?: string, position?: 'before' | 'after') => void;
+  onDeleteCompletedTasks?: (columnId: string) => void;
+  onCleanUpOldTasks?: (columnId: string) => void;
 }
 
 export type StatusFilter = 'all' | 'today' | 'needsAttention' | 'upcoming' | 'completed';
-export type CategoryFilter = 'all' | string;
+export type CategoryFilter = 'all' | 'personal' | 'home' | 'work' | string;
 export type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -49,13 +79,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
   basePath = '/preview',
   user,
   tasks,
-  categories = DEFAULT_CATEGORIES,
+  categories: _categories = DEFAULT_CATEGORIES,
   dashboard,
   initialTab = 'dashboard',
   initialStatus = 'all',
+  statusFilter: propStatusFilter,
+  categoryFilter: propCategoryFilter,
+  selectedCategories: propSelectedCategories,
+  priorityFilter: propPriorityFilter,
+  priorityColors,
+  onStatusFilterChange,
+  onClearFilters: propOnClearFilters,
   onTaskClick,
   onToggleTask,
   onNewTaskClick,
+  onUpdateTask,
+  onDeleteTask,
+  onToggleStar,
+  onQuickAddTask,
+  customLists,
+  onCreateList,
+  onRenameList,
+  onDeleteList,
+  onReorderLists,
+  onMoveTask,
+  onDeleteCompletedTasks,
+  onCleanUpOldTasks,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,65 +127,87 @@ export const HomeView: React.FC<HomeViewProps> = ({
     'today' | 'needsAttention' | 'upcoming' | 'completed'
   >('today');
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>(effectiveInitialStatus);
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
-  const [isAddFilterOpen, setIsAddFilterOpen] = useState(false);
+  const [internalStatusFilter, setInternalStatusFilter] = useState<StatusFilter>(effectiveInitialStatus);
+  const [internalCategoryFilter, setInternalCategoryFilter] = useState<CategoryFilter>('all');
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<string[]>([]);
+  const [internalPriorityFilter, setInternalPriorityFilter] = useState<PriorityFilter>('all');
+
+  const statusFilter = propStatusFilter ?? internalStatusFilter;
+  const categoryFilter = propCategoryFilter ?? internalCategoryFilter;
+  const activeCategories =
+    propSelectedCategories !== undefined
+      ? propSelectedCategories
+      : internalSelectedCategories.length > 0
+      ? internalSelectedCategories
+      : categoryFilter !== 'all'
+      ? [categoryFilter]
+      : [];
+  const priorityFilter = propPriorityFilter ?? internalPriorityFilter;
+
+  const setStatus = (s: StatusFilter) => {
+    if (onStatusFilterChange) onStatusFilterChange(s);
+    else setInternalStatusFilter(s);
+  };
+
+  const handleClearFilters = () => {
+    if (propOnClearFilters) {
+      propOnClearFilters();
+    } else {
+      setInternalStatusFilter('all');
+      setInternalCategoryFilter('all');
+      setInternalSelectedCategories([]);
+      setInternalPriorityFilter('all');
+    }
+  };
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
   useEffect(() => {
-    setStatusFilter(navigationStateStatus ?? initialStatus);
-  }, [navigationStateStatus, initialStatus]);
-
-  // Status human-readable labels
-  const statusLabels: Record<StatusFilter, string> = {
-    all: 'All Active Tasks',
-    today: "Today's Agenda",
-    needsAttention: 'Needs Attention',
-    upcoming: 'Upcoming Schedule',
-    completed: 'Recently Completed',
-  };
-
-  const getCategoryLabel = (catId: string): string => {
-    if (catId === 'all') return 'All Categories';
-    const found = categories.find((c) => c.id === catId);
-    return found ? found.name : catId;
-  };
-
-  // Tasks Filtered for the "Tasks" Tab (Strictly active tasks only - no completed tasks)
-  const displayedTasks = allTasks.filter((task) => {
-    // 0. Completed or archived tasks are never shown in the Tasks section
-    if (task.state !== 'active' || task.isArchived) return false;
-
-    // 1. Status Filter
-    const todayStr = getTodayDateString();
-    const referenceDate = isPreview ? BENCHMARK_DATE_STR : todayStr;
-    if (statusFilter === 'today') {
-      const isDueToday = task.dueDate === referenceDate || (isPreview && task.dueDate === todayStr);
-      if (!isDueToday) return false;
-    } else if (statusFilter === 'needsAttention') {
-      const isOverdue = task.dueDate < referenceDate && (!isPreview || task.dueDate !== todayStr);
-      if (!isOverdue) return false;
-    } else if (statusFilter === 'upcoming') {
-      const isUpcoming = task.dueDate > referenceDate && (!isPreview || task.dueDate !== todayStr);
-      if (!isUpcoming) return false;
+    if (propStatusFilter === undefined) {
+      setInternalStatusFilter(effectiveInitialStatus);
     }
+  }, [effectiveInitialStatus, propStatusFilter]);
 
-    // 2. Category Filter
-    if (categoryFilter !== 'all' && task.category !== categoryFilter) {
+  // Tasks Filtered for the "Tasks" Tab
+  const displayedTasks = allTasks.filter((task) => {
+    // 0. Archived tasks are never shown in workspace tasks
+    if (task.isArchived) return false;
+
+    // 1. Multi-select Category Filter
+    if (activeCategories.length > 0 && !activeCategories.includes(task.category)) {
       return false;
     }
 
-    // 3. Priority Filter
+    // 2. Priority Filter
     if (priorityFilter !== 'all' && task.priority !== priorityFilter) {
       return false;
     }
 
+    // 3. Status Filter (active tasks filtered by timeline; completed tasks populate Completed accordion)
+    const todayStr = getTodayDateString();
+    const referenceDate = isPreview ? BENCHMARK_DATE_STR : todayStr;
+    if (statusFilter === 'today') {
+      const isDueToday = task.dueDate === referenceDate || (isPreview && task.dueDate === todayStr);
+      if (task.state === 'active' && !isDueToday) return false;
+    } else if (statusFilter === 'needsAttention') {
+      const isOverdue = task.dueDate < referenceDate && (!isPreview || task.dueDate !== todayStr);
+      if (task.state === 'active' && !isOverdue) return false;
+    } else if (statusFilter === 'upcoming') {
+      const isUpcoming = task.dueDate > referenceDate && (!isPreview || task.dueDate !== todayStr);
+      if (task.state === 'active' && !isUpcoming) return false;
+    } else if (statusFilter === 'completed') {
+      if (task.state !== 'completed') return false;
+    }
+
     return true;
   });
+
+  const activeTaskCount =
+    statusFilter === 'completed'
+      ? displayedTasks.length
+      : displayedTasks.filter((t) => t.state === 'active').length;
 
   // Dashboard Tab Category Data
   const dashboardCategories = {
@@ -174,13 +245,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   const activeDashboardSection = dashboardCategories[dashboardCategory];
 
-  return (
-    <div className="space-y-6 p-6 sm:p-8 max-w-6xl mx-auto">
-      {/* ======================================================== */}
-      {/* TAB 1: DASHBOARD VIEW                                   */}
-      {/* ======================================================== */}
-      {activeTab === 'dashboard' && (
-        <div className="space-y-8 animate-in fade-in duration-150">
+  // 1. DASHBOARD VIEW (Full height with independent vertical scrolling)
+  if (activeTab === 'dashboard') {
+    return (
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="space-y-6 p-6 sm:p-8 max-w-6xl mx-auto animate-in fade-in duration-150">
           {/* Dark Navy Hero Overview Card */}
           <section
             aria-label="Overview Command Center"
@@ -373,7 +442,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    setStatusFilter(dashboardCategory);
+                    setStatus(dashboardCategory);
                     try {
                       navigate(`${basePath}/tasks`, { state: { status: dashboardCategory } });
                     } catch {
@@ -407,283 +476,57 @@ export const HomeView: React.FC<HomeViewProps> = ({
             )}
           </section>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* ======================================================== */}
-      {/* TAB 2: TASKS VIEW WITH FILTER BUILDER                    */}
-      {/* ======================================================== */}
-      {activeTab === 'tasks' && (
-        <div className="space-y-6 animate-in fade-in duration-150">
-          {/* Header Bar */}
-          <div className="flex items-center justify-between pb-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ink)]">Tasks</h1>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30">
-                {displayedTasks.length} {displayedTasks.length === 1 ? 'task' : 'tasks'}
-              </span>
-            </div>
+  // 2. GOOGLE TASKS REDESIGNED VIEW (Strictly horizontal scroll, zero outer vertical scroll)
+  return (
+    <div className="w-full h-full flex-1 min-h-0 flex flex-col px-6 pt-4 pb-2 overflow-hidden animate-in fade-in duration-150">
+      {/* Screen-reader heading for accessibility and test suites */}
+      <h1 className="sr-only">Tasks</h1>
 
-            {onNewTaskClick && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={onNewTaskClick}
-                className="gap-1.5 shadow-sm text-sm py-2 px-3.5"
-              >
-                <Plus className="w-4 h-4" /> New Task
-              </Button>
-            )}
+      {/* Task Container: TasksBoardView fills the remaining height with zero outer vertical scroll */}
+      {activeTaskCount === 0 && displayedTasks.length === 0 && allTasks.length > 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--surface)] border border-[var(--line)] rounded-2xl my-auto max-w-md mx-auto space-y-2">
+          <div className="w-12 h-12 rounded-full bg-[var(--canvas)] flex items-center justify-center text-[var(--muted)] mb-2">
+            <Filter className="w-5 h-5 text-[var(--muted)]" />
           </div>
-
-          {/* Interactive Filter Bar with "+ Add Filter" Controls */}
-          <section aria-label="Task Filters" className="space-y-4">
-            <div className="p-4 sm:p-5 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                {/* Left: Active Filters and + Add Filter Trigger */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] flex items-center gap-1.5 mr-1">
-                    <Filter className="w-4 h-4 text-[var(--accent)]" /> Filters:
-                  </span>
-
-                  {/* Status Filter Pill */}
-                  {statusFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] text-sm font-semibold border border-[var(--accent)]/30 shadow-2xs">
-                      <span>Status: {statusLabels[statusFilter]}</span>
-                      <button
-                        onClick={() => setStatusFilter('all')}
-                        className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
-                        aria-label="Remove status filter"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Category Filter Pill */}
-                  {categoryFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-700 text-sm font-semibold border border-indigo-500/30 shadow-2xs">
-                      <span>Category: {getCategoryLabel(categoryFilter)}</span>
-                      <button
-                        onClick={() => setCategoryFilter('all')}
-                        className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
-                        aria-label="Remove category filter"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Priority Filter Pill */}
-                  {priorityFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-800 text-sm font-semibold border border-amber-500/30 shadow-2xs">
-                      <span>Priority: {priorityFilter.toUpperCase()}</span>
-                      <button
-                        onClick={() => setPriorityFilter('all')}
-                        className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
-                        aria-label="Remove priority filter"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  )}
-
-                  {/* + Add Filter Popover Menu */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsAddFilterOpen(!isAddFilterOpen)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-dashed border-[var(--line)] hover:border-[var(--accent)] bg-[var(--canvas)] text-sm font-semibold text-[var(--ink)] hover:text-[var(--accent)] transition-all cursor-pointer shadow-2xs"
-                      aria-label="Add filter"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add Filter</span>
-                    </button>
-
-                    {isAddFilterOpen && (
-                      <div className="absolute left-0 top-full mt-2 w-60 p-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-xl z-30 space-y-2.5 animate-in fade-in duration-100">
-                        {/* Category Options */}
-                        <div>
-                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
-                            Category
-                          </span>
-                          <div className="space-y-0.5 max-h-44 overflow-y-auto">
-                            {categories.map((cat) => (
-                              <button
-                                key={cat.id}
-                                onClick={() => {
-                                  setCategoryFilter(cat.id);
-                                  setIsAddFilterOpen(false);
-                                }}
-                                className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer flex items-center justify-between"
-                              >
-                                <span>{cat.name}</span>
-                                {cat.color && (
-                                  <span
-                                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                                    style={{ backgroundColor: cat.color }}
-                                  />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Priority Options */}
-                        <div className="pt-1.5 border-t border-[var(--line)]">
-                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
-                            Priority
-                          </span>
-                          <div className="space-y-0.5">
-                            <button
-                              onClick={() => {
-                                setPriorityFilter('high');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-red-600 font-medium cursor-pointer"
-                            >
-                              High Priority
-                            </button>
-                            <button
-                              onClick={() => {
-                                setPriorityFilter('medium');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-amber-600 font-medium cursor-pointer"
-                            >
-                              Medium Priority
-                            </button>
-                            <button
-                              onClick={() => {
-                                setPriorityFilter('low');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-blue-600 font-medium cursor-pointer"
-                            >
-                              Low Priority
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Status Options */}
-                        <div className="pt-1.5 border-t border-[var(--line)]">
-                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
-                            Timeline / Status
-                          </span>
-                          <div className="space-y-0.5">
-                            <button
-                              onClick={() => {
-                                setStatusFilter('today');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Due Today
-                            </button>
-                            <button
-                              onClick={() => {
-                                setStatusFilter('needsAttention');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Needs Attention (Overdue)
-                            </button>
-                            <button
-                              onClick={() => {
-                                setStatusFilter('upcoming');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Upcoming Schedule
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Clear All Filters */}
-                  {(statusFilter !== 'all' ||
-                    categoryFilter !== 'all' ||
-                    priorityFilter !== 'all') && (
-                    <button
-                      onClick={() => {
-                        setStatusFilter('all');
-                        setCategoryFilter('all');
-                        setPriorityFilter('all');
-                      }}
-                      className="text-sm text-[var(--muted)] hover:text-[var(--ink)] underline cursor-pointer ml-1"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-
-                {/* Right: Task Count */}
-                <div className="text-sm text-[var(--muted)] font-medium">
-                  Showing <strong className="text-[var(--ink)]">{displayedTasks.length}</strong> tasks
-                </div>
-              </div>
-            </div>
-
-            {/* Task Rows Card Container */}
-            {displayedTasks.length > 0 ? (
-              <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
-                {displayedTasks.map((task) => (
-                  <TaskRow
-                    key={task.id}
-                    task={task}
-                    onClick={onTaskClick}
-                    onToggle={onToggleTask}
-                    isPreview={isPreview}
-                  />
-                ))}
-              </div>
-            ) : allTasks.length === 0 ? (
-              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center mx-auto shadow-xs">
-                  <CheckSquare className="w-8 h-8" />
-                </div>
-                <div className="space-y-1.5">
-                  <p className="text-2xl font-bold tracking-tight text-[var(--ink)]">Your workspace is empty</p>
-                  <p className="text-base text-[var(--muted)] max-w-md mx-auto leading-relaxed">
-                    Get started by creating your first task to track your personal, household, or work responsibilities.
-                  </p>
-                </div>
-                {onNewTaskClick && (
-                  <div className="pt-2">
-                    <Button variant="primary" size="md" onClick={onNewTaskClick} className="px-6 py-2.5 text-base font-semibold shadow-xs">
-                      <Plus className="w-5 h-5 mr-2" /> Create First Task
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
-                <div className="space-y-1.5">
-                  <p className="text-2xl font-bold tracking-tight text-[var(--ink)]">No tasks match your filters</p>
-                  <p className="text-base text-[var(--muted)] max-w-md mx-auto leading-relaxed">
-                    Try adjusting your active filters or clear them to view all responsibilities.
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => {
-                      setStatusFilter('all');
-                      setCategoryFilter('all');
-                      setPriorityFilter('all');
-                    }}
-                    className="px-6 py-2.5 text-base font-semibold"
-                  >
-                    Reset Filters
-                  </Button>
-                </div>
-              </div>
-            )}
-          </section>
+          <p className="text-sm font-semibold text-[var(--ink)]">No tasks match your filters</p>
+          <p className="text-xs text-[var(--muted)]">
+            Try adjusting your category, priority, or timeline filter from the top bar to view all responsibilities.
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleClearFilters}
+            className="mt-2"
+          >
+            Clear Filters
+          </Button>
+        </div>
+      ) : (
+        <div className="flex-1 min-h-0 w-full overflow-hidden flex flex-col">
+          <TasksBoardView
+            tasks={displayedTasks}
+            selectedCategories={activeCategories}
+            priorityColors={priorityColors}
+            customLists={customLists}
+            onCreateList={onCreateList}
+            onRenameList={onRenameList}
+            onDeleteList={onDeleteList}
+            onReorderLists={onReorderLists}
+            onToggleTask={(task) => onToggleTask && onToggleTask(task)}
+            onUpdateTask={onUpdateTask || (() => {})}
+            onDeleteTask={onDeleteTask}
+            onToggleStar={onToggleStar || (() => {})}
+            onAddTask={onQuickAddTask || (() => {})}
+            referenceDateStr={isPreview ? BENCHMARK_DATE_STR : todayStr}
+            isPreview={isPreview}
+            onMoveTask={onMoveTask}
+            onDeleteCompletedTasks={onDeleteCompletedTasks}
+            onCleanUpOldTasks={onCleanUpOldTasks}
+          />
         </div>
       )}
     </div>

@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { X, Settings } from 'lucide-react';
 import { Button } from '../../components/ui';
-import { SettingsView, type SettingsSection } from './views/SettingsView';
+import { SettingsView, type SettingsSection, type CustomListDefinition } from './views/SettingsView';
 import type { UserCategory } from '../../data/categories';
+import type { PriorityColors } from '../../utils/priorityColor';
 
 export interface SettingsModalProps {
   isOpen: boolean;
@@ -18,6 +19,12 @@ export interface SettingsModalProps {
   onAddCategory?: (params: { name: string; color?: string }) => Promise<UserCategory> | UserCategory;
   onDeleteCategory?: (categoryId: string) => Promise<void> | void;
   onSignOut?: () => void;
+  priorityColors?: PriorityColors;
+  onUpdatePriorityColors?: (colors: PriorityColors) => void;
+  customLists?: CustomListDefinition[];
+  onCreateList?: (title: string) => void;
+  onRenameList?: (id: string, newTitle: string) => void;
+  onDeleteList?: (id: string) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -30,6 +37,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onAddCategory,
   onDeleteCategory,
   onSignOut,
+  priorityColors,
+  onUpdatePriorityColors,
+  customLists,
+  onCreateList,
+  onRenameList,
+  onDeleteList,
 }) => {
   // Close on Escape key press
   useEffect(() => {
@@ -91,6 +104,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onSignOut={onSignOut}
             isModal={true}
             onClose={onClose}
+            priorityColors={priorityColors}
+            onUpdatePriorityColors={onUpdatePriorityColors}
+            customLists={customLists}
+            onCreateList={onCreateList}
+            onRenameList={onRenameList}
+            onDeleteList={onDeleteList}
           />
         </div>
 

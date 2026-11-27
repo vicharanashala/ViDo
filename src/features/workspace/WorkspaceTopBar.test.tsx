@@ -78,6 +78,88 @@ describe('WorkspaceTopBar', () => {
     expect(screen.getByText('Friday, 25 Dec 2026')).toBeInTheDocument();
   });
 
+  it('renders filter button and opens filter card with aesthetic ticks on click', () => {
+    const handleCategory = vi.fn();
+    const handlePriority = vi.fn();
+    const handleStatus = vi.fn();
+    const handleClear = vi.fn();
+
+    render(
+      <MemoryRouter>
+        <WorkspaceTopBar
+          title="Filter Test"
+          categoryFilter="personal"
+          onToggleCategoryFilter={handleCategory}
+          onTogglePriorityFilter={handlePriority}
+          onToggleStatusFilter={handleStatus}
+          onClearFilters={handleClear}
+        />
+      </MemoryRouter>
+    );
+
+    // Filter button is present
+    const filterBtn = screen.getByRole('button', { name: /filter tasks/i });
+    expect(filterBtn).toBeInTheDocument();
+
+    // Click to open filter popover
+    fireEvent.click(filterBtn);
+
+    // Dialog card is visible with sections: Category, Priority, Timeline / Status
+    expect(screen.getByRole('dialog', { name: /filter options/i })).toBeInTheDocument();
+    expect(screen.getByText(/^category$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^priority$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^timeline \/ status$/i)).toBeInTheDocument();
+
+    // Personal category is ticked
+    const personalOption = screen.getByRole('button', { name: /personal/i });
+    expect(personalOption).toBeInTheDocument();
+
+    // Click High Priority option
+    const highPriorityOption = screen.getByRole('button', { name: /high priority/i });
+    fireEvent.click(highPriorityOption);
+    expect(handlePriority).toHaveBeenCalledWith('high');
+
+    // Click Due Today status option
+    const dueTodayOption = screen.getByRole('button', { name: /due today/i });
+    fireEvent.click(dueTodayOption);
+    expect(handleStatus).toHaveBeenCalledWith('today');
+
+    // Clear all filters button is present when active
+    const clearBtn = screen.getByRole('button', { name: /clear all filters/i });
+    fireEvent.click(clearBtn);
+    expect(handleClear).toHaveBeenCalledTimes(1);
+  });
+
+  it('supports multi-select categories and displays correct filter badge count', () => {
+    const handleCategory = vi.fn();
+    render(
+      <MemoryRouter>
+        <WorkspaceTopBar
+          title="Multi Category Test"
+          selectedCategories={['personal', 'work']}
+          onToggleCategoryFilter={handleCategory}
+        />
+      </MemoryRouter>
+    );
+
+    // Button label reflects multi-filters: Filters (2)
+    expect(screen.getByText('Filters (2)')).toBeInTheDocument();
+
+    const filterBtn = screen.getByRole('button', { name: /filter tasks/i });
+    fireEvent.click(filterBtn);
+
+    // Both personal and work should be checked
+    const personalOption = screen.getByRole('button', { name: /personal/i });
+    const workOption = screen.getByRole('button', { name: /work \/ professional/i });
+    expect(personalOption).toBeInTheDocument();
+    expect(workOption).toBeInTheDocument();
+
+    // Clicking Household/Living triggers toggle with 'home'
+    const homeOption = screen.getByRole('button', { name: /household \/ living/i });
+    fireEvent.click(homeOption);
+    expect(handleCategory).toHaveBeenCalledWith('home');
+  });
+
   it('changes top bar layout and breadcrumbs when on the settings page', () => {
     render(
       <MemoryRouter initialEntries={['/workspace/settings']}>

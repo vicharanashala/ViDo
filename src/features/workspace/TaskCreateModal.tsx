@@ -37,7 +37,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   const [startDate, setStartDate] = useState(() => initialStartDate || '');
   const [dueDate, setDueDate] = useState(() => initialDueDate || getTodayDateString());
   const [dueTime, setDueTime] = useState(() => initialDueTime ?? getDefaultDueTime());
-  const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('medium');
+  const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('low');
   const [category, setCategory] = useState<string>('personal');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -118,7 +118,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
     setStartDate('');
     setDueDate(getTodayDateString());
     setDueTime(getDefaultDueTime());
-    setPriority('medium');
+    setPriority('low');
     setCategory('personal');
 
     onClose();

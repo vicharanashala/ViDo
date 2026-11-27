@@ -49,57 +49,30 @@ describe('Workspace Views and Modals', () => {
       expect(handleClick).toHaveBeenCalled();
     });
 
-    it('supports dynamic filter addition, pill removal, and clear all filters in Tasks tab', () => {
-      render(
+    it('supports controlled filters and renders clean Tasks board without in-page filter bar', () => {
+      const { rerender } = render(
         <MemoryRouter>
           <HomeView tasks={SAMPLE_TASKS} onTaskClick={vi.fn()} initialTab="tasks" />
         </MemoryRouter>
       );
 
-      // Default state has no filter pills applied
-      expect(screen.queryByText(/status: today's agenda/i)).not.toBeInTheDocument();
+      // Verify old in-page filter toolbar is completely removed
+      expect(screen.queryByRole('region', { name: /task filters/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /add filter/i })).not.toBeInTheDocument();
       expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
 
-      // Open Add Filter menu
-      const addFilterBtn = screen.getByRole('button', { name: /add filter/i });
-      fireEvent.click(addFilterBtn);
-
-      // Select Status: Due Today
-      const dueTodayOption = screen.getByRole('button', { name: /due today/i });
-      fireEvent.click(dueTodayOption);
-
-      // Verify Status filter pill is added
-      expect(screen.getByText(/status: today's agenda/i)).toBeInTheDocument();
-
-      // Open Add Filter menu again
-      fireEvent.click(addFilterBtn);
-
-      // Select Personal category
-      const personalOption = screen.getByRole('button', { name: /^personal$/i });
-      fireEvent.click(personalOption);
-
-      // Verify Personal category filter pill is added
-      expect(screen.getByText(/category: personal/i)).toBeInTheDocument();
-
-      // Open Add Filter menu again
-      fireEvent.click(addFilterBtn);
-
-      // Select High Priority
-      const highPriorityOption = screen.getByRole('button', { name: /high priority/i });
-      fireEvent.click(highPriorityOption);
-
-      // Verify Priority filter pill is added
-      expect(screen.getByText(/priority: high/i)).toBeInTheDocument();
-
-      // Click Clear all
-      const clearAllBtn = screen.getByRole('button', { name: /clear all/i });
-      fireEvent.click(clearAllBtn);
-
-      // Verify all filter pills are cleared
-      expect(screen.queryByText(/status: today's agenda/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/category: personal/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/priority: high/i)).not.toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
+      // Rerender with category filter
+      rerender(
+        <MemoryRouter>
+          <HomeView
+            tasks={SAMPLE_TASKS}
+            onTaskClick={vi.fn()}
+            initialTab="tasks"
+            categoryFilter="personal"
+          />
+        </MemoryRouter>
+      );
+      expect(screen.getByRole('heading', { name: /personal & routine/i })).toBeInTheDocument();
     });
 
     it('does not apply any filter by default when opening Tasks view', () => {
@@ -115,9 +88,10 @@ describe('Workspace Views and Modals', () => {
       expect(screen.queryByText(/priority:/i)).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /clear all/i })).not.toBeInTheDocument();
 
-      // Verify all active non-archived tasks are listed
-      const activeTasks = SAMPLE_TASKS.filter((t) => t.state === 'active' && !t.isArchived);
-      expect(screen.getByText(new RegExp(`${activeTasks.length} tasks`, 'i'))).toBeInTheDocument();
+      // Verify all default board columns are rendered without filters
+      expect(screen.getByRole('heading', { name: /personal & routine/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /work & professional/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /household & living/i })).toBeInTheDocument();
     });
 
     it('renders Dashboard by default and Tasks view when initialTab is tasks without in-page dual navigation', () => {
@@ -141,7 +115,7 @@ describe('Workspace Views and Modals', () => {
       );
 
       // Now on Tasks view
-      expect(screen.getByRole('button', { name: /add filter/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
       expect(screen.queryByText(/welcome back, demo user/i)).not.toBeInTheDocument();
       // Verify in-page dual navigation tablist is NOT rendered
       expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
@@ -519,8 +493,8 @@ describe('Workspace Views and Modals', () => {
       const tasksLink = screen.getByRole('link', { name: /^tasks/i });
       fireEvent.click(tasksLink);
 
-      // Now on Tasks view: Filter builder is visible, in-page tablist is NOT present
-      expect(screen.getByRole('button', { name: /add filter/i })).toBeInTheDocument();
+      // Now on Tasks view: Google Tasks layout is rendered, in-page tablist is NOT present
+      expect(screen.getAllByRole('heading', { name: /tasks/i })[0]).toBeInTheDocument();
       expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
 
       // Click Dashboard in sidebar
@@ -678,6 +652,35 @@ describe('Workspace Views and Modals', () => {
       expect(isKnownWorkspacePath('/workspace/team/', '/workspace')).toBe(false);
       expect(isKnownWorkspacePath('/workspace/team/alpha-1/extra', '/workspace')).toBe(false);
       expect(isKnownWorkspacePath('/workspace/random-wrong-endpoint', '/workspace')).toBe(false);
+    });
+
+    it('distinguishes between deleting completed tasks and cleaning up old uncompleted tasks in WorkspaceLayout', async () => {
+      render(
+        <MemoryRouter initialEntries={['/preview/tasks']}>
+          <Routes>
+            <Route path="/preview/*" element={<WorkspaceLayout />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      // Open the column 3-dots menu on Work column
+      const menuButtons = screen.getAllByLabelText('List options');
+      fireEvent.click(menuButtons[0]);
+
+      // Click "Clean up old tasks"
+      const cleanUpBtn = screen.getByRole('menuitem', { name: /clean up old tasks/i });
+      fireEvent.click(cleanUpBtn);
+
+      // Verify toast message for old uncompleted tasks
+      expect(await screen.findByText('Old uncompleted tasks cleaned up.')).toBeInTheDocument();
+
+      // Open menu again and click "Delete all completed tasks"
+      fireEvent.click(menuButtons[0]);
+      const deleteCompletedBtn = screen.getByRole('menuitem', { name: /delete all completed tasks/i });
+      fireEvent.click(deleteCompletedBtn);
+
+      // Verify toast message for completed tasks
+      expect(await screen.findByText('Completed tasks deleted.')).toBeInTheDocument();
     });
   });
 });
