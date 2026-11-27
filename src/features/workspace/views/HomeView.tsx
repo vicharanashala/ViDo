@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { SampleTask, SAMPLE_TASKS } from '../../../data/sampleTasks';
 import {
   getHomeDashboardTasks,
@@ -21,6 +21,7 @@ import {
   X,
   ArrowRight,
 } from 'lucide-react';
+import { DEFAULT_CATEGORIES, type UserCategory } from '../../../data/categories';
 
 export interface HomeViewProps {
   isPreview?: boolean;
@@ -30,6 +31,7 @@ export interface HomeViewProps {
     email?: string;
   };
   tasks?: SampleTask[];
+  categories?: UserCategory[];
   dashboard?: HomeDashboardTasks;
   initialTab?: 'dashboard' | 'tasks';
   initialStatus?: 'today' | 'needsAttention' | 'upcoming' | 'completed' | 'all';
@@ -39,7 +41,7 @@ export interface HomeViewProps {
 }
 
 export type StatusFilter = 'all' | 'today' | 'needsAttention' | 'upcoming' | 'completed';
-export type CategoryFilter = 'all' | 'personal' | 'home' | 'work';
+export type CategoryFilter = 'all' | string;
 export type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -47,14 +49,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
   basePath = '/preview',
   user,
   tasks,
+  categories = DEFAULT_CATEGORIES,
   dashboard,
   initialTab = 'dashboard',
-  initialStatus = 'today',
+  initialStatus = 'all',
   onTaskClick,
   onToggleTask,
   onNewTaskClick,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navigationStateStatus = (location.state as { status?: StatusFilter } | null)?.status;
+  const effectiveInitialStatus = navigationStateStatus ?? initialStatus;
+
   const allTasks = tasks ?? SAMPLE_TASKS;
   const todayStr = getTodayDateString();
   const currentDashboard =
@@ -71,7 +78,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     'today' | 'needsAttention' | 'upcoming' | 'completed'
   >('today');
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(effectiveInitialStatus);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
   const [isAddFilterOpen, setIsAddFilterOpen] = useState(false);
@@ -81,8 +88,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, [initialTab]);
 
   useEffect(() => {
-    setStatusFilter(initialStatus);
-  }, [initialStatus]);
+    setStatusFilter(navigationStateStatus ?? initialStatus);
+  }, [navigationStateStatus, initialStatus]);
 
   // Status human-readable labels
   const statusLabels: Record<StatusFilter, string> = {
@@ -93,11 +100,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     completed: 'Recently Completed',
   };
 
-  const categoryLabels: Record<CategoryFilter, string> = {
-    all: 'All Categories',
-    personal: 'Personal',
-    home: 'Household / Living',
-    work: 'Work / Professional',
+  const getCategoryLabel = (catId: string): string => {
+    if (catId === 'all') return 'All Categories';
+    const found = categories.find((c) => c.id === catId);
+    return found ? found.name : catId;
   };
 
   // Tasks Filtered for the "Tasks" Tab (Strictly active tasks only - no completed tasks)
@@ -185,16 +191,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[11px] font-mono tracking-wider uppercase font-semibold text-gray-400 flex items-center gap-1.5">
+                    <span className="text-xs font-mono tracking-wider uppercase font-semibold text-gray-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
                       {isPreview ? 'Tuesday, 17 November 2026' : formatTopBarDate()}
                     </span>
                     {isPreview ? (
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
                         Sample Data
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                         Personal Workspace
                       </span>
                     )}
@@ -213,7 +219,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       </span>
                     )}
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1 max-w-xl">
+                  <p className="text-sm text-gray-300 mt-1.5 max-w-xl">
                     Here is your focused daily workload snapshot. Select an area below to inspect its tasks.
                   </p>
                 </div>
@@ -223,7 +229,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     variant="primary"
                     size="sm"
                     onClick={onNewTaskClick}
-                    className="self-start sm:self-auto gap-1.5 shadow-md"
+                    className="self-start sm:self-auto gap-1.5 shadow-md text-sm py-2 px-3.5"
                   >
                     <Plus className="w-4 h-4" /> New Task
                   </Button>
@@ -241,24 +247,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('today')
                   }
                   aria-label={`View Today tasks (${currentDashboard.today.totalCount})`}
-                  className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
                     dashboardCategory === 'today'
                       ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-[var(--accent)]" /> Today
                     </span>
                     {dashboardCategory === 'today' && (
                       <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
                     )}
                   </div>
-                  <div className="text-2xl font-black tracking-tight text-white">
+                  <div className="text-3xl font-black tracking-tight text-white">
                     {currentDashboard.today.totalCount}
                   </div>
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">Due by end of day</span>
+                  <span className="text-sm text-gray-300 mt-1 block">Due by end of day</span>
                 </div>
 
                 {/* Tile 2: Needs Attention */}
@@ -270,24 +276,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('needsAttention')
                   }
                   aria-label={`View Needs Attention tasks (${currentDashboard.needsAttention.totalCount})`}
-                  className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
                     dashboardCategory === 'needsAttention'
                       ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
                       <AlertCircle className="w-4 h-4 text-amber-400" /> Attention
                     </span>
                     {dashboardCategory === 'needsAttention' && (
                       <span className="w-2 h-2 rounded-full bg-amber-400" />
                     )}
                   </div>
-                  <div className="text-2xl font-black tracking-tight text-amber-300">
+                  <div className="text-3xl font-black tracking-tight text-amber-300">
                     {currentDashboard.needsAttention.totalCount}
                   </div>
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">Overdue or urgent</span>
+                  <span className="text-sm text-gray-300 mt-1 block">Overdue or urgent</span>
                 </div>
 
                 {/* Tile 3: Upcoming */}
@@ -299,24 +305,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('upcoming')
                   }
                   aria-label={`View Upcoming tasks (${currentDashboard.upcoming.totalCount})`}
-                  className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
                     dashboardCategory === 'upcoming'
                       ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
                       <Calendar className="w-4 h-4 text-indigo-400" /> Upcoming
                     </span>
                     {dashboardCategory === 'upcoming' && (
                       <span className="w-2 h-2 rounded-full bg-indigo-400" />
                     )}
                   </div>
-                  <div className="text-2xl font-black tracking-tight text-white">
+                  <div className="text-3xl font-black tracking-tight text-white">
                     {currentDashboard.upcoming.totalCount}
                   </div>
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">Scheduled later</span>
+                  <span className="text-sm text-gray-300 mt-1 block">Scheduled later</span>
                 </div>
 
                 {/* Tile 4: Recently Completed */}
@@ -328,24 +334,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('completed')
                   }
                   aria-label={`View Completed tasks (${currentDashboard.recentlyCompleted.totalCount})`}
-                  className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
                     dashboardCategory === 'completed'
                       ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Delivered
                     </span>
                     {dashboardCategory === 'completed' && (
                       <span className="w-2 h-2 rounded-full bg-emerald-400" />
                     )}
                   </div>
-                  <div className="text-2xl font-black tracking-tight text-emerald-300">
+                  <div className="text-3xl font-black tracking-tight text-emerald-300">
                     {currentDashboard.recentlyCompleted.totalCount}
                   </div>
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">Finished this week</span>
+                  <span className="text-sm text-gray-300 mt-1 block">Finished this week</span>
                 </div>
               </div>
             </div>
@@ -354,11 +360,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Active Category Tasks Preview on Dashboard */}
           <section className="space-y-4">
             <div className="flex items-center justify-between pb-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-[var(--ink)] tracking-tight">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xl font-bold text-[var(--ink)] tracking-tight">
                   {activeDashboardSection.title}
                 </h2>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--line)] text-[var(--muted)]">
+                <span className="text-sm font-semibold px-3 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--line)] text-[var(--muted)]">
                   {activeDashboardSection.items.length}
                 </span>
               </div>
@@ -369,14 +375,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={() => {
                     setStatusFilter(dashboardCategory);
                     try {
-                      navigate(`${basePath}/tasks`);
+                      navigate(`${basePath}/tasks`, { state: { status: dashboardCategory } });
                     } catch {
                       setActiveTab('tasks');
                     }
                   }}
-                  className="text-xs font-semibold text-[var(--accent)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  className="text-sm font-semibold text-[var(--accent)] hover:underline inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  Open in Tasks view <ArrowRight className="w-3.5 h-3.5" />
+                  Open in Tasks view <ArrowRight className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -396,7 +402,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             ) : (
               <div className="p-12 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)]">
-                <p className="text-xs text-[var(--muted)]">{activeDashboardSection.emptyText}</p>
+                <p className="text-base font-medium text-[var(--muted)]">{activeDashboardSection.emptyText}</p>
               </div>
             )}
           </section>
@@ -410,8 +416,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Header Bar */}
           <div className="flex items-center justify-between pb-1">
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-extrabold tracking-tight text-[var(--ink)]">Tasks</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ink)]">Tasks</h1>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30">
                 {displayedTasks.length} {displayedTasks.length === 1 ? 'task' : 'tasks'}
               </span>
@@ -422,7 +428,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={onNewTaskClick}
-                className="gap-1.5 shadow-sm"
+                className="gap-1.5 shadow-sm text-sm py-2 px-3.5"
               >
                 <Plus className="w-4 h-4" /> New Task
               </Button>
@@ -431,52 +437,52 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* Interactive Filter Bar with "+ Add Filter" Controls */}
           <section aria-label="Task Filters" className="space-y-4">
-            <div className="p-4 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-xs">
+            <div className="p-4 sm:p-5 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 {/* Left: Active Filters and + Add Filter Trigger */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] flex items-center gap-1.5 mr-1">
-                    <Filter className="w-3.5 h-3.5 text-[var(--accent)]" /> Filters:
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] flex items-center gap-1.5 mr-1">
+                    <Filter className="w-4 h-4 text-[var(--accent)]" /> Filters:
                   </span>
 
                   {/* Status Filter Pill */}
                   {statusFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] text-xs font-semibold border border-[var(--accent)]/30 shadow-2xs">
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] text-sm font-semibold border border-[var(--accent)]/30 shadow-2xs">
                       <span>Status: {statusLabels[statusFilter]}</span>
                       <button
                         onClick={() => setStatusFilter('all')}
                         className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
                         aria-label="Remove status filter"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </span>
                   )}
 
                   {/* Category Filter Pill */}
                   {categoryFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-700 text-xs font-semibold border border-indigo-500/30 shadow-2xs">
-                      <span>Category: {categoryLabels[categoryFilter]}</span>
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-700 text-sm font-semibold border border-indigo-500/30 shadow-2xs">
+                      <span>Category: {getCategoryLabel(categoryFilter)}</span>
                       <button
                         onClick={() => setCategoryFilter('all')}
                         className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
                         aria-label="Remove category filter"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </span>
                   )}
 
                   {/* Priority Filter Pill */}
                   {priorityFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-800 text-xs font-semibold border border-amber-500/30 shadow-2xs">
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-800 text-sm font-semibold border border-amber-500/30 shadow-2xs">
                       <span>Priority: {priorityFilter.toUpperCase()}</span>
                       <button
                         onClick={() => setPriorityFilter('all')}
                         className="hover:opacity-70 cursor-pointer p-0.5 rounded-full"
                         aria-label="Remove priority filter"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </span>
                   )}
@@ -486,54 +492,45 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsAddFilterOpen(!isAddFilterOpen)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dashed border-[var(--line)] hover:border-[var(--accent)] bg-[var(--canvas)] text-xs font-semibold text-[var(--ink)] hover:text-[var(--accent)] transition-all cursor-pointer shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-dashed border-[var(--line)] hover:border-[var(--accent)] bg-[var(--canvas)] text-sm font-semibold text-[var(--ink)] hover:text-[var(--accent)] transition-all cursor-pointer shadow-2xs"
                       aria-label="Add filter"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                       <span>Add Filter</span>
                     </button>
 
                     {isAddFilterOpen && (
-                      <div className="absolute left-0 top-full mt-2 w-56 p-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-xl z-30 space-y-2 animate-in fade-in duration-100">
+                      <div className="absolute left-0 top-full mt-2 w-60 p-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-xl z-30 space-y-2.5 animate-in fade-in duration-100">
                         {/* Category Options */}
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
+                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
                             Category
                           </span>
-                          <div className="space-y-0.5">
-                            <button
-                              onClick={() => {
-                                setCategoryFilter('personal');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Personal
-                            </button>
-                            <button
-                              onClick={() => {
-                                setCategoryFilter('home');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Household / Living
-                            </button>
-                            <button
-                              onClick={() => {
-                                setCategoryFilter('work');
-                                setIsAddFilterOpen(false);
-                              }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
-                            >
-                              Work / Professional
-                            </button>
+                          <div className="space-y-0.5 max-h-44 overflow-y-auto">
+                            {categories.map((cat) => (
+                              <button
+                                key={cat.id}
+                                onClick={() => {
+                                  setCategoryFilter(cat.id);
+                                  setIsAddFilterOpen(false);
+                                }}
+                                className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer flex items-center justify-between"
+                              >
+                                <span>{cat.name}</span>
+                                {cat.color && (
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                                    style={{ backgroundColor: cat.color }}
+                                  />
+                                )}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
                         {/* Priority Options */}
-                        <div className="pt-1 border-t border-[var(--line)]">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
+                        <div className="pt-1.5 border-t border-[var(--line)]">
+                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
                             Priority
                           </span>
                           <div className="space-y-0.5">
@@ -542,7 +539,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setPriorityFilter('high');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-red-600 font-medium cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-red-600 font-medium cursor-pointer"
                             >
                               High Priority
                             </button>
@@ -551,7 +548,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setPriorityFilter('medium');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-amber-600 font-medium cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-amber-600 font-medium cursor-pointer"
                             >
                               Medium Priority
                             </button>
@@ -560,7 +557,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setPriorityFilter('low');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-blue-600 font-medium cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-blue-600 font-medium cursor-pointer"
                             >
                               Low Priority
                             </button>
@@ -568,8 +565,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         </div>
 
                         {/* Status Options */}
-                        <div className="pt-1 border-t border-[var(--line)]">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
+                        <div className="pt-1.5 border-t border-[var(--line)]">
+                          <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
                             Timeline / Status
                           </span>
                           <div className="space-y-0.5">
@@ -578,7 +575,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setStatusFilter('today');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
                             >
                               Due Today
                             </button>
@@ -587,7 +584,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setStatusFilter('needsAttention');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
                             >
                               Needs Attention (Overdue)
                             </button>
@@ -596,7 +593,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                                 setStatusFilter('upcoming');
                                 setIsAddFilterOpen(false);
                               }}
-                              className="w-full text-left px-2 py-1 text-xs rounded hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
+                              className="w-full text-left px-2.5 py-1.5 text-sm rounded-lg hover:bg-[var(--canvas)] text-[var(--ink)] cursor-pointer"
                             >
                               Upcoming Schedule
                             </button>
@@ -616,7 +613,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         setCategoryFilter('all');
                         setPriorityFilter('all');
                       }}
-                      className="text-xs text-[var(--muted)] hover:text-[var(--ink)] underline cursor-pointer ml-1"
+                      className="text-sm text-[var(--muted)] hover:text-[var(--ink)] underline cursor-pointer ml-1"
                     >
                       Clear all
                     </button>
@@ -624,7 +621,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 {/* Right: Task Count */}
-                <div className="text-xs text-[var(--muted)] font-medium">
+                <div className="text-sm text-[var(--muted)] font-medium">
                   Showing <strong className="text-[var(--ink)]">{displayedTasks.length}</strong> tasks
                 </div>
               </div>
@@ -644,38 +641,46 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 ))}
               </div>
             ) : allTasks.length === 0 ? (
-              <div className="p-12 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)] space-y-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center mx-auto">
-                  <CheckSquare className="w-5 h-5" />
+              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center mx-auto shadow-xs">
+                  <CheckSquare className="w-8 h-8" />
                 </div>
-                <p className="text-sm font-semibold text-[var(--ink)]">Your workspace is empty</p>
-                <p className="text-xs text-[var(--muted)] max-w-sm mx-auto">
-                  Get started by creating your first task to track your personal, household, or work responsibilities.
-                </p>
+                <div className="space-y-1.5">
+                  <p className="text-2xl font-bold tracking-tight text-[var(--ink)]">Your workspace is empty</p>
+                  <p className="text-base text-[var(--muted)] max-w-md mx-auto leading-relaxed">
+                    Get started by creating your first task to track your personal, household, or work responsibilities.
+                  </p>
+                </div>
                 {onNewTaskClick && (
-                  <Button variant="primary" size="sm" onClick={onNewTaskClick} className="mt-2">
-                    <Plus className="w-4 h-4 mr-1.5" /> Create First Task
-                  </Button>
+                  <div className="pt-2">
+                    <Button variant="primary" size="md" onClick={onNewTaskClick} className="px-6 py-2.5 text-base font-semibold shadow-xs">
+                      <Plus className="w-5 h-5 mr-2" /> Create First Task
+                    </Button>
+                  </div>
                 )}
               </div>
             ) : (
-              <div className="p-12 text-center border border-dashed border-[var(--line)] rounded-xl bg-[var(--surface)] space-y-2">
-                <p className="text-sm font-semibold text-[var(--ink)]">No tasks match your filters</p>
-                <p className="text-xs text-[var(--muted)]">
-                  Try adjusting your active filters or clear them to view all responsibilities.
-                </p>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter('all');
-                    setCategoryFilter('all');
-                    setPriorityFilter('all');
-                  }}
-                  className="mt-2"
-                >
-                  Reset Filters
-                </Button>
+              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
+                <div className="space-y-1.5">
+                  <p className="text-2xl font-bold tracking-tight text-[var(--ink)]">No tasks match your filters</p>
+                  <p className="text-base text-[var(--muted)] max-w-md mx-auto leading-relaxed">
+                    Try adjusting your active filters or clear them to view all responsibilities.
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={() => {
+                      setStatusFilter('all');
+                      setCategoryFilter('all');
+                      setPriorityFilter('all');
+                    }}
+                    className="px-6 py-2.5 text-base font-semibold"
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
               </div>
             )}
           </section>

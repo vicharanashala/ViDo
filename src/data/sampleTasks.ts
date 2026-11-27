@@ -1,5 +1,6 @@
 export type TaskPriority = 'high' | 'medium' | 'low';
-export type TaskCategory = 'personal' | 'home' | 'work';
+export type StandardCategory = 'personal' | 'home' | 'work';
+export type TaskCategory = StandardCategory | (string & {});
 export type TaskState = 'active' | 'completed';
 
 export interface TaskCheckpoint {

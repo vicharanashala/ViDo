@@ -21,11 +21,14 @@ describe('WorkspaceSidebar', () => {
 
     expect(screen.getByText('DEMO')).toBeInTheDocument();
     expect(screen.getByText('Logged-in demo preview')).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: /workspace navigation/i })).toHaveClass(
+      'workspace-sidebar-scrollbar'
+    );
     expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /tasks 15/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /calendar/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /analytics/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /themes/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
   });
 
   it('triggers new task callback when button is clicked', () => {
@@ -39,6 +42,19 @@ describe('WorkspaceSidebar', () => {
     const btn = screen.getByRole('button', { name: /new task/i });
     fireEvent.click(btn);
     expect(handleNewTask).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers onOpenSettings callback when Settings link is clicked', () => {
+    const handleOpenSettings = vi.fn();
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} onOpenSettings={handleOpenSettings} />
+      </MemoryRouter>
+    );
+
+    const settingsLink = screen.getByRole('link', { name: /settings/i });
+    fireEvent.click(settingsLink);
+    expect(handleOpenSettings).toHaveBeenCalledTimes(1);
   });
 
   it('renders teams and triggers create team callback', () => {
@@ -110,5 +126,84 @@ describe('WorkspaceSidebar', () => {
     fireEvent.click(expandBtn);
 
     expect(screen.getByRole('link', { name: /all tasks 15/i })).toBeInTheDocument();
+  });
+
+  it('renders a resizable separator handle and resizes sidebar when dragged', () => {
+    localStorage.clear();
+    const handleWidthChange = vi.fn();
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} onSidebarWidthChange={handleWidthChange} />
+      </MemoryRouter>
+    );
+
+    const handle = screen.getByRole('separator', { name: /resize sidebar/i });
+    expect(handle).toBeInTheDocument();
+    expect(handle).toHaveAttribute('aria-orientation', 'vertical');
+    expect(handle).toHaveAttribute('aria-valuenow', '256');
+
+    // Simulate drag
+    fireEvent.mouseDown(handle, { clientX: 256 });
+    fireEvent.mouseMove(window, { clientX: 320 });
+    fireEvent.mouseUp(window);
+
+    expect(handle).toHaveAttribute('aria-valuenow', '320');
+    expect(handleWidthChange).toHaveBeenCalledWith(320);
+    expect(localStorage.getItem('vido_sidebar_width')).toBe('320');
+
+    const sidebar = screen.getByRole('complementary', { name: /workspace navigation/i });
+    expect(sidebar).toHaveStyle({ width: '320px' });
+
+    // Drag below minimum width (e.g. clientX: 180) clamps cleanly to 240px
+    fireEvent.mouseDown(handle, { clientX: 320 });
+    fireEvent.mouseMove(window, { clientX: 180 });
+    fireEvent.mouseUp(window);
+    expect(handle).toHaveAttribute('aria-valuenow', '240');
+    expect(sidebar).toHaveStyle({ width: '240px' });
+  });
+
+  it('resets sidebar width to default (256px) on double click', () => {
+    localStorage.setItem('vido_sidebar_width', '360');
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} />
+      </MemoryRouter>
+    );
+
+    const handle = screen.getByRole('separator', { name: /resize sidebar/i });
+    expect(handle).toHaveAttribute('aria-valuenow', '360');
+
+    fireEvent.doubleClick(handle);
+
+    expect(handle).toHaveAttribute('aria-valuenow', '256');
+    expect(localStorage.getItem('vido_sidebar_width')).toBe('256');
+  });
+
+  it('supports resizing via keyboard arrow keys and clamps within min and max', () => {
+    localStorage.clear();
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} />
+      </MemoryRouter>
+    );
+
+    const handle = screen.getByRole('separator', { name: /resize sidebar/i });
+    expect(handle).toHaveAttribute('aria-valuenow', '256');
+
+    // ArrowRight increases by 16px
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(handle).toHaveAttribute('aria-valuenow', '272');
+
+    // ArrowLeft decreases by 16px
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    expect(handle).toHaveAttribute('aria-valuenow', '256');
+
+    // Home clamps to min (240px)
+    fireEvent.keyDown(handle, { key: 'Home' });
+    expect(handle).toHaveAttribute('aria-valuenow', '240');
+
+    // End clamps to max (480px)
+    fireEvent.keyDown(handle, { key: 'End' });
+    expect(handle).toHaveAttribute('aria-valuenow', '480');
   });
 });

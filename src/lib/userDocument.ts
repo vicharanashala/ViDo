@@ -1,5 +1,5 @@
-import { doc } from 'firebase/firestore';
-import { db } from './firebase';
-
-/** The single per-user document that stores connection and planning settings. */
-export const userDocument = (uid: string) => doc(db, 'users', uid);
+/**
+ * @deprecated All user data storage (tasks, calendar, categories, planning targets) has been migrated
+ * to the NestJS backend Prisma/SQLite database. This stub is preserved for backwards compatibility.
+ */
+export const userDocument = (uid: string) => uid;

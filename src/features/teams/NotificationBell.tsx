@@ -65,7 +65,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
         {pendingCount > 0 && (
           <span
             data-testid="notification-badge"
-            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[var(--accent)] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs animate-pulse"
+            className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-[var(--accent)] text-white text-xs font-bold rounded-full flex items-center justify-center shadow-xs animate-pulse"
           >
             {pendingCount}
           </span>
@@ -75,7 +75,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
       {isOpen && (
         <div
           data-testid="notification-dropdown"
-          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[var(--line)] bg-[var(--surface)] shadow-lg z-50 overflow-hidden text-xs"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[var(--line)] bg-[var(--surface)] shadow-lg z-50 overflow-hidden text-sm"
         >
           <div className="px-4 py-3 border-b border-[var(--line)] flex items-center justify-between bg-[var(--canvas)]/60">
             <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
               <span className="font-semibold text-[var(--ink)]">Team Invitations</span>
             </div>
             {pendingCount > 0 && (
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-semibold">
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-semibold">
                 {pendingCount} pending
               </span>
             )}
@@ -92,8 +92,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
           <div className="max-h-80 overflow-y-auto divide-y divide-[var(--line)]">
             {pendingCount === 0 ? (
               <div className="p-6 text-center text-[var(--muted)]">
-                <p className="text-xs">No pending invitations</p>
-                <p className="text-[11px] text-[var(--faint)] mt-1">
+                <p className="text-sm">No pending invitations</p>
+                <p className="text-xs text-[var(--faint)] mt-1">
                   When someone adds you to a team, invitations will appear here.
                 </p>
               </div>

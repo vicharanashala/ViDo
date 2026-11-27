@@ -27,7 +27,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isPreview = t
     <Card
       hoverable
       onClick={() => onClick(task)}
-      className="p-4 flex flex-col justify-between transition-all group"
+      className="p-5 flex flex-col justify-between transition-all group"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -39,11 +39,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isPreview = t
       aria-label={`Task: ${task.title}`}
     >
       <div>
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center justify-between gap-2 mb-2.5">
           <Badge
             variant="neutral"
             size="sm"
-            className="uppercase tracking-wider font-semibold text-[10px]"
+            className="uppercase tracking-wider font-semibold text-xs px-2.5 py-0.5"
           >
             {task.category}
           </Badge>
@@ -73,7 +73,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isPreview = t
         </div>
 
         <h4
-          className={`text-sm font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
+          className={`text-base font-semibold text-[var(--ink)] leading-snug group-hover:text-[var(--accent)] transition-colors ${
             isCompleted ? 'line-through opacity-70' : ''
           }`}
         >
@@ -81,27 +81,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isPreview = t
         </h4>
 
         {task.description && (
-          <p className="text-xs text-[var(--muted)] mt-1 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-[var(--muted)] mt-1.5 line-clamp-2 leading-relaxed">
             {task.description}
           </p>
         )}
       </div>
 
-      <div className="mt-3.5 pt-2.5 border-t border-[var(--line)] flex items-center justify-between text-xs text-[var(--muted)]">
-        <div className="flex items-center gap-1.5 font-mono text-[11px]">
+      <div className="mt-4 pt-3 border-t border-[var(--line)] flex items-center justify-between text-xs text-[var(--muted)]">
+        <div className="flex items-center gap-1.5 font-mono text-xs">
           {isOverdue ? (
             <span className="text-[var(--red)] font-semibold flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
               Overdue ({task.dueDate})
             </span>
           ) : isDueToday ? (
             <span className="text-[var(--accent)] font-semibold flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <Clock className="w-4 h-4 shrink-0" />
               Today {task.dueTime ? `at ${task.dueTime}` : ''}
             </span>
           ) : isCompleted ? (
-            <span className="text-[var(--green)] flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-[var(--green)] font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               Completed
             </span>
           ) : (
@@ -110,7 +110,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isPreview = t
         </div>
 
         {task.checkpoints && task.checkpoints.length > 0 && (
-          <span className="text-[10px] text-[var(--faint)]">
+          <span className="text-xs text-[var(--faint)]">
             {task.checkpoints.length} update{task.checkpoints.length > 1 ? 's' : ''}
           </span>
         )}

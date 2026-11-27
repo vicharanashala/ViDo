@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   addDays,
   addMonths,
@@ -66,23 +66,23 @@ const EventDialog: React.FC<{
       </button>
 
       <div className="flex items-center gap-2 mb-3">
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-700 border border-indigo-500/30">
+        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-700 border border-indigo-500/30">
           Planning calendar
         </span>
         {event.linkedTaskId && (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 flex items-center gap-1">
-            <Link2 className="w-3 h-3" /> Linked task
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 flex items-center gap-1.5">
+            <Link2 className="w-3.5 h-3.5" /> Linked task
           </span>
         )}
       </div>
 
-      <h3 className="text-lg font-bold text-[var(--ink)] pr-6">{event.title}</h3>
-      <p className="text-xs text-[var(--muted)] mt-1">
+      <h3 className="text-xl font-bold text-[var(--ink)] pr-6">{event.title}</h3>
+      <p className="text-sm text-[var(--muted)] mt-1">
         {formatLongDate(event.date)}
-        {event.time ? ` ┬À ${event.time}${event.endTime ? `ÔÇô${event.endTime}` : ''}` : ''}
+        {event.time ? ` · ${event.time}${event.endTime ? `–${event.endTime}` : ''}` : ''}
       </p>
       {event.description && (
-        <p className="text-xs text-[var(--ink)] mt-3 leading-relaxed">{event.description}</p>
+        <p className="text-sm text-[var(--ink)] mt-3 leading-relaxed">{event.description}</p>
       )}
 
       <div className="mt-5 pt-4 border-t border-[var(--line)] flex flex-wrap gap-2 justify-end">
@@ -235,7 +235,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           className="min-w-0 flex-1 text-left cursor-pointer"
         >
           <span
-            className={`block text-[10px] font-semibold truncate leading-tight ${
+            className={`block text-xs font-semibold truncate leading-tight ${
               isTask
                 ? 'text-[var(--ink)]'
                 : 'text-indigo-800 dark:text-indigo-200'
@@ -244,8 +244,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             {title}
           </span>
           {!compact && (
-            <span className="block text-[9px] text-[var(--muted)] mt-0.5">
-              {item.time ?? 'All day'} ┬À {isTask ? 'Task' : 'Calendar'}
+            <span className="block text-[11px] text-[var(--muted)] mt-0.5">
+              {item.time ?? 'All day'} · {isTask ? 'Task' : 'Calendar'}
             </span>
           )}
         </button>
@@ -255,9 +255,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             onClick={() => addTaskToCalendar(item.task)}
             aria-label={`Add ${title} to calendar`}
             title="Add to calendar"
-            className="shrink-0 p-0.5 rounded text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--surface)] cursor-pointer"
+            className="shrink-0 p-1 rounded text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--surface)] cursor-pointer"
           >
-            <CalendarPlus className="w-3 h-3" />
+            <CalendarPlus className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
@@ -268,8 +268,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     <div className="p-6 sm:p-8 max-w-[1400px] mx-auto space-y-5">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-[var(--ink)]">Planning Calendar</h2>
-          <p className="text-xs text-[var(--muted)] mt-0.5">
+          <h2 className="text-2xl font-bold tracking-tight text-[var(--ink)]">Planning Calendar</h2>
+          <p className="text-base text-[var(--muted)] mt-1.5">
             Tasks and calendar commitments in one place. Weekly and monthly views.
           </p>
         </div>
@@ -286,7 +286,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 type="button"
                 aria-pressed={period === option}
                 onClick={() => setPeriod(option)}
-                className={`px-3 py-1.5 text-xs font-semibold capitalize cursor-pointer transition-colors ${
+                className={`px-4 py-2 text-sm font-semibold capitalize cursor-pointer transition-colors ${
                   period === option
                     ? 'bg-[var(--accent)] text-white'
                     : 'bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--canvas)]'
@@ -297,19 +297,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               aria-label={`Previous ${period}`}
               onClick={() => step(-1)}
-              className="p-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] cursor-pointer"
+              className="p-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => setCursor(referenceDate)}
-              className="px-2.5 py-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-xs font-semibold text-[var(--ink)] hover:bg-[var(--canvas)] cursor-pointer"
+              className="px-3.5 py-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-sm font-semibold text-[var(--ink)] hover:bg-[var(--canvas)] cursor-pointer"
             >
               Today
             </button>
@@ -317,41 +317,43 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               type="button"
               aria-label={`Next ${period}`}
               onClick={() => step(1)}
-              className="p-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] cursor-pointer"
+              className="p-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <span className="text-xs font-mono font-semibold text-[var(--muted)] min-w-[150px] text-center">
+          <span className="text-sm font-mono font-bold text-[var(--ink)] min-w-[150px] text-center">
             {periodLabel}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 bg-[var(--surface)] border-[var(--line)]">
-        <div className="flex items-center gap-2 min-w-0">
-          <CalendarPlus className="w-4 h-4 text-[var(--accent)] shrink-0" />
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4 bg-[var(--surface)] border-[var(--line)] shadow-2xs">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] flex items-center justify-center shrink-0">
+            <CalendarPlus className="w-5 h-5 text-[var(--accent)]" />
+          </div>
           <div>
-            <p className="text-xs font-semibold text-[var(--ink)]">Planning calendar</p>
-            <p className="text-[10px] text-[var(--muted)] mt-0.5">
+            <p className="text-lg font-bold text-[var(--ink)]">Planning calendar</p>
+            <p className="text-sm sm:text-base text-[var(--muted)] mt-1 leading-relaxed">
               {mode === 'live'
                 ? 'Events are saved per user in Firestore. Add tasks to the calendar or import events as tasks.'
                 : 'Demo events are stored in this browser. Add tasks to the calendar or import events as tasks.'}
             </p>
           </div>
         </div>
-        <Button variant="primary" size="sm" onClick={() => setIsAddOpen(true)}>
-          <Plus className="w-3.5 h-3.5 mr-1.5" /> Add event
+        <Button variant="primary" size="md" onClick={() => setIsAddOpen(true)} className="px-4 py-2 text-sm font-semibold">
+          <Plus className="w-4 h-4 mr-1.5" /> Add event
         </Button>
       </div>
 
-      <div className="flex items-center gap-4 text-[10px] text-[var(--muted)]">
+      <div className="flex items-center gap-4 text-sm text-[var(--muted)]">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-[var(--accent)]" /> ViDo task
+          <span className="w-3 h-3 rounded-sm bg-[var(--accent)]" /> ViDo task
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-indigo-500" /> Calendar event
+          <span className="w-3 h-3 rounded-sm bg-indigo-500" /> Calendar event
         </span>
         <span className="hidden sm:inline">Select a day to inspect its items.</span>
       </div>
@@ -369,18 +371,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-2 min-h-[220px]"
                 >
                   <div className="flex items-center justify-between mb-2 px-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                       {weekdayLabel(day)} {Number(day.slice(-2))}
                     </span>
                     {isReferenceDay && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--accent)] text-white">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent)] text-white">
                         TODAY
                       </span>
                     )}
                   </div>
                   <div className="space-y-1.5">
                     {items.length === 0 && (
-                      <p className="text-[10px] text-[var(--faint)] px-0.5">No items</p>
+                      <p className="text-xs text-[var(--faint)] px-0.5">No items</p>
                     )}
                     {items.map((item) => renderItem(item))}
                   </div>
@@ -458,8 +460,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             >
               <X className="w-4 h-4" />
             </button>
-            <h3 className="text-lg font-bold text-[var(--ink)]">Add calendar event</h3>
-            <p className="text-xs text-[var(--muted)] mt-1 mb-4">
+            <h3 className="text-xl font-bold text-[var(--ink)]">Add calendar event</h3>
+            <p className="text-sm text-[var(--muted)] mt-1 mb-4">
               Saved to your planning calendar.
             </p>
             <form onSubmit={submitEvent} className="space-y-3">

@@ -12,6 +12,7 @@ ViDo follows a **feature-driven, modular frontend architecture**. Code is organi
 ```text
 ViDo/
 ├── .agents/                 # OpenSpec local skills and agent tooling
+├── intelligent-layer/       # Placeholder for future intelligent layer (agents & ML models)
 ├── openspec/                # OpenSpec specification and change tracking
 ├── public/                  # Static assets served untouched by Vite
 ├── server/                  # NestJS backend application with Prisma ORM and SSE

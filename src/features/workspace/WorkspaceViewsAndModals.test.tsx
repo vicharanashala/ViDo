@@ -56,11 +56,22 @@ describe('Workspace Views and Modals', () => {
         </MemoryRouter>
       );
 
-      // Default state has Today filter pill
-      expect(screen.getByText(/status: today's agenda/i)).toBeInTheDocument();
+      // Default state has no filter pills applied
+      expect(screen.queryByText(/status: today's agenda/i)).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
 
       // Open Add Filter menu
       const addFilterBtn = screen.getByRole('button', { name: /add filter/i });
+      fireEvent.click(addFilterBtn);
+
+      // Select Status: Due Today
+      const dueTodayOption = screen.getByRole('button', { name: /due today/i });
+      fireEvent.click(dueTodayOption);
+
+      // Verify Status filter pill is added
+      expect(screen.getByText(/status: today's agenda/i)).toBeInTheDocument();
+
+      // Open Add Filter menu again
       fireEvent.click(addFilterBtn);
 
       // Select Personal category
@@ -85,9 +96,28 @@ describe('Workspace Views and Modals', () => {
       fireEvent.click(clearAllBtn);
 
       // Verify all filter pills are cleared
+      expect(screen.queryByText(/status: today's agenda/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/category: personal/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/priority: high/i)).not.toBeInTheDocument();
       expect(screen.getByRole('heading', { name: /tasks/i })).toBeInTheDocument();
+    });
+
+    it('does not apply any filter by default when opening Tasks view', () => {
+      render(
+        <MemoryRouter>
+          <HomeView tasks={SAMPLE_TASKS} onTaskClick={vi.fn()} initialTab="tasks" />
+        </MemoryRouter>
+      );
+
+      // Verify no filter pills exist
+      expect(screen.queryByText(/status:/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/category:/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/priority:/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /clear all/i })).not.toBeInTheDocument();
+
+      // Verify all active non-archived tasks are listed
+      const activeTasks = SAMPLE_TASKS.filter((t) => t.state === 'active' && !t.isArchived);
+      expect(screen.getByText(new RegExp(`${activeTasks.length} tasks`, 'i'))).toBeInTheDocument();
     });
 
     it('renders Dashboard by default and Tasks view when initialTab is tasks without in-page dual navigation', () => {
@@ -458,8 +488,8 @@ describe('Workspace Views and Modals', () => {
         </MemoryRouter>
       );
 
-      // Header indicates Tasks view
-      expect(screen.getByRole('heading', { name: /^tasks$/i })).toBeInTheDocument();
+      // TopBar provides persistent workspace context while view provides its heading
+      expect(screen.getByRole('banner')).toHaveTextContent('Workspace');
       expect(screen.getByRole('heading', { name: /today's work/i })).toBeInTheDocument();
 
       // Verify persistent demo preview banner and single unmissable back button
@@ -636,6 +666,7 @@ describe('Workspace Views and Modals', () => {
       expect(isKnownWorkspacePath('/workspace/archived', '/workspace')).toBe(true);
       expect(isKnownWorkspacePath('/workspace/calendar', '/workspace')).toBe(true);
       expect(isKnownWorkspacePath('/workspace/analytics', '/workspace')).toBe(true);
+      expect(isKnownWorkspacePath('/workspace/settings', '/workspace')).toBe(true);
       expect(isKnownWorkspacePath('/workspace/team/alpha-1', '/workspace')).toBe(true);
 
       // Invalid sub-endpoints (MUST be rejected and return false)

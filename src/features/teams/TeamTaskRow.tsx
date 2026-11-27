@@ -115,25 +115,25 @@ export const TeamTaskRow: React.FC<TeamTaskRowProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
             {milestone && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full">
-                <Flag className="w-2.5 h-2.5" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2.5 py-0.5 rounded-full">
+                <Flag className="w-3 h-3" />
                 <span>{milestone.title}</span>
               </span>
             )}
             {getPriorityBadge(task.priority)}
             {isCompleted ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                <CheckCircle2 className="w-3 h-3" /> Completed
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Completed
               </span>
             ) : (
-              <span className="text-[11px] text-[var(--muted)] flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Due {task.deadline}
+              <span className="text-xs text-[var(--muted)] flex items-center gap-1.5 font-medium">
+                <Clock className="w-3.5 h-3.5" /> Due {task.deadline}
               </span>
             )}
           </div>
 
           <h4
-            className={`text-sm font-semibold text-[var(--ink)] ${
+            className={`text-base font-semibold text-[var(--ink)] ${
               isCompleted ? 'line-through text-[var(--muted)]' : ''
             }`}
           >
@@ -141,7 +141,7 @@ export const TeamTaskRow: React.FC<TeamTaskRowProps> = ({
           </h4>
 
           {task.description && (
-            <p className="text-xs text-[var(--muted)] mt-1 line-clamp-2">
+            <p className="text-sm text-[var(--muted)] mt-1 line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           )}
@@ -151,7 +151,7 @@ export const TeamTaskRow: React.FC<TeamTaskRowProps> = ({
         <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
           {task.assigneeId ? (
             <div className="flex items-center gap-2 bg-[var(--canvas)] px-2.5 py-1.5 rounded-xl border border-[var(--line)]">
-              <div className="w-6 h-6 rounded-full bg-[var(--accent)] text-white font-bold text-[10px] flex items-center justify-center uppercase shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-[var(--accent)] text-white font-bold text-xs flex items-center justify-center uppercase shadow-2xs">
                 {(task.assigneeName || 'User')
                   .split(' ')
                   .map((n) => n[0])
@@ -159,10 +159,10 @@ export const TeamTaskRow: React.FC<TeamTaskRowProps> = ({
                   .slice(0, 2)}
               </div>
               <div className="text-left">
-                <span className="text-xs font-medium text-[var(--ink)] block leading-tight">
+                <span className="text-sm font-medium text-[var(--ink)] block leading-tight">
                   {task.assigneeName || task.assigneeEmail}
                 </span>
-                <span className="text-[10px] text-[var(--muted)] block leading-tight">
+                <span className="text-xs text-[var(--muted)] block leading-tight mt-0.5">
                   Assignee
                 </span>
               </div>

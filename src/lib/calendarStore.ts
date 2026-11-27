@@ -1,39 +1,89 @@
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  setDoc,
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { getAuthHeaders } from './apiHeaders';
 import type { CalendarEvent } from '../data/calendar';
 
-const eventsCollection = (uid: string) =>
-  collection(db, 'users', uid, 'calendarEvents');
-const eventDocument = (uid: string, eventId: string) =>
-  doc(db, 'users', uid, 'calendarEvents', eventId);
+// Memory cache for offline/testing fallback
+const memoryEventsCache = new Map<string, CalendarEvent[]>();
+
+export async function fetchCalendarEvents(uid?: string): Promise<CalendarEvent[]> {
+  try {
+    const headers = await getAuthHeaders(uid);
+    const res = await fetch('/api/user/calendar-events', { headers });
+    if (!res.ok) {
+      throw new Error(`Failed to load calendar events: ${res.statusText}`);
+    }
+    const data = await res.json();
+    const events = Array.isArray(data) ? (data as CalendarEvent[]) : [];
+    if (uid) memoryEventsCache.set(uid, events);
+    return events;
+  } catch (err: any) {
+    if (uid && memoryEventsCache.has(uid)) {
+      return memoryEventsCache.get(uid)!;
+    }
+    return [];
+  }
+}
 
 export function subscribeCalendarEvents(
   uid: string,
   next: (events: CalendarEvent[]) => void,
   onError: (error: Error) => void
-) {
-  return onSnapshot(
-    eventsCollection(uid),
-    (snapshot) => {
-      const events = snapshot.docs.map(
-        (entry) => entry.data() as CalendarEvent
-      );
-      next(events);
-    },
-    onError
+): () => void {
+  let active = true;
+
+  const poll = async () => {
+    try {
+      const events = await fetchCalendarEvents(uid);
+      if (active) next(events);
+    } catch (err: any) {
+      if (active) onError(err);
+    }
+  };
+
+  void poll();
+  const interval = setInterval(() => void poll(), 10000);
+
+  return () => {
+    active = false;
+    clearInterval(interval);
+  };
+}
+
+export async function createCalendarEvent(uid: string, event: CalendarEvent): Promise<void> {
+  try {
+    const headers = await getAuthHeaders(uid);
+    const res = await fetch('/api/user/calendar-events', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(event),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to create calendar event: ${res.statusText}`);
+    }
+    const created = await res.json();
+    const current = memoryEventsCache.get(uid) || [];
+    memoryEventsCache.set(uid, [created, ...current.filter((e) => e.id !== event.id)]);
+  } catch (err) {
+    const current = memoryEventsCache.get(uid) || [];
+    memoryEventsCache.set(uid, [event, ...current.filter((e) => e.id !== event.id)]);
+  }
+}
+
+export async function deleteCalendarEvent(uid: string, eventId: string): Promise<void> {
+  try {
+    const headers = await getAuthHeaders(uid);
+    const res = await fetch(`/api/user/calendar-events/${eventId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!res.ok && res.status !== 404) {
+      throw new Error(`Failed to delete calendar event: ${res.statusText}`);
+    }
+  } catch (err) {
+    // offline/test
+  }
+  const current = memoryEventsCache.get(uid) || [];
+  memoryEventsCache.set(
+    uid,
+    current.filter((e) => e.id !== eventId)
   );
-}
-
-export async function createCalendarEvent(uid: string, event: CalendarEvent) {
-  await setDoc(eventDocument(uid, event.id), event, { merge: true });
-}
-
-export async function deleteCalendarEvent(uid: string, eventId: string) {
-  await deleteDoc(eventDocument(uid, eventId));
 }

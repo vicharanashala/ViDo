@@ -125,32 +125,32 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         )}
 
         {/* Metadata Details Grid */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-          <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
-            <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+          <div className="p-3.5 rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+            <span className="text-xs uppercase font-bold text-[var(--faint)] block mb-1">
               Due Date
             </span>
-            <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
-              <Calendar className="w-3.5 h-3.5 text-[var(--muted)]" />
+            <span className="font-semibold text-[var(--ink)] flex items-center gap-1.5 font-mono text-sm">
+              <Calendar className="w-4 h-4 text-[var(--muted)]" />
               {task.dueDate}
             </span>
           </div>
 
-          <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)]">
-            <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">
+          <div className="p-3.5 rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+            <span className="text-xs uppercase font-bold text-[var(--faint)] block mb-1">
               Due Time
             </span>
-            <span className="font-semibold text-[var(--ink)] flex items-center gap-1 font-mono">
-              <Clock className="w-3.5 h-3.5 text-[var(--muted)]" />
+            <span className="font-semibold text-[var(--ink)] flex items-center gap-1.5 font-mono text-sm">
+              <Clock className="w-4 h-4 text-[var(--muted)]" />
               {task.dueTime || '23:59 (End of day)'}
             </span>
           </div>
 
-          <div className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface)] col-span-2 sm:col-span-1">
-            <span className="text-[10px] uppercase font-bold text-[var(--faint)] block mb-1">
+          <div className="p-3.5 rounded-xl border border-[var(--line)] bg-[var(--surface)] col-span-2 sm:col-span-1">
+            <span className="text-xs uppercase font-bold text-[var(--faint)] block mb-1">
               Created
             </span>
-            <span className="font-semibold text-[var(--ink)] font-mono text-[11px]">
+            <span className="font-semibold text-[var(--ink)] font-mono text-sm">
               {new Date(task.createdAt).toLocaleDateString('en-GB', {
                 day: 'numeric',
                 month: 'short',
@@ -162,8 +162,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         {/* Completed Timing Notice (if completed) */}
         {task.completedAt && (
-          <div className="mt-4 p-3 rounded-lg bg-[var(--green-soft)] border border-[var(--green)]/20 text-xs text-[var(--green)] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <div className="mt-4 p-3.5 rounded-xl bg-[var(--green-soft)] border border-[var(--green)]/20 text-sm text-[var(--green)] flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>
               Completed on {new Date(task.completedAt).toLocaleString('en-GB')}{' '}
               {task.completedAt <= `${task.dueDate}T${task.dueTime || '23:59'}:00Z`
@@ -175,8 +175,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         {/* Checkpoint Updates Timeline */}
         <div className="mt-6 pt-5 border-t border-[var(--line)]">
-          <h3 className="text-xs uppercase font-bold tracking-wider text-[var(--muted)] flex items-center gap-1.5 mb-3">
-            <History className="w-3.5 h-3.5 text-[var(--accent)]" /> Progress Checkpoints & Updates
+          <h3 className="text-sm uppercase font-bold tracking-wider text-[var(--muted)] flex items-center gap-2 mb-3">
+            <History className="w-4 h-4 text-[var(--accent)]" /> Progress Checkpoints & Updates
           </h3>
 
           {task.checkpoints && task.checkpoints.length > 0 ? (
@@ -184,35 +184,36 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               {task.checkpoints.map((cp) => (
                 <div
                   key={cp.id}
-                  className="p-3 rounded-lg bg-[var(--canvas)] border border-[var(--line)] text-xs"
+                  className="p-3.5 rounded-xl bg-[var(--canvas)] border border-[var(--line)] text-sm"
                 >
-                  <div className="flex items-center justify-between text-[10px] text-[var(--faint)] mb-1">
+                  <div className="flex items-center justify-between text-xs text-[var(--faint)] mb-1">
                     <span className="font-semibold text-[var(--accent)]">Checkpoint Logged</span>
                     <span className="font-mono">{new Date(cp.timestamp).toLocaleString('en-GB')}</span>
                   </div>
-                  <p className="text-[var(--ink)] leading-relaxed">{cp.note}</p>
+                  <p className="text-[var(--ink)] leading-relaxed text-sm">{cp.note}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-[var(--faint)] italic">
+            <p className="text-sm text-[var(--faint)] italic">
               No checkpoints recorded yet for this task.
             </p>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-6 pt-4 border-t border-[var(--line)] flex items-center justify-between gap-3">
+        <div className="mt-6 pt-5 border-t border-[var(--line)] flex items-center justify-between gap-3">
           {onToggleTask && task && (
             <Button
               variant={isCompleted ? 'secondary' : 'primary'}
-              size="sm"
+              size="md"
               onClick={() => onToggleTask(task)}
+              className="px-5 py-2.5 text-sm font-semibold"
             >
               {isCompleted ? 'Reopen Task' : 'Mark as Complete'}
             </Button>
           )}
-          <Button variant="secondary" size="sm" onClick={onClose}>
+          <Button variant="secondary" size="md" onClick={onClose} className="px-5 py-2.5 text-sm font-semibold">
             Close
           </Button>
         </div>

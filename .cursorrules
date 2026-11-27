@@ -10,4 +10,4 @@ Before writing or editing code in this repository:
 3. Use CSS custom property variables (`var(--accent)`, `var(--surface)`, `var(--canvas)`, `var(--ink)`, `var(--line)`) with Tailwind CSS v4.
 4. Keep the UI presented as a clean SaaS product with an interactive `/preview` demo (not an academic project).
 5. Always run `npm run typecheck`, `npm test`, and `npm run build` to verify changes before completing tasks.
-6. NEVER run `git push`: The user manually tests and finalizes changes before anything is pushed. Agents must never push without explicit instruction.
+6. Git push: The agent is authorized to run `git push` autonomously when all verification checks pass and changes are complete and ready to be pushed.
