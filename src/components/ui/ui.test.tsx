@@ -24,7 +24,7 @@ describe('UI Primitives', () => {
 
     it('renders variants correctly', () => {
       const { rerender } = render(<Button variant="secondary">Secondary</Button>);
-      expect(screen.getByRole('button')).toHaveClass('border-[var(--line)]');
+      expect(screen.getByRole('button')).toHaveClass('border-[var(--line-glass)]');
 
       rerender(<Button variant="danger">Danger</Button>);
       expect(screen.getByRole('button')).toHaveClass('bg-[var(--red)]');

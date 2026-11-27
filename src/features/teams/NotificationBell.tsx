@@ -75,9 +75,9 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
       {isOpen && (
         <div
           data-testid="notification-dropdown"
-          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[var(--line)] bg-[var(--surface)] shadow-lg z-50 overflow-hidden text-sm"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl glass-modal border border-[var(--line-glass)] bg-[var(--surface-glass-modal)] shadow-2xl z-50 overflow-hidden text-sm"
         >
-          <div className="px-4 py-3 border-b border-[var(--line)] flex items-center justify-between bg-[var(--canvas)]/60">
+          <div className="px-4 py-3 border-b border-[var(--line-glass)] flex items-center justify-between bg-[var(--canvas)]/60">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-[var(--accent)]" />
               <span className="font-semibold text-[var(--ink)]">Team Invitations</span>

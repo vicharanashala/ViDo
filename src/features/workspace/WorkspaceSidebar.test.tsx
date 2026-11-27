@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { WorkspaceSidebar } from './WorkspaceSidebar';
+import { WorkspaceSidebar, COLLAPSED_SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH } from './WorkspaceSidebar';
 
 describe('WorkspaceSidebar', () => {
   const mockCounts = {
@@ -12,7 +12,11 @@ describe('WorkspaceSidebar', () => {
     archived: 2,
   };
 
-  it('renders dashboard, tasks, and planning navigation items', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('renders dashboard, tasks, planning navigation items, and omits account footer', () => {
     render(
       <MemoryRouter initialEntries={['/preview']}>
         <WorkspaceSidebar counts={mockCounts} />
@@ -28,7 +32,10 @@ describe('WorkspaceSidebar', () => {
     expect(screen.getByRole('link', { name: /tasks 15/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /calendar/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /analytics/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+
+    // Verify settings and sign-out are no longer in the sidebar footer
+    expect(screen.queryByRole('link', { name: /^settings$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /sign out/i })).not.toBeInTheDocument();
   });
 
   it('triggers new task callback when button is clicked', () => {
@@ -44,17 +51,51 @@ describe('WorkspaceSidebar', () => {
     expect(handleNewTask).toHaveBeenCalledTimes(1);
   });
 
-  it('triggers onOpenSettings callback when Settings link is clicked', () => {
-    const handleOpenSettings = vi.fn();
-    render(
+  it('renders collapsed icon rail when isCollapsed is true and hides resize handle', () => {
+    const { rerender } = render(
       <MemoryRouter initialEntries={['/preview']}>
-        <WorkspaceSidebar counts={mockCounts} onOpenSettings={handleOpenSettings} />
+        <WorkspaceSidebar counts={mockCounts} isCollapsed={false} />
       </MemoryRouter>
     );
 
-    const settingsLink = screen.getByRole('link', { name: /settings/i });
-    fireEvent.click(settingsLink);
-    expect(handleOpenSettings).toHaveBeenCalledTimes(1);
+    const sidebar = screen.getByRole('complementary', { name: /workspace navigation/i });
+    expect(sidebar).toHaveStyle({ width: `${DEFAULT_SIDEBAR_WIDTH}px` });
+    expect(screen.getByRole('separator', { name: /resize sidebar/i })).toBeInTheDocument();
+
+    // Rerender collapsed (64px)
+    rerender(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} isCollapsed={true} />
+      </MemoryRouter>
+    );
+
+    expect(sidebar).toHaveStyle({ width: `${COLLAPSED_SIDEBAR_WIDTH}px` });
+    expect(screen.queryByRole('separator', { name: /resize sidebar/i })).not.toBeInTheDocument();
+  });
+
+  it('triggers onToggleCollapse when collapse or expand button is clicked', () => {
+    const handleToggle = vi.fn();
+    const { rerender } = render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} isCollapsed={false} onToggleCollapse={handleToggle} />
+      </MemoryRouter>
+    );
+
+    const collapseBtn = screen.getByRole('button', { name: /collapse sidebar/i });
+    expect(collapseBtn).toBeInTheDocument();
+    fireEvent.click(collapseBtn);
+    expect(handleToggle).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} isCollapsed={true} onToggleCollapse={handleToggle} />
+      </MemoryRouter>
+    );
+
+    const expandBtn = screen.getByRole('button', { name: /expand sidebar/i });
+    expect(expandBtn).toBeInTheDocument();
+    fireEvent.click(expandBtn);
+    expect(handleToggle).toHaveBeenCalledTimes(2);
   });
 
   it('renders teams and triggers create team callback', () => {
@@ -129,7 +170,6 @@ describe('WorkspaceSidebar', () => {
   });
 
   it('renders a resizable separator handle and resizes sidebar when dragged', () => {
-    localStorage.clear();
     const handleWidthChange = vi.fn();
     render(
       <MemoryRouter initialEntries={['/preview']}>
@@ -180,7 +220,6 @@ describe('WorkspaceSidebar', () => {
   });
 
   it('supports resizing via keyboard arrow keys and clamps within min and max', () => {
-    localStorage.clear();
     render(
       <MemoryRouter initialEntries={['/preview']}>
         <WorkspaceSidebar counts={mockCounts} />
@@ -205,5 +244,23 @@ describe('WorkspaceSidebar', () => {
     // End clamps to max (480px)
     fireEvent.keyDown(handle, { key: 'End' });
     expect(handle).toHaveAttribute('aria-valuenow', '480');
+  });
+
+  it('applies sidebar-nav-item class to navigation links for border and subtle glow on hover', () => {
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} />
+      </MemoryRouter>
+    );
+
+    const dashboardLink = screen.getByRole('link', { name: /dashboard/i });
+    const tasksLink = screen.getByRole('link', { name: /tasks 15/i });
+    const calendarLink = screen.getByRole('link', { name: /calendar/i });
+    const analyticsLink = screen.getByRole('link', { name: /analytics/i });
+
+    expect(dashboardLink).toHaveClass('sidebar-nav-item');
+    expect(tasksLink).toHaveClass('sidebar-nav-item');
+    expect(calendarLink).toHaveClass('sidebar-nav-item');
+    expect(analyticsLink).toHaveClass('sidebar-nav-item');
   });
 });

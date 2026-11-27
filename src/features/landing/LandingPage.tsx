@@ -51,7 +51,7 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] flex flex-col justify-between selection:bg-[var(--accent-soft)] selection:text-[var(--accent)]">
+    <div className="min-h-screen bg-transparent text-[var(--ink)] flex flex-col justify-between selection:bg-[var(--accent-soft)] selection:text-[var(--accent)]">
       <div>
         <LandingHeader onGoogleSignInClick={() => setIsNoticeOpen(true)} />
 

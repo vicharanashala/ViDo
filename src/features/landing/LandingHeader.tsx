@@ -19,7 +19,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({ onGoogleSignInClic
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-[var(--surface)]/90 backdrop-blur-md border-b border-[var(--line)]">
+    <header className="sticky top-0 z-30 bg-[var(--surface-glass)] backdrop-blur-md border-b border-[var(--line-glass)]">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[var(--dark)] text-white flex items-center justify-center font-bold text-sm tracking-tight shadow-xs">

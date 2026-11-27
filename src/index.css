@@ -1,37 +1,137 @@
 @import "tailwindcss";
 
-:root {
-  --ink: #16181d;
-  --muted: #676c76;
-  --faint: #9297a1;
-  --line: #e3e5e9;
-  --surface: #ffffff;
-  --canvas: #f5f6f8;
-  --dark: #1c2028;
-  --accent: #305fdd;
-  --accent-soft: #eef3ff;
-  --green: #247a56;
-  --green-soft: #eaf6f0;
-  --amber: #936019;
-  --amber-soft: #fff5df;
-  --red: #a44747;
-  --red-soft: #fff0ef;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root,
+[data-theme="light"] {
+  --canvas-base: #f1f5f9;
+  --ink: #000000; /* Pure Crisp Black for high-contrast legibility */
+  --muted: #1e293b; /* Deep Slate-800 */
+  --faint: #334155; /* Crisp Slate-700 */
+  --line: rgba(203, 213, 225, 0.75);
+  --surface: rgba(255, 255, 255, 0.65);
+  --canvas: rgba(255, 255, 255, 0.35);
+  --dark: #0f172a;
+  --accent: #b45309; /* Warm Amber-Orange Gold with WCAG AAA readability */
+  --accent-soft: #fef3c7;
+  --accent-ink: #ffffff;
+  color: #000000;
+  --green: #16a34a;
+  --green-soft: #dcfce7;
+  --amber: #d97706;
+  --amber-soft: #fef3c7;
+  --red: #dc2626;
+  --red-soft: #fee2e2;
   --radius: 14px;
+
+  /* Celestial Tokens (Sun / Day Mode) */
+  --canvas-gradient: linear-gradient(180deg, #bae6fd 0%, #fef3c7 40%, #f1f5f9 95%);
+  --surface-glass: rgba(255, 255, 255, 0.50);
+  --surface-glass-card: rgba(255, 255, 255, 0.58);
+  --surface-glass-modal: rgba(255, 255, 255, 0.85);
+  --line-glass: rgba(255, 255, 255, 0.70);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.90), inset 0 0 0 1px rgba(255, 255, 255, 0.40);
+
+  /* Border Glow on Hover (Day Theme: Yellowish Orange) */
+  --glow-border: #d97706;
+  --glow-border-subtle: rgba(217, 119, 6, 0.55);
+  --glow-interactive: 0 0 10px 1px rgba(217, 119, 6, 0.65), inset 0 0 2px 0 rgba(245, 158, 11, 0.35);
+  --glow-subtle: 0 0 8px 1px rgba(217, 119, 6, 0.28), inset 0 0 1px 0 rgba(245, 158, 11, 0.15);
+}
+
+[data-theme="evening"] {
+  --canvas-base: #14050b;
+  --ink: #fff1f2;
+  --muted: #fda4af;
+  --faint: #9f1239;
+  --line: rgba(251, 113, 133, 0.20);
+  --surface: rgba(30, 10, 18, 0.52);
+  --canvas: rgba(24, 7, 14, 0.35);
+  --dark: #120308;
+  --accent: #f43f5e; /* Fiery Sunset Rose-Red */
+  --accent-soft: rgba(244, 63, 94, 0.18);
+  --accent-ink: #ffffff;
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.18);
+  --amber: #fb923c;
+  --amber-soft: rgba(251, 146, 60, 0.18);
+  --red: #f43f5e;
+  --red-soft: rgba(244, 63, 94, 0.18);
+
+  /* Celestial Tokens (Evening / Sunset Mode - Reddish / Crimson Atmosphere) */
+  --canvas-gradient: radial-gradient(ellipse 110% 80% at 75% 35%, #5c1122 0%, #2e0814 45%, #14050b 95%);
+  --surface-glass: rgba(28, 8, 16, 0.50);
+  --surface-glass-card: rgba(36, 12, 22, 0.58);
+  --surface-glass-modal: rgba(24, 7, 14, 0.85);
+  --line-glass: rgba(251, 113, 133, 0.30);
+  --glass-highlight: rgba(253, 164, 175, 0.45);
+  --glass-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.60), 0 0 25px rgba(244, 63, 94, 0.15), inset 0 1px 1px 0 rgba(253, 164, 175, 0.40), inset 0 0 0 1px rgba(251, 113, 133, 0.20);
+
+  /* Border Glow on Hover (Sunrise/Evening Theme: Reddish Orange) */
+  --glow-border: #f43f5e;
+  --glow-border-subtle: rgba(244, 63, 94, 0.55);
+  --glow-interactive: 0 0 12px 1px rgba(244, 63, 94, 0.70), inset 0 0 2px 0 rgba(251, 146, 60, 0.40);
+  --glow-subtle: 0 0 8px 1px rgba(244, 63, 94, 0.32), inset 0 0 1px 0 rgba(251, 146, 60, 0.20);
+}
+
+[data-theme="dark"] {
+  --canvas-base: #030712;
+  --ink: #f8fafc;
+  --muted: #94a3b8;
+  --faint: #64748b;
+  --line: rgba(148, 163, 184, 0.16);
+  --surface: rgba(13, 20, 38, 0.52);
+  --canvas: rgba(15, 23, 42, 0.35);
+  --dark: #020617;
+  --accent: #38bdf8; /* Glowing Moonbeam Cyan-Blue */
+  --accent-soft: rgba(56, 189, 248, 0.16);
+  --accent-ink: #030712; /* High contrast text on neon cyan */
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.18);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.18);
+  --red: #f87171;
+  --red-soft: rgba(248, 113, 113, 0.18);
+
+  /* Celestial Tokens (Moon / Night Mode - Dark with Bluish Glow) */
+  --canvas-gradient: radial-gradient(ellipse 90% 70% at 75% 15%, #0f2b5c 0%, #081126 40%, #030712 90%);
+  --surface-glass: rgba(10, 16, 32, 0.50);
+  --surface-glass-card: rgba(15, 23, 42, 0.58);
+  --surface-glass-modal: rgba(10, 16, 32, 0.85);
+  --line-glass: rgba(148, 163, 184, 0.22);
+  --glass-highlight: rgba(148, 163, 184, 0.35);
+  --glass-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.65), 0 0 25px rgba(56, 189, 248, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.30), inset 0 0 0 1px rgba(148, 163, 184, 0.20);
+
+  /* Border Glow on Hover (Night Theme: Bluish White) */
+  --glow-border: #38bdf8;
+  --glow-border-subtle: rgba(56, 189, 248, 0.55);
+  --glow-interactive: 0 0 12px 1px rgba(56, 189, 248, 0.70), inset 0 0 2px 0 rgba(255, 255, 255, 0.55);
+  --glow-subtle: 0 0 8px 1px rgba(56, 189, 248, 0.32), inset 0 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
 [data-accent="indigo"] {
   --accent: #4338ca;
   --accent-soft: #eef2ff;
 }
+[data-theme="dark"][data-accent="indigo"] {
+  --accent-soft: rgba(67, 56, 202, 0.22);
+}
 
 [data-accent="green"] {
   --accent: #247a56;
   --accent-soft: #eaf6f0;
 }
+[data-theme="dark"][data-accent="green"] {
+  --accent-soft: rgba(36, 122, 86, 0.22);
+}
 
 [data-accent="blue"] {
   --accent: #305fdd;
   --accent-soft: #eef3ff;
+}
+[data-theme="dark"][data-accent="blue"] {
+  --accent-soft: rgba(48, 95, 221, 0.22);
 }
 
 @theme {
@@ -50,12 +150,96 @@
   --color-vido-amber-soft: var(--amber-soft);
   --color-vido-red: var(--red);
   --color-vido-red-soft: var(--red-soft);
+
+  --color-surface-glass: var(--surface-glass);
+  --color-surface-glass-card: var(--surface-glass-card);
+  --color-surface-glass-modal: var(--surface-glass-modal);
+  --color-line-glass: var(--line-glass);
 }
 
 /* Global focus styling */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Universal frosted glass backdrop blur */
+.glass-panel,
+.glass-card,
+.glass-modal,
+[class*="bg-[var(--surface)"],
+[class*="bg-[var(--surface-glass"],
+[class*="bg-[var(--canvas)"],
+[class*="bg-[var(--dark)]/"] {
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+}
+
+.glass-panel {
+  background-color: var(--surface-glass);
+  border: 1px solid var(--line-glass);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background-color: var(--surface-glass-card);
+  border: 1px solid var(--line-glass);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-modal {
+  background-color: var(--surface-glass-modal);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1px solid var(--line-glass);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Card Components & Buttons Theme-Based Border Glow with Transition Delay */
+button:not(:disabled),
+.glass-card,
+.dashboard-tile {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 250ms;
+  transition-delay: 0ms;
+}
+
+button:not(:disabled):hover:not(.btn-logout),
+.glass-card.hoverable:hover,
+.dashboard-tile:hover {
+  box-shadow: var(--glow-interactive);
+  border-color: var(--glow-border);
+  transition-delay: 100ms;
+  transition-duration: 300ms;
+}
+
+/* Persistent Reddish Border Glow for Logout / Sign Out Button Always */
+.btn-logout:hover,
+button[aria-label="Sign out"]:hover {
+  box-shadow: 0 0 14px 2px rgba(239, 68, 68, 0.75), inset 0 0 3px 0 rgba(220, 38, 38, 0.45) !important;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  transition-delay: 100ms;
+  transition-duration: 300ms;
+}
+
+/* Sidebar Navigation Items - Subtle Border Appearance and Gentle Glow on Hover */
+.sidebar-nav-item {
+  border: 1px solid transparent;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 200ms;
+  transition-delay: 0ms;
+}
+
+.sidebar-nav-item:hover,
+button.sidebar-nav-item:not(:disabled):hover {
+  border-color: var(--glow-border-subtle, var(--glow-border)) !important;
+  box-shadow: var(--glow-subtle) !important;
+  transition-delay: 60ms;
+  transition-duration: 250ms;
 }
 
 /* Keep the workspace navigation scrollbar quiet, compact, and palette-aware. */
@@ -81,4 +265,221 @@
 
 .workspace-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(in srgb, var(--accent) 75%, var(--dark));
+}
+
+/* Randomly moving white glowing particles for Night Theme */
+@keyframes particle-drift-1 {
+  0% { transform: translate(0px, 0px) scale(1); opacity: 0.45; }
+  25% { transform: translate(28px, -36px) scale(1.3); opacity: 0.95; }
+  50% { transform: translate(-22px, -65px) scale(0.9); opacity: 0.55; }
+  75% { transform: translate(36px, -24px) scale(1.2); opacity: 0.85; }
+  100% { transform: translate(0px, 0px) scale(1); opacity: 0.45; }
+}
+
+@keyframes particle-drift-2 {
+  0% { transform: translate(0px, 0px) scale(0.9); opacity: 0.5; }
+  30% { transform: translate(-38px, 32px) scale(1.25); opacity: 0.95; }
+  60% { transform: translate(32px, 52px) scale(0.85); opacity: 0.4; }
+  85% { transform: translate(-22px, -32px) scale(1.15); opacity: 0.9; }
+  100% { transform: translate(0px, 0px) scale(0.9); opacity: 0.5; }
+}
+
+@keyframes particle-drift-3 {
+  0% { transform: translate(0px, 0px) scale(1.1); opacity: 0.6; }
+  20% { transform: translate(46px, 36px) scale(0.8); opacity: 0.4; }
+  45% { transform: translate(-32px, 56px) scale(1.35); opacity: 1; }
+  70% { transform: translate(-52px, -22px) scale(1); opacity: 0.65; }
+  100% { transform: translate(0px, 0px) scale(1.1); opacity: 0.6; }
+}
+
+@keyframes particle-drift-4 {
+  0% { transform: translate(0px, 0px) scale(0.85); opacity: 0.4; }
+  35% { transform: translate(36px, -46px) scale(1.25); opacity: 0.95; }
+  65% { transform: translate(-46px, -16px) scale(0.9); opacity: 0.5; }
+  90% { transform: translate(26px, 42px) scale(1.15); opacity: 0.85; }
+  100% { transform: translate(0px, 0px) scale(0.85); opacity: 0.4; }
+}
+
+@keyframes particle-drift-5 {
+  0% { transform: translate(0px, 0px) scale(1); opacity: 0.5; }
+  25% { transform: translate(-36px, -36px) scale(1.3); opacity: 0.95; }
+  50% { transform: translate(42px, 26px) scale(0.85); opacity: 0.45; }
+  75% { transform: translate(-26px, 46px) scale(1.15); opacity: 0.9; }
+  100% { transform: translate(0px, 0px) scale(1); opacity: 0.5; }
+}
+
+.animate-particle-drift-1 {
+  animation: particle-drift-1 ease-in-out infinite;
+}
+.animate-particle-drift-2 {
+  animation: particle-drift-2 ease-in-out infinite;
+}
+.animate-particle-drift-3 {
+  animation: particle-drift-3 ease-in-out infinite;
+}
+.animate-particle-drift-4 {
+  animation: particle-drift-4 ease-in-out infinite;
+}
+.animate-particle-drift-5 {
+  animation: particle-drift-5 ease-in-out infinite;
+}
+
+/* Gliding Birds for Sunrise & Evening Theme */
+@keyframes bird-fly-horizontal {
+  0% {
+    transform: translate3d(-10vw, 0, 0);
+  }
+  50% {
+    transform: translate3d(55vw, -12px, 0);
+  }
+  100% {
+    transform: translate3d(115vw, -24px, 0);
+  }
+}
+
+@keyframes bird-wing-flap {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.70) translateY(2px);
+  }
+}
+
+.animate-bird-glide-1 {
+  animation: bird-fly-horizontal 34s linear infinite;
+}
+.animate-bird-glide-2 {
+  animation: bird-fly-horizontal 38s linear infinite -8s;
+}
+.animate-bird-glide-3 {
+  animation: bird-fly-horizontal 42s linear infinite -16s;
+}
+.animate-bird-glide-4 {
+  animation: bird-fly-horizontal 36s linear infinite -24s;
+}
+.animate-bird-glide-5 {
+  animation: bird-fly-horizontal 40s linear infinite -30s;
+}
+
+.animate-bird-flap {
+  animation: bird-wing-flap 1.2s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+/* Swaying Leaf Particles for Day Theme */
+@keyframes leaf-sway-1 {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(60px, 48vh, 0) rotate(140deg);
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(-30px, 105vh, 0) rotate(280deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-sway-2 {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(45deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.70;
+  }
+  50% {
+    transform: translate3d(-55px, 44vh, 0) rotate(-60deg);
+  }
+  80% {
+    opacity: 0.70;
+  }
+  100% {
+    transform: translate3d(45px, 105vh, 0) rotate(120deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-sway-3 {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(10deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.65;
+  }
+  60% {
+    transform: translate3d(70px, 52vh, 0) rotate(200deg);
+  }
+  85% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translate3d(20px, 105vh, 0) rotate(340deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-sway-4 {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(-30deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(-60px, 46vh, 0) rotate(90deg);
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(-15px, 105vh, 0) rotate(210deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-sway-5 {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(20deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.70;
+  }
+  55% {
+    transform: translate3d(55px, 42vh, 0) rotate(-110deg);
+  }
+  80% {
+    opacity: 0.70;
+  }
+  100% {
+    transform: translate3d(95px, 105vh, 0) rotate(-220deg);
+    opacity: 0;
+  }
+}
+
+.animate-leaf-sway-1 {
+  animation: leaf-sway-1 ease-in-out infinite;
+}
+.animate-leaf-sway-2 {
+  animation: leaf-sway-2 ease-in-out infinite;
+}
+.animate-leaf-sway-3 {
+  animation: leaf-sway-3 ease-in-out infinite;
+}
+.animate-leaf-sway-4 {
+  animation: leaf-sway-4 ease-in-out infinite;
+}
+.animate-leaf-sway-5 {
+  animation: leaf-sway-5 ease-in-out infinite;
 }

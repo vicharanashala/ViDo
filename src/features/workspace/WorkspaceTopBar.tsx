@@ -1,11 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Filter, LogOut, ChevronRight, Settings, Sliders, ArrowLeft } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  LogOut,
+  ChevronRight,
+  Settings,
+  Sliders,
+  ArrowLeft,
+  Palette,
+  Sun,
+  Sunset,
+  Moon,
+  Sparkles,
+  PanelLeft,
+} from 'lucide-react';
 import { Badge } from '../../components/ui';
 import { NotificationBell } from '../teams/NotificationBell';
 import { getTeamRepository } from '../teams/teamRepository';
 import { TeamInvitation } from '../teams/types';
 import { formatTopBarDate } from '../../utils/dateUtils';
+import { useTheme, ThemeMode } from '../../lib/theme';
 
 export interface WorkspaceTopBarProps {
   isPreview?: boolean;
@@ -17,11 +32,14 @@ export interface WorkspaceTopBarProps {
   authMode?: 'firebase' | 'emulator' | 'unconfigured';
   onSearchFocus?: () => void;
   onSignOut?: () => void;
+  onOpenSettings?: () => void;
   invitations?: TeamInvitation[];
   onRespondInvitation?: (invitationId: string, accept: boolean) => Promise<void>;
   currentDate?: string;
   basePath?: string;
   isSettings?: boolean;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
@@ -30,11 +48,14 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   authMode: _authMode,
   onSearchFocus,
   onSignOut,
+  onOpenSettings,
   invitations: propInvitations,
   onRespondInvitation,
   currentDate: propCurrentDate,
   basePath = '/preview',
   isSettings: propIsSettings,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
 }) => {
   const location = useLocation();
   const isSettingsPage = propIsSettings ?? location.pathname.endsWith('/settings');
@@ -42,11 +63,11 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   const userInitials = isPreview
     ? 'DU'
     : userName
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase();
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
   const userSubtitle = isPreview
     ? 'Personal Workspace'
     : user?.email || 'alex.morgan@gmail.com';
@@ -92,10 +113,59 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
     });
   };
 
+  // Profile Dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { mode: currentThemeMode, setMode: setCelestialMode } = useTheme();
+
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDropdownOpen]);
+
+  const themeOptions: { mode: ThemeMode; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { mode: 'auto', label: 'Auto', icon: Sparkles },
+    { mode: 'light', label: 'Day', icon: Sun },
+    { mode: 'evening', label: 'Dusk', icon: Sunset },
+    { mode: 'dark', label: 'Night', icon: Moon },
+  ];
+
   return (
-    <header className="sticky top-0 z-20 bg-[var(--surface)]/95 backdrop-blur-xs border-b border-[var(--line)] px-6 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-20 border-b border-[var(--line-glass)] px-6 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4 shadow-xs relative">
+      {/* Background glass blur layer isolated to prevent trapping child dropdowns in a backdrop root */}
+      <div className="absolute inset-0 -z-10 glass-panel pointer-events-none" />
       {/* Workspace Context / Breadcrumb */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onClick={onToggleSidebar}
+            className="p-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--canvas)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer shrink-0"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </button>
+        )}
         {isSettingsPage ? (
           <div className="flex items-center gap-2">
             <Link
@@ -154,11 +224,11 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
             {/* Filter */}
             <button
               type="button"
-              className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-sm font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer"
+              className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] text-sm font-medium text-[var(--muted)] hover:bg-[var(--canvas)] hover:text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-all cursor-pointer"
               aria-label="Filter tasks"
             >
               <Filter className="w-4 h-4 text-[var(--faint)]" />
-              <span>All Priorities</span>
+              <span className="text-xs">All Priorities</span>
             </button>
 
             {/* Date Badge */}
@@ -176,49 +246,145 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
           onRespond={handleRespond}
         />
 
-        {/* User Profile Badge */}
-        <div
-          className="flex items-center gap-2.5 pl-3 border-l border-[var(--line)]"
-          title={`${userName} ${isPreview ? '(Preview Mode)' : ''}`}
-        >
-          <div
-            className={`w-9 h-9 rounded-full font-bold text-xs flex items-center justify-center border shadow-xs ${
-              isPreview
-                ? 'bg-amber-500/15 text-amber-800 border-amber-500/30'
-                : 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30'
-            }`}
-          >
-            {userInitials}
-          </div>
-          <div className="hidden sm:block text-left">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-[var(--ink)] block leading-tight">
-                {userName}
-              </span>
-              {isPreview && (
-                <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                  Demo
-                </span>
-              )}
-            </div>
-            <span className="text-xs text-[var(--muted)] block leading-tight truncate max-w-[150px]">
-              {userSubtitle}
-            </span>
-          </div>
-        </div>
-
-        {/* Sign Out Button (for authenticated workspace) */}
-        {!isPreview && onSignOut && (
+        {/* User Profile Circular Avatar & Floating Dropdown */}
+        <div className="relative" ref={dropdownRef}>
           <button
             type="button"
-            onClick={onSignOut}
-            aria-label="Sign out"
-            className="p-2 rounded-lg border border-[var(--line)] text-[var(--muted)] hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer shrink-0"
-            title="Sign out of ViDo"
+            aria-haspopup="menu"
+            aria-expanded={isDropdownOpen}
+            aria-label="User profile menu"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            title={`${userName} ${isPreview ? '(Preview Mode)' : ''}`}
+            className="flex items-center gap-1.5 rounded-full focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-transform active:scale-95 cursor-pointer group"
           >
-            <LogOut className="w-4 h-4" />
+            <div
+              className={`w-9 h-9 rounded-full font-bold text-xs flex items-center justify-center border shadow-xs transition-all ${isPreview
+                ? 'bg-amber-500/15 text-amber-800 border-amber-500/30 group-hover:border-amber-500/70'
+                : 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30 group-hover:border-[var(--accent)]'
+                }`}
+            >
+              {userInitials}
+            </div>
           </button>
-        )}
+
+          {/* Floating Dropdown Card */}
+          {isDropdownOpen && (
+            <div
+              role="menu"
+              aria-label="User profile options"
+              className="absolute right-0 top-full mt-2 w-72 rounded-2xl glass-modal border border-[var(--line-glass)] shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150 text-[var(--ink)]"
+              style={{
+                backgroundColor: 'var(--surface-glass-modal)',
+                backdropFilter: 'blur(40px) saturate(220%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(220%)',
+              }}
+            >
+              {/* 1. User Identity Header */}
+              <div className="p-2 mb-2 pb-3 border-b border-[var(--line-glass)] flex items-center gap-3">
+                <div
+                  className={`w-10 h-10 rounded-full font-bold text-sm flex items-center justify-center border shadow-xs shrink-0 ${isPreview
+                    ? 'bg-amber-500/15 text-amber-800 border-amber-500/30'
+                    : 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30'
+                    }`}
+                >
+                  {userInitials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-[var(--ink)] block truncate">
+                      {userName}
+                    </span>
+                    {isPreview && (
+                      <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                        Demo
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-[var(--muted)] block truncate">
+                    {userSubtitle}
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. Atmosphere Theme Switcher */}
+              <div className="px-2 py-1.5 mb-2">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--faint)] mb-2">
+                  Atmosphere & Theme
+                </div>
+                <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-[var(--canvas)] border border-[var(--line-glass)]">
+                  {themeOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isActive = currentThemeMode === option.mode;
+                    return (
+                      <button
+                        key={option.mode}
+                        type="button"
+                        onClick={() => setCelestialMode(option.mode)}
+                        aria-pressed={isActive}
+                        title={`Switch theme to ${option.label}`}
+                        className={`flex flex-col items-center justify-center py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${isActive
+                          ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-2xs border border-[var(--accent)]/30'
+                          : 'text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]'
+                          }`}
+                      >
+                        <Icon className="w-3.5 h-3.5 mb-0.5" />
+                        <span className="text-[10px] leading-tight">{option.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. Navigation Links */}
+              <div className="space-y-0.5 border-t border-[var(--line-glass)] pt-2">
+                <Link
+                  to={`${basePath}/settings`}
+                  role="menuitem"
+                  onClick={(e) => {
+                    if (onOpenSettings) {
+                      e.preventDefault();
+                      onOpenSettings();
+                    }
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/80 transition-colors"
+                >
+                  <Settings className="w-4 h-4 text-[var(--accent)]" />
+                  <span>Workspace Settings</span>
+                </Link>
+
+                <Link
+                  to="/style-lab"
+                  role="menuitem"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/80 transition-colors"
+                >
+                  <Palette className="w-4 h-4 text-amber-500" />
+                  <span>Theme & Palette Lab</span>
+                </Link>
+              </div>
+
+              {/* 4. Sign Out / Exit Demo */}
+              {onSignOut && (
+                <div className="pt-1.5 mt-1.5 border-t border-[var(--line-glass)]">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      onSignOut();
+                    }}
+                    aria-label="Sign out"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>{isPreview ? 'Exit Preview' : 'Sign Out'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

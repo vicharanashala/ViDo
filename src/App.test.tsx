@@ -124,8 +124,11 @@ describe('LandingPage Integration', () => {
     expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /tasks/i })).toBeInTheDocument();
 
-    // Sign out button returns to the public landing page
-    const signOutBtn = screen.getAllByRole('button', { name: /sign out/i })[0];
+    // Open user profile menu in top bar and sign out to return to landing page
+    const profileBtn = screen.getByRole('button', { name: /user profile menu/i });
+    fireEvent.click(profileBtn);
+
+    const signOutBtn = screen.getByRole('menuitem', { name: /sign out/i });
     fireEvent.click(signOutBtn);
 
     await waitFor(() => {

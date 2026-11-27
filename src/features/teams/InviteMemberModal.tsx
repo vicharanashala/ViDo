@@ -62,9 +62,9 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
       aria-labelledby="invite-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
     >
-      <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-xl overflow-hidden text-[var(--ink)]">
+      <div className="w-full max-w-md glass-modal bg-[var(--surface-glass-modal)] border border-[var(--line-glass)] rounded-2xl shadow-2xl overflow-hidden text-[var(--ink)]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[var(--line)] flex items-center justify-between bg-[var(--canvas)]/40">
+        <div className="px-6 py-4 border-b border-[var(--line-glass)] flex items-center justify-between bg-[var(--canvas)]/40">
           <div>
             <h3 id="invite-modal-title" className="text-base font-bold text-[var(--ink)]">
               Invite Team Member

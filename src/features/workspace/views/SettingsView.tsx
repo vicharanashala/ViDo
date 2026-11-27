@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import {
+  Sun,
+  Sunset,
+  Moon,
+  Clock,
   Palette,
   User,
   Sliders,
@@ -14,43 +18,12 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button, Badge, Input } from '../../../components/ui';
+import { useTheme } from '../../../lib/theme';
 import {
   DEFAULT_CATEGORIES,
   CATEGORY_COLOR_OPTIONS,
   type UserCategory,
 } from '../../../data/categories';
-
-export type AccentCandidate = 'blue' | 'indigo' | 'green';
-
-export const ACCENTS: {
-  id: AccentCandidate;
-  name: string;
-  hex: string;
-  bgHex: string;
-  desc: string;
-}[] = [
-  {
-    id: 'blue',
-    name: 'Cobalt Blue',
-    hex: '#305fdd',
-    bgHex: '#eef3ff',
-    desc: 'Crisp, direct, and classic productivity tone. Ideal for clean modern workspaces.',
-  },
-  {
-    id: 'indigo',
-    name: 'Deep Indigo',
-    hex: '#4338ca',
-    bgHex: '#eef2ff',
-    desc: 'Warm, refined, professional software tone. Higher contrast against white surfaces.',
-  },
-  {
-    id: 'green',
-    name: 'Forest Green',
-    hex: '#247a56',
-    bgHex: '#eaf6f0',
-    desc: 'Calm, grounded, organic focus. Emphasizes steady progress and low-anxiety execution.',
-  },
-];
 
 export type SettingsSection = 'account' | 'theme' | 'categories' | 'preferences' | 'workspace';
 
@@ -122,19 +95,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   isModal = false,
 }) => {
   const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
-
-  // Theme state
-  const [activeAccent, setActiveAccent] = useState<AccentCandidate>(() => {
-    try {
-      const saved = localStorage.getItem('vido_accent') as AccentCandidate;
-      if (saved && (saved === 'blue' || saved === 'indigo' || saved === 'green')) {
-        return saved;
-      }
-    } catch {
-      // ignore
-    }
-    return (document.documentElement.getAttribute('data-accent') as AccentCandidate) || 'blue';
-  });
+  const { mode: celestialMode, isDay, isEvening, setMode: setCelestialMode } = useTheme();
 
   // Profile state
   const [displayName, setDisplayName] = useState(user?.name || 'Demo User');
@@ -172,16 +133,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [newCatName, setNewCatName] = useState('');
   const [selectedColor, setSelectedColor] = useState(CATEGORY_COLOR_OPTIONS[0].hex);
   const [catCreationNotice, setCatCreationNotice] = useState<string | null>(null);
-
-  const handleSelectAccent = (accentId: AccentCandidate) => {
-    setActiveAccent(accentId);
-    document.documentElement.setAttribute('data-accent', accentId);
-    try {
-      localStorage.setItem('vido_accent', accentId);
-    } catch {
-      // ignore
-    }
-  };
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,7 +194,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   return (
-    <div className={`flex flex-col h-full bg-[var(--surface)] text-[var(--ink)] ${isModal ? '' : 'p-6 sm:p-10 max-w-5xl mx-auto space-y-6'}`}>
+    <div className={`flex flex-col h-full bg-transparent text-[var(--ink)] ${isModal ? '' : 'p-6 sm:p-10 max-w-5xl mx-auto space-y-6'}`}>
       {/* Standalone View Header */}
       {!isModal && (
         <div className="border-b border-[var(--line)] pb-5">
@@ -255,7 +206,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       )}
 
       {/* YouTube Studio Two-Column Layout */}
-      <div className={`flex flex-1 min-h-0 ${isModal ? 'h-full' : 'border border-[var(--line)] rounded-2xl overflow-hidden shadow-xs h-[640px]'}`}>
+      <div className={`flex flex-1 min-h-0 ${isModal ? 'h-full bg-transparent' : 'border border-[var(--line-glass)] bg-[var(--surface-glass)]/90 backdrop-blur-xl rounded-2xl overflow-hidden shadow-xs h-[640px]'}`}>
         {/* Left Column Navigation (Sections) */}
         <nav
           aria-label="Settings sections"
@@ -292,7 +243,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           role="tabpanel"
           id={`panel-${activeSection}`}
           aria-labelledby={`tab-${activeSection}`}
-          className="flex-1 p-6 sm:p-8 overflow-y-auto min-w-0 bg-[var(--surface)]"
+          className="flex-1 p-6 sm:p-8 overflow-y-auto min-w-0 bg-transparent"
         >
           {/* SECTION 1: Account */}
           {activeSection === 'account' && (
@@ -372,79 +323,129 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   Appearance & Themes
                 </h2>
                 <p className="text-sm text-[var(--muted)] mt-1">
-                  Select an accent color palette. The selected theme applies instantly across all buttons, badges, and active navigation indicators.
+                  Configure celestial horizon lighting and accent color palettes.
                 </p>
               </div>
 
-              {/* Theme Option Cards */}
-              <div className="space-y-3.5">
-                {ACCENTS.map((accent) => {
-                  const isSelected = activeAccent === accent.id;
-                  return (
-                    <div
-                      key={accent.id}
-                      role="button"
-                      tabIndex={0}
-                      aria-pressed={isSelected}
-                      onClick={() => handleSelectAccent(accent.id)}
-                      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSelectAccent(accent.id)}
-                      className={`p-4 sm:p-5 rounded-2xl border bg-[var(--surface)] cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                        isSelected
-                          ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/30 bg-[var(--accent-soft)]/20 shadow-xs'
-                          : 'border-[var(--line)] hover:border-gray-300 hover:bg-[var(--canvas)]/50 hover:shadow-2xs'
-                      }`}
-                      data-testid={`accent-card-${accent.id}`}
-                    >
-                      {/* Left: Swatch Icon & Details */}
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <span
-                          className="w-11 h-11 rounded-xl border border-black/10 shrink-0 shadow-2xs flex items-center justify-center transition-transform"
-                          style={{ backgroundColor: accent.hex }}
-                        >
-                          {isSelected && <Check className="w-5 h-5 text-white" />}
-                        </span>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-base text-[var(--ink)]">{accent.name}</span>
-                            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-[var(--canvas)] border border-[var(--line)] text-[var(--muted)]">
-                              Hex {accent.hex}
-                            </span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-[var(--muted)] mt-1 leading-relaxed">
-                            {accent.desc}
-                          </p>
-                        </div>
-                      </div>
+              {/* Celestial Theme Mode (Option C Horizon Sky) */}
+              <div className="space-y-3 p-5 rounded-2xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--ink)]">Celestial Horizon Atmosphere</h3>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Sun by day (06:00–17:00), Evening by dusk (17:00–20:00), Moon by night (20:00–06:00), or lock to your preference.
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-[var(--muted)] flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--canvas)] border border-[var(--line)] shrink-0 self-start sm:self-auto">
+                    {isDay ? (
+                      <>
+                        <Sun className="w-3.5 h-3.5 text-amber-500" /> Active: Sun (Daytime)
+                      </>
+                    ) : isEvening ? (
+                      <>
+                        <Sunset className="w-3.5 h-3.5 text-rose-500" /> Active: Evening (Sunset)
+                      </>
+                    ) : (
+                      <>
+                        <Moon className="w-3.5 h-3.5 text-indigo-400" /> Active: Moon (Nighttime)
+                      </>
+                    )}
+                  </span>
+                </div>
 
-                      {/* Right: Color Tones Preview & Action Badge */}
-                      <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[var(--canvas)] border border-[var(--line)]">
-                          <span className="text-[11px] font-mono font-medium text-[var(--muted)] mr-1">Tones</span>
-                          <span
-                            className="w-5 h-5 rounded-md border border-black/10 shadow-2xs"
-                            style={{ backgroundColor: accent.hex }}
-                            title={`Primary: ${accent.hex}`}
-                          />
-                          <span
-                            className="w-5 h-5 rounded-md border border-black/10 shadow-2xs"
-                            style={{ backgroundColor: accent.bgHex }}
-                            title={`Soft background: ${accent.bgHex}`}
-                          />
-                        </div>
-
-                        {isSelected ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)] bg-[var(--accent-soft)] px-3 py-1.5 rounded-full border border-[var(--accent)]/30 shadow-2xs shrink-0">
-                            <Check className="w-4 h-4" /> Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center text-xs font-semibold text-[var(--muted)] px-3.5 py-1.5 rounded-full border border-[var(--line)] hover:border-[var(--ink)]/30 hover:text-[var(--ink)] transition-colors shrink-0">
-                            Select
-                          </span>
-                        )}
-                      </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                  {/* Option 1: Auto */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={celestialMode === 'auto'}
+                    data-testid="theme-mode-auto"
+                    onClick={() => setCelestialMode('auto')}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('auto')}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      celestialMode === 'auto'
+                        ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/30 bg-[var(--accent-soft)] shadow-xs'
+                        : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--canvas)]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Clock className="w-4 h-4 text-[var(--accent)]" />
+                      <span className="font-bold text-sm text-[var(--ink)]">Auto (Clock)</span>
                     </div>
-                  );
-                })}
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Changes dynamically with local device time.
+                    </p>
+                  </div>
+
+                  {/* Option 2: Always Light (Sun) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={celestialMode === 'light'}
+                    data-testid="theme-mode-light"
+                    onClick={() => setCelestialMode('light')}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('light')}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      celestialMode === 'light'
+                        ? 'border-amber-400 ring-2 ring-amber-400/30 bg-amber-50 dark:bg-amber-950/20 shadow-xs'
+                        : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--canvas)]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Sun className="w-4 h-4 text-amber-500" />
+                      <span className="font-bold text-sm text-[var(--ink)]">Always Sun</span>
+                    </div>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Locked to daytime sun and dawn horizon.
+                    </p>
+                  </div>
+
+                  {/* Option 3: Always Evening (Sunset) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={celestialMode === 'evening'}
+                    data-testid="theme-mode-evening"
+                    onClick={() => setCelestialMode('evening')}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('evening')}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      celestialMode === 'evening'
+                        ? 'border-rose-400 ring-2 ring-rose-400/30 bg-rose-50 dark:bg-rose-950/20 shadow-xs'
+                        : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--canvas)]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Sunset className="w-4 h-4 text-rose-500" />
+                      <span className="font-bold text-sm text-[var(--ink)]">Sunrise & Sunset</span>
+                    </div>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Warm reddish dawn & sunset horizon with gliding birds.
+                    </p>
+                  </div>
+
+                  {/* Option 4: Always Dark (Moon) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={celestialMode === 'dark'}
+                    data-testid="theme-mode-dark"
+                    onClick={() => setCelestialMode('dark')}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCelestialMode('dark')}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      celestialMode === 'dark'
+                        ? 'border-indigo-400 ring-2 ring-indigo-400/30 bg-indigo-50 dark:bg-indigo-950/20 shadow-xs'
+                        : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--canvas)]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Moon className="w-4 h-4 text-indigo-400" />
+                      <span className="font-bold text-sm text-[var(--ink)]">Always Moon</span>
+                    </div>
+                    <p className="text-xs text-[var(--muted)] leading-relaxed">
+                      Locked to twilight moon and midnight sky.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Live Theme Preview Showcase */}
@@ -455,12 +456,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     <div>
                       <h3 className="text-base font-bold text-[var(--ink)]">Live Theme Preview</h3>
                       <p className="text-xs text-[var(--muted)]">
-                        Real-time demonstration of how the selected palette styles workspace components
+                        Real-time demonstration of how the celestial atmosphere styles workspace components
                       </p>
                     </div>
                   </div>
                   <Badge variant="accent" className="px-3 py-1 text-xs font-bold">
-                    Previewing: {activeAccent.toUpperCase()}
+                    Active: {isDay ? 'Sun (Daytime)' : isEvening ? 'Evening (Sunset)' : 'Moon (Nighttime)'}
                   </Badge>
                 </div>
 
@@ -767,7 +768,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                       variant="secondary"
                       size="md"
                       onClick={onSignOut}
-                      className="text-red-600 border-red-200 hover:bg-red-50 shrink-0"
+                      className="btn-logout text-red-600 border-red-200 hover:bg-red-50 shrink-0"
                     >
                       <LogOut className="w-4 h-4 mr-1.5" /> Sign Out
                     </Button>

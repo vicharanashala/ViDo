@@ -44,7 +44,7 @@ export const LandingBenefits: React.FC = () => {
         {principles.map((p, i) => (
           <div
             key={i}
-            className="p-5 rounded-xl border border-[var(--line)] bg-[var(--surface)] shadow-xs flex flex-col justify-between"
+            className="p-5 rounded-xl border border-[var(--line-glass)] bg-[var(--surface-glass-card)] backdrop-blur-md shadow-xs flex flex-col justify-between"
           >
             <div>
               <div className="w-10 h-10 rounded-lg bg-[var(--canvas)] flex items-center justify-center mb-4">

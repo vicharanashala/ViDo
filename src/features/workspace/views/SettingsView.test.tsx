@@ -26,9 +26,9 @@ describe('SettingsView', () => {
     // Switch to Theme & Appearance tab
     fireEvent.click(screen.getByRole('tab', { name: /theme & appearance/i }));
     expect(screen.getByRole('heading', { name: /appearance & themes/i })).toBeInTheDocument();
-    expect(screen.getByText('Cobalt Blue')).toBeInTheDocument();
-    expect(screen.getByText('Deep Indigo')).toBeInTheDocument();
-    expect(screen.getByText('Forest Green')).toBeInTheDocument();
+    expect(screen.getByText('Auto (Clock)')).toBeInTheDocument();
+    expect(screen.getByText('Always Sun')).toBeInTheDocument();
+    expect(screen.getByText('Always Moon')).toBeInTheDocument();
 
     // Switch to Personalised Categories tab
     fireEvent.click(screen.getByRole('tab', { name: /personalised categories/i }));
@@ -43,21 +43,39 @@ describe('SettingsView', () => {
     expect(screen.getByRole('heading', { name: /workspace actions/i })).toBeInTheDocument();
   });
 
-  it('switches active theme and updates document data-accent attribute', () => {
+  it('renders celestial atmosphere theme controls and excludes obsolete accent cards', () => {
     localStorage.clear();
     render(<SettingsView isPreview={true} initialSection="theme" />);
 
-    const greenCard = screen.getByTestId('accent-card-green');
-    fireEvent.click(greenCard);
+    expect(screen.getByText('Celestial Horizon Atmosphere')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-mode-auto')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-mode-light')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-mode-evening')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-mode-dark')).toBeInTheDocument();
+    expect(screen.queryByTestId('accent-card-green')).not.toBeInTheDocument();
+  });
 
-    expect(document.documentElement.getAttribute('data-accent')).toBe('green');
-    expect(localStorage.getItem('vido_accent')).toBe('green');
+  it('switches celestial atmosphere theme mode and updates document and storage', () => {
+    localStorage.clear();
+    render(<SettingsView isPreview={true} initialSection="theme" />);
 
-    const indigoCard = screen.getByTestId('accent-card-indigo');
-    fireEvent.click(indigoCard);
+    const eveningBtn = screen.getByTestId('theme-mode-evening');
+    fireEvent.click(eveningBtn);
 
-    expect(document.documentElement.getAttribute('data-accent')).toBe('indigo');
-    expect(localStorage.getItem('vido_accent')).toBe('indigo');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('evening');
+    expect(localStorage.getItem('vido_theme_mode')).toBe('evening');
+
+    const darkBtn = screen.getByTestId('theme-mode-dark');
+    fireEvent.click(darkBtn);
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(localStorage.getItem('vido_theme_mode')).toBe('dark');
+
+    const lightBtn = screen.getByTestId('theme-mode-light');
+    fireEvent.click(lightBtn);
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+    expect(localStorage.getItem('vido_theme_mode')).toBe('light');
   });
 
   it('allows updating user profile display name in account section', () => {

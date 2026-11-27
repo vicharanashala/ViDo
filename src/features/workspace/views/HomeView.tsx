@@ -181,17 +181,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ======================================================== */}
       {activeTab === 'dashboard' && (
         <div className="space-y-8 animate-in fade-in duration-150">
-          {/* Dark Navy Hero Overview Card */}
+          {/* Hero Overview Command Center */}
           <section
             aria-label="Overview Command Center"
-            className="bg-[var(--dark)] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden"
+            className="glass-card bg-[var(--surface-glass)] backdrop-blur-3xl border border-[var(--line-glass)] text-[var(--ink)] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
           >
             <div className="relative z-10">
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-mono tracking-wider uppercase font-semibold text-gray-400 flex items-center gap-1.5">
+                    <span className="text-xs font-mono tracking-wider uppercase font-bold text-[var(--accent)] flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
                       {isPreview ? 'Tuesday, 17 November 2026' : formatTopBarDate()}
                     </span>
@@ -200,26 +200,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         Sample Data
                       </span>
                     ) : (
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
                         Personal Workspace
                       </span>
                     )}
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--ink)] flex items-center gap-2.5 flex-wrap">
                     <span>
                       {isPreview ? 'Welcome back, Demo User' : `Welcome back, ${user?.name || 'Alex'}`}
                     </span>
                     {isPreview ? (
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--canvas)] text-[var(--ink)] border border-[var(--line-glass)]">
                         Preview Mode
                       </span>
                     ) : (
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-gray-200 border border-white/20">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--canvas)] text-[var(--ink)] border border-[var(--line-glass)]">
                         Active
                       </span>
                     )}
                   </h1>
-                  <p className="text-sm text-gray-300 mt-1.5 max-w-xl">
+                  <p className="text-sm font-medium text-[var(--muted)] mt-1.5 max-w-xl">
                     Here is your focused daily workload snapshot. Select an area below to inspect its tasks.
                   </p>
                 </div>
@@ -247,24 +247,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('today')
                   }
                   aria-label={`View Today tasks (${currentDashboard.today.totalCount})`}
-                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
-                    dashboardCategory === 'today'
-                      ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                  }`}
+                  className={`dashboard-tile p-4 sm:p-5 rounded-xl cursor-pointer transition-all border backdrop-blur-xl hover:shadow-[var(--glow-interactive)] hover:border-[var(--glow-border)] hover:delay-100 hover:duration-300 ${dashboardCategory === 'today'
+                      ? 'bg-[var(--accent-soft)] border-[var(--accent)] ring-1 ring-[var(--accent)]/40 shadow-md'
+                      : 'bg-[var(--surface)] hover:bg-[var(--surface-glass)]/90 border-[var(--line-glass)] shadow-xs'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-[var(--ink)] flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-[var(--accent)]" /> Today
                     </span>
                     {dashboardCategory === 'today' && (
                       <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
                     )}
                   </div>
-                  <div className="text-3xl font-black tracking-tight text-white">
+                  <div className="text-3xl font-black tracking-tight text-[var(--ink)]">
                     {currentDashboard.today.totalCount}
                   </div>
-                  <span className="text-sm text-gray-300 mt-1 block">Due by end of day</span>
+                  <span className="text-sm font-medium text-[var(--muted)] mt-1 block">Due by end of day</span>
                 </div>
 
                 {/* Tile 2: Needs Attention */}
@@ -276,24 +275,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('needsAttention')
                   }
                   aria-label={`View Needs Attention tasks (${currentDashboard.needsAttention.totalCount})`}
-                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
-                    dashboardCategory === 'needsAttention'
-                      ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                  }`}
+                  className={`dashboard-tile p-4 sm:p-5 rounded-xl cursor-pointer transition-all border backdrop-blur-xl hover:shadow-[var(--glow-interactive)] hover:border-[var(--glow-border)] hover:delay-100 hover:duration-300 ${dashboardCategory === 'needsAttention'
+                      ? 'bg-amber-500/20 border-amber-600/60 ring-1 ring-amber-500/50 shadow-md'
+                      : 'bg-[var(--surface)] hover:bg-[var(--surface-glass)]/90 border-[var(--line-glass)] shadow-xs'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-amber-400" /> Attention
+                    <span className="text-sm font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" /> Attention
                     </span>
                     {dashboardCategory === 'needsAttention' && (
-                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                      <span className="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400" />
                     )}
                   </div>
-                  <div className="text-3xl font-black tracking-tight text-amber-300">
+                  <div className="text-3xl font-black tracking-tight text-amber-800 dark:text-amber-300">
                     {currentDashboard.needsAttention.totalCount}
                   </div>
-                  <span className="text-sm text-gray-300 mt-1 block">Overdue or urgent</span>
+                  <span className="text-sm font-medium text-[var(--muted)] mt-1 block">Overdue or urgent</span>
                 </div>
 
                 {/* Tile 3: Upcoming */}
@@ -305,24 +303,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('upcoming')
                   }
                   aria-label={`View Upcoming tasks (${currentDashboard.upcoming.totalCount})`}
-                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
-                    dashboardCategory === 'upcoming'
-                      ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                  }`}
+                  className={`dashboard-tile p-4 sm:p-5 rounded-xl cursor-pointer transition-all border backdrop-blur-xl hover:shadow-[var(--glow-interactive)] hover:border-[var(--glow-border)] hover:delay-100 hover:duration-300 ${dashboardCategory === 'upcoming'
+                      ? 'bg-indigo-500/20 border-indigo-600/50 ring-1 ring-indigo-500/40 shadow-md'
+                      : 'bg-[var(--surface)] hover:bg-[var(--surface-glass)]/90 border-[var(--line-glass)] shadow-xs'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4 text-indigo-400" /> Upcoming
+                    <span className="text-sm font-bold uppercase tracking-wider text-[var(--ink)] flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Upcoming
                     </span>
                     {dashboardCategory === 'upcoming' && (
-                      <span className="w-2 h-2 rounded-full bg-indigo-400" />
+                      <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
                     )}
                   </div>
-                  <div className="text-3xl font-black tracking-tight text-white">
+                  <div className="text-3xl font-black tracking-tight text-[var(--ink)]">
                     {currentDashboard.upcoming.totalCount}
                   </div>
-                  <span className="text-sm text-gray-300 mt-1 block">Scheduled later</span>
+                  <span className="text-sm font-medium text-[var(--muted)] mt-1 block">Scheduled later</span>
                 </div>
 
                 {/* Tile 4: Recently Completed */}
@@ -334,24 +331,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     (e.key === 'Enter' || e.key === ' ') && setDashboardCategory('completed')
                   }
                   aria-label={`View Completed tasks (${currentDashboard.recentlyCompleted.totalCount})`}
-                  className={`p-4 sm:p-5 rounded-xl cursor-pointer transition-all border ${
-                    dashboardCategory === 'completed'
-                      ? 'bg-white/15 border-white/40 ring-2 ring-white/30 shadow-md'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                  }`}
+                  className={`dashboard-tile p-4 sm:p-5 rounded-xl cursor-pointer transition-all border backdrop-blur-xl hover:shadow-[var(--glow-interactive)] hover:border-[var(--glow-border)] hover:delay-100 hover:duration-300 ${dashboardCategory === 'completed'
+                      ? 'bg-emerald-500/20 border-emerald-600/60 ring-1 ring-emerald-500/50 shadow-md'
+                      : 'bg-[var(--surface)] hover:bg-[var(--surface-glass)]/90 border-[var(--line-glass)] shadow-xs'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Delivered
+                    <span className="text-sm font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Delivered
                     </span>
                     {dashboardCategory === 'completed' && (
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                     )}
                   </div>
-                  <div className="text-3xl font-black tracking-tight text-emerald-300">
+                  <div className="text-3xl font-black tracking-tight text-emerald-800 dark:text-emerald-300">
                     {currentDashboard.recentlyCompleted.totalCount}
                   </div>
-                  <span className="text-sm text-gray-300 mt-1 block">Finished this week</span>
+                  <span className="text-sm font-medium text-[var(--muted)] mt-1 block">Finished this week</span>
                 </div>
               </div>
             </div>
@@ -389,7 +385,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Task Rows Card Container */}
             {activeDashboardSection.items.length > 0 ? (
-              <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
+              <div className="glass-card rounded-xl divide-y divide-[var(--line-glass)] shadow-md overflow-hidden">
                 {activeDashboardSection.items.map((task) => (
                   <TaskRow
                     key={task.id}
@@ -437,7 +433,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* Interactive Filter Bar with "+ Add Filter" Controls */}
           <section aria-label="Task Filters" className="space-y-4">
-            <div className="p-4 sm:p-5 bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-xs">
+            <div className="p-4 sm:p-5 glass-card rounded-2xl shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 {/* Left: Active Filters and + Add Filter Trigger */}
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -500,7 +496,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </button>
 
                     {isAddFilterOpen && (
-                      <div className="absolute left-0 top-full mt-2 w-60 p-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl shadow-xl z-30 space-y-2.5 animate-in fade-in duration-100">
+                      <div className="absolute left-0 top-full mt-2 w-60 p-2.5 bg-[var(--surface-glass-modal)] backdrop-blur-xl border border-[var(--line-glass)] rounded-xl shadow-xl z-30 space-y-2.5 animate-in fade-in duration-100">
                         {/* Category Options */}
                         <div>
                           <span className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] px-2 block mb-1">
@@ -607,17 +603,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   {(statusFilter !== 'all' ||
                     categoryFilter !== 'all' ||
                     priorityFilter !== 'all') && (
-                    <button
-                      onClick={() => {
-                        setStatusFilter('all');
-                        setCategoryFilter('all');
-                        setPriorityFilter('all');
-                      }}
-                      className="text-sm text-[var(--muted)] hover:text-[var(--ink)] underline cursor-pointer ml-1"
-                    >
-                      Clear all
-                    </button>
-                  )}
+                      <button
+                        onClick={() => {
+                          setStatusFilter('all');
+                          setCategoryFilter('all');
+                          setPriorityFilter('all');
+                        }}
+                        className="text-sm text-[var(--muted)] hover:text-[var(--ink)] underline cursor-pointer ml-1"
+                      >
+                        Clear all
+                      </button>
+                    )}
                 </div>
 
                 {/* Right: Task Count */}
@@ -629,7 +625,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Task Rows Card Container */}
             {displayedTasks.length > 0 ? (
-              <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl divide-y divide-[var(--line)] shadow-xs overflow-hidden">
+              <div className="glass-card rounded-xl divide-y divide-[var(--line-glass)] shadow-md overflow-hidden">
                 {displayedTasks.map((task) => (
                   <TaskRow
                     key={task.id}
@@ -641,7 +637,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 ))}
               </div>
             ) : allTasks.length === 0 ? (
-              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
+              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line-glass)] rounded-2xl bg-[var(--surface-glass-card)] backdrop-blur-md space-y-4">
                 <div className="w-16 h-16 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center mx-auto shadow-xs">
                   <CheckSquare className="w-8 h-8" />
                 </div>
@@ -660,7 +656,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 )}
               </div>
             ) : (
-              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line)] rounded-2xl bg-[var(--surface)] space-y-4">
+              <div className="p-12 sm:p-16 text-center border border-dashed border-[var(--line-glass)] rounded-2xl bg-[var(--surface-glass-card)] backdrop-blur-md space-y-4">
                 <div className="space-y-1.5">
                   <p className="text-2xl font-bold tracking-tight text-[var(--ink)]">No tasks match your filters</p>
                   <p className="text-base text-[var(--muted)] max-w-md mx-auto leading-relaxed">
