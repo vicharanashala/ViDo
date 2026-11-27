@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   PanelLeft,
   PanelLeftClose,
+  UserRoundGroup
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { Team } from '../teams/types';
@@ -251,7 +252,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   ];
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all group relative ${isActive
+    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all group relative ${isActive
       ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
       : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
     }`;
@@ -271,10 +272,10 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         }`}
     >
       {/* 1. Header: Brand & New Task */}
-      <div className={`${isCollapsed ? 'p-3 pb-2' : 'p-5 pb-0'} shrink-0`}>
+      <div className={`${isCollapsed ? 'p-3 pb-2' : 'p-4 pb-0'} shrink-0`}>
         {isCollapsed ? (
-          <div className="flex flex-col items-center mb-3 gap-2">
-            <Link to={dashboardPath} title="ViDo Dashboard">
+          <div className="flex flex-col items-center mb-3 gap-2 w-full">
+            <Link to={dashboardPath} title="ViDo Dashboard" className="flex items-center justify-center">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-amber-300 text-[var(--accent-ink)] flex items-center justify-center font-black text-base shadow-md cursor-pointer hover:scale-105 transition-transform">
                 V
               </div>
@@ -284,34 +285,36 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onClick={handleToggle}
               aria-label="Expand sidebar"
               title="Expand sidebar"
-              className="p-1.5 rounded-lg text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer group relative"
+              className="w-9 h-9 rounded-xl text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer group relative"
             >
-              <PanelLeft className="w-4 h-4" />
+              <PanelLeft className="w-4.5 h-4.5" />
               <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
                 Expand sidebar
               </span>
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between mb-5 px-1">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-amber-300 text-[var(--accent-ink)] flex items-center justify-center font-black text-lg shadow-md shrink-0">
-                V
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg text-[var(--ink)] tracking-tight block">ViDo</span>
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <Link to={dashboardPath} title="ViDo Dashboard" className="shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-amber-300 text-[var(--accent-ink)] flex items-center justify-center font-black text-base shadow-md cursor-pointer hover:scale-105 transition-transform">
+                  V
+                </div>
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-nowrap">
+                  <span className="font-bold text-base text-[var(--ink)] tracking-tight shrink-0">ViDo</span>
                   {isPreview ? (
-                    <span className="text-xs font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs shrink-0">
                       DEMO
                     </span>
                   ) : (
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30 shrink-0">
                       WORKSPACE
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-[var(--muted)] font-medium tracking-wide block mt-0.5 truncate">
+                <span className="text-xs text-[var(--muted)] font-medium tracking-wide block truncate mt-0.5">
                   {isPreview ? 'Logged-in demo preview' : user?.name || 'Personal Workspace'}
                 </span>
               </div>
@@ -321,9 +324,9 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onClick={handleToggle}
               aria-label="Collapse sidebar"
               title="Collapse sidebar"
-              className="p-1.5 rounded-lg text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer shrink-0"
+              className="w-8 h-8 rounded-lg text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/60 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[var(--accent)] transition-colors cursor-pointer shrink-0"
             >
-              <PanelLeftClose className="w-4 h-4" />
+              <PanelLeftClose className="w-4.5 h-4.5" />
             </button>
           </div>
         )}
@@ -332,7 +335,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         {onNewTaskClick && (
           <div className="mb-3">
             {isCollapsed ? (
-              <div className="flex justify-center">
+              <div className="flex justify-center w-full">
                 <button
                   type="button"
                   onClick={onNewTaskClick}
@@ -361,7 +364,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       </div>
 
       {/* 2. Scrollable Middle Navigation Area (Tasks, Planning, Teams) */}
-      <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'px-2 py-2' : 'pl-5 pr-2 py-2 mr-2'} workspace-sidebar-scrollbar min-h-0`}>
+      <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'px-3 py-2' : 'pl-5 pr-2 py-2 mr-2'} workspace-sidebar-scrollbar min-h-0`}>
         {!isCollapsed && (
           <div className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] mb-2 px-2.5">
             Workspace
@@ -386,7 +389,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
               onClick={() => setIsTasksOpen(true)}
               title={isCollapsed ? `Tasks (${totalTasks})` : undefined}
               className={() =>
-                `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center p-2.5 group relative' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all ${isTaskRoute
+                `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'justify-between px-3 py-2.5'} rounded-xl text-sm font-medium transition-all ${isTaskRoute
                   ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
                   : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
                 }`
@@ -458,7 +461,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                     to={item.path}
                     end
                     className={({ isActive }) =>
-                      `sidebar-nav-item flex items-center justify-center p-2 rounded-lg text-sm transition-all group relative ${isActive
+                      `sidebar-nav-item flex items-center justify-center w-9 h-9 mx-auto p-0 rounded-xl text-sm transition-all group relative ${isActive
                         ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-2xs'
                         : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
                       }`
@@ -522,7 +525,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   to={`${basePath}/team/${team.id}`}
                   title={isCollapsed ? team.name : undefined}
                   className={({ isActive }) =>
-                    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center p-2.5 group relative' : 'justify-between px-3 py-2'} rounded-xl text-sm font-medium transition-all ${isActive
+                    `sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'justify-between px-3 py-2'} rounded-xl text-sm font-medium transition-all ${isActive
                       ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-xs font-semibold border border-[var(--accent)]/30'
                       : 'text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)]'
                     }`
@@ -555,9 +558,9 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 onClick={onCreateTeamClick}
                 aria-label="Create Team"
                 title={isCollapsed ? 'Create Team' : undefined}
-                className={`sidebar-nav-item w-full flex items-center ${isCollapsed ? 'justify-center p-2.5 group relative' : 'gap-2 px-3 py-2 text-left'} rounded-xl text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)] transition-colors cursor-pointer`}
+                className={`sidebar-nav-item flex items-center ${isCollapsed ? 'justify-center w-9 h-9 mx-auto p-0 group relative' : 'w-full gap-2 px-3 py-2 text-left'} rounded-xl text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface-glass)]/60 hover:text-[var(--ink)] transition-colors cursor-pointer`}
               >
-                <Plus className="w-4 h-4 text-sky-400" />
+                <UserRoundGroup className="w-4 h-4 text-sky-400" />
                 {!isCollapsed && <span>Create Team</span>}
                 {isCollapsed && (
                   <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
@@ -585,8 +588,8 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           onKeyDown={handleKeyDown}
           title="Drag to resize sidebar (Double-click to reset)"
           className={`absolute top-0 -right-1 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors group flex items-center justify-center focus-visible:outline-none focus-visible:bg-[var(--accent)] ${isResizing
-              ? 'bg-[var(--accent)]'
-              : 'hover:bg-[var(--accent)]/60 active:bg-[var(--accent)] bg-transparent'
+            ? 'bg-[var(--accent)]'
+            : 'hover:bg-[var(--accent)]/60 active:bg-[var(--accent)] bg-transparent'
             }`}
         >
           <div

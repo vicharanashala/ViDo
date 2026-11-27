@@ -8,7 +8,6 @@ import {
   Settings,
   Sliders,
   ArrowLeft,
-  Palette,
   Sun,
   Sunset,
   Moon,
@@ -351,16 +350,6 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
                 >
                   <Settings className="w-4 h-4 text-[var(--accent)]" />
                   <span>Workspace Settings</span>
-                </Link>
-
-                <Link
-                  to="/style-lab"
-                  role="menuitem"
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-glass)]/80 transition-colors"
-                >
-                  <Palette className="w-4 h-4 text-amber-500" />
-                  <span>Theme & Palette Lab</span>
                 </Link>
               </div>
 
