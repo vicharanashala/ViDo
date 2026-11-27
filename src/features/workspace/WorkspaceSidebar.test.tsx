@@ -263,4 +263,20 @@ describe('WorkspaceSidebar', () => {
     expect(calendarLink).toHaveClass('sidebar-nav-item');
     expect(analyticsLink).toHaveClass('sidebar-nav-item');
   });
+
+  it('prevents horizontal scrolling and centers new task button when collapsed', () => {
+    const handleNewTask = vi.fn();
+    render(
+      <MemoryRouter initialEntries={['/preview']}>
+        <WorkspaceSidebar counts={mockCounts} isCollapsed={true} onNewTaskClick={handleNewTask} />
+      </MemoryRouter>
+    );
+
+    const sidebar = screen.getByRole('complementary', { name: /workspace navigation/i });
+    expect(sidebar).toHaveClass('overflow-x-hidden');
+
+    const newTaskBtn = screen.getByRole('button', { name: /new task/i });
+    expect(newTaskBtn).toHaveClass('w-9', 'h-9', 'mx-auto');
+    expect(newTaskBtn).not.toHaveClass('ml-1');
+  });
 });

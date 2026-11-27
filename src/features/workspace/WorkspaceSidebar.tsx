@@ -268,11 +268,11 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         maxWidth: `${effectiveWidth}px`,
       }}
       className={`relative glass-panel bg-[var(--surface-glass)]/75 backdrop-blur-2xl text-[var(--ink)] flex flex-col shrink-0 sticky border-r border-[var(--line-glass)] shadow-xl ${isPreview ? 'top-[45px] h-[calc(100vh-45px)]' : 'top-0 h-screen'
-        } workspace-sidebar-scrollbar select-none overflow-hidden ${isResizing ? 'transition-none' : 'transition-[width] duration-200 ease-in-out'
+        } workspace-sidebar-scrollbar select-none overflow-x-hidden overflow-y-hidden ${isResizing ? 'transition-none' : 'transition-[width] duration-200 ease-in-out'
         }`}
     >
       {/* 1. Header: Brand & New Task */}
-      <div className={`${isCollapsed ? 'p-3 pb-2' : 'p-4 pb-0'} shrink-0`}>
+      <div className={`${isCollapsed ? 'p-3 pb-2' : 'p-4 pb-0'} shrink-0 overflow-x-hidden`}>
         {isCollapsed ? (
           <div className="flex flex-col items-center mb-3 gap-2 w-full">
             <Link to={dashboardPath} title="ViDo Dashboard" className="flex items-center justify-center">
@@ -333,7 +333,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
         {/* Quick New Task Button */}
         {onNewTaskClick && (
-          <div className="mb-3">
+          <div className="mb-2">
             {isCollapsed ? (
               <div className="flex justify-center w-full">
                 <button
@@ -341,7 +341,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                   onClick={onNewTaskClick}
                   aria-label="New Task"
                   title="New Task"
-                  className="w-9 h-9 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 flex items-center justify-center shadow-sm cursor-pointer transition-transform active:scale-95 group relative"
+                  className="w-9 h-9 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 flex items-center justify-center shadow-sm cursor-pointer transition-transform active:scale-95 group relative mx-auto"
                 >
                   <Plus className="w-5 h-5" />
                   <span className="absolute left-full ml-3 px-2 py-1 bg-[var(--dark)] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
@@ -364,7 +364,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
       </div>
 
       {/* 2. Scrollable Middle Navigation Area (Tasks, Planning, Teams) */}
-      <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'px-3 py-2' : 'pl-5 pr-2 py-2 mr-2'} workspace-sidebar-scrollbar min-h-0`}>
+      <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-3 py-2' : 'pl-5 pr-2 py-2 mr-2'} workspace-sidebar-scrollbar min-h-0`}>
         {!isCollapsed && (
           <div className="text-xs uppercase font-bold tracking-wider text-[var(--faint)] mb-2 px-2.5">
             Workspace
