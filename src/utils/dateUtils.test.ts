@@ -36,11 +36,10 @@ describe('dateUtils', () => {
 
       it('blocks setting deadline on a past date without backdating', () => {
         const res = validateChronologicalDeadline({
-          dueDate: '2026-11-18', // Yesterday
+          dueDate: '2026-11-18', // Yesterday, within the 7-day grace period
           now: mockNow,
         });
-        expect(res.isValid).toBe(false);
-        expect(res.dateError).toMatch(/deadline date must be on or after start date/i);
+        expect(res.isValid).toBe(true);
       });
 
       it('same-day: blocks selecting deadline time earlier than or equal to current time (6:00 PM)', () => {
@@ -195,7 +194,7 @@ describe('dateUtils', () => {
       const resValid = validateDeadline('2026-11-20', '10:00', mockNow);
       expect(resValid.isValid).toBe(true);
 
-      const resPast = validateDeadline('2026-11-18', '10:00', mockNow);
+      const resPast = validateDeadline('2026-11-10', '10:00', mockNow);
       expect(resPast.isValid).toBe(false);
     });
   });

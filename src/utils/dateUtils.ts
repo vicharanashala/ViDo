@@ -143,8 +143,8 @@ export function validateChronologicalDeadline(
   const effectiveDueTime = rawDueTime ? rawDueTime : '23:59';
   const effectiveDueDate = rawDueDate;
 
-  // 3. Chronological check: deadline must be on or after start date
-  if (effectiveDueDate < effectiveStartDate) {
+  // 3. Chronological check: deadline must be on or after an explicitly provided start date
+  if (rawStartDate && effectiveDueDate < effectiveStartDate) {
     return {
       isValid: false,
       dateError: 'Deadline date must be on or after start date.',

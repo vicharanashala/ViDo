@@ -18,6 +18,7 @@ import {
 import { getFilteredTasks, buildHomeDashboard } from '../../data/taskFilters';
 import { getTodayDateString } from '../../utils/dateUtils';
 import { todayISO } from '../../data/calendar';
+
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceTopBar } from './WorkspaceTopBar';
 import { HomeView } from './views/HomeView';
@@ -41,6 +42,15 @@ import {
   createUserTask,
   updateUserTask,
 } from '../../lib/taskStore';
+
+/**
+ * The demo preview is anchored to a fixed day (see AGENTS.md), so its pickers
+ * must treat that moment as "now" to agree with the Today / Upcoming views.
+ */
+const PREVIEW_NOW = (() => {
+  const [y, m, d] = BENCHMARK_DATE_STR.split('-').map(Number);
+  return new Date(y, m - 1, d, 12, 0);
+})();
 
 export interface WorkspaceLayoutProps {
   isPreview?: boolean;
@@ -401,6 +411,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     tasks={tasks}
                     categories={categoriesState.categories}
                     dashboard={dashboard}
+                    now={isPreview ? PREVIEW_NOW : undefined}
                     initialTab="dashboard"
                     onTaskClick={handleTaskClick}
                     onToggleTask={handleToggleTask}
@@ -422,6 +433,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
                     tasks={tasks}
                     categories={categoriesState.categories}
                     dashboard={dashboard}
+                    now={isPreview ? PREVIEW_NOW : undefined}
                     initialTab="tasks"
                     initialStatus="all"
                     onTaskClick={handleTaskClick}
@@ -589,6 +601,7 @@ export const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreateTask={handleCreateTask}
+        now={isPreview ? PREVIEW_NOW : undefined}
         categories={categoriesState.categories}
         onAddCategory={categoriesState.addCategory}
       />

@@ -5,10 +5,11 @@ import {
   getHomeDashboardTasks,
   HomeDashboardTasks,
 } from '../../../data/taskFilters';
-import { BENCHMARK_DATE_STR } from '../../../data/sampleTasks';
-import { getTodayDateString, formatTopBarDate } from '../../../utils/dateUtils';
+import { BENCHMARK_DATE_STR, BENCHMARK_DATE_TIME } from '../../../data/sampleTasks';
+import { formatTopBarDate } from '../../../utils/dateUtils';
 import { TaskRow } from '../TaskRow';
 import { Button } from '../../../components/ui';
+import { toDateStr } from '../../../data/taskDeadline';
 import {
   CheckSquare,
   Clock,
@@ -25,6 +26,7 @@ import { DEFAULT_CATEGORIES, type UserCategory } from '../../../data/categories'
 
 export interface HomeViewProps {
   isPreview?: boolean;
+  now?: Date;
   basePath?: string;
   user?: {
     name: string;
@@ -46,11 +48,11 @@ export type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
 
 export const HomeView: React.FC<HomeViewProps> = ({
   isPreview = true,
+  now: nowProp,
   basePath = '/preview',
   user,
   tasks,
   categories = DEFAULT_CATEGORIES,
-  dashboard,
   initialTab = 'dashboard',
   initialStatus = 'all',
   onTaskClick,
@@ -62,16 +64,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const navigationStateStatus = (location.state as { status?: StatusFilter } | null)?.status;
   const effectiveInitialStatus = navigationStateStatus ?? initialStatus;
 
+  const [currentNow, setCurrentNow] = useState<Date>(() => nowProp ?? new Date());
   const allTasks = tasks ?? SAMPLE_TASKS;
-  const todayStr = getTodayDateString();
-  const currentDashboard =
-    dashboard ??
-    getHomeDashboardTasks(
-      allTasks,
-      isPreview ? BENCHMARK_DATE_STR : todayStr,
-      undefined,
-      todayStr
-    );
+  const benchmarkDateStr = isPreview ? BENCHMARK_DATE_STR : toDateStr(currentNow);
+  const benchmarkDateTime = isPreview ? BENCHMARK_DATE_TIME : currentNow.toISOString();
+  const todayStr = isPreview ? BENCHMARK_DATE_STR : toDateStr(currentNow);
+  const currentDashboard = getHomeDashboardTasks(
+    allTasks,
+    benchmarkDateStr,
+    benchmarkDateTime,
+    todayStr
+  );
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks'>(initialTab);
   const [dashboardCategory, setDashboardCategory] = useState<
@@ -90,6 +93,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
   useEffect(() => {
     setStatusFilter(navigationStateStatus ?? initialStatus);
   }, [navigationStateStatus, initialStatus]);
+
+  useEffect(() => {
+    if (nowProp) {
+      setCurrentNow(nowProp);
+      return;
+    }
+
+    const updateNow = () => setCurrentNow(new Date());
+    const interval = window.setInterval(updateNow, 60000);
+    window.addEventListener('focus', updateNow);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', updateNow);
+    };
+  }, [nowProp]);
 
   // Status human-readable labels
   const statusLabels: Record<StatusFilter, string> = {
@@ -112,7 +131,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (task.state !== 'active' || task.isArchived) return false;
 
     // 1. Status Filter
-    const todayStr = getTodayDateString();
+    const todayStr = toDateStr(currentNow);
     const referenceDate = isPreview ? BENCHMARK_DATE_STR : todayStr;
     if (statusFilter === 'today') {
       const isDueToday = task.dueDate === referenceDate || (isPreview && task.dueDate === todayStr);
@@ -193,7 +212,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className="text-xs font-mono tracking-wider uppercase font-semibold text-gray-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-                      {isPreview ? 'Tuesday, 17 November 2026' : formatTopBarDate()}
+                      {currentNow.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                     {isPreview ? (
                       <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-amber-400 text-amber-950 shadow-xs">

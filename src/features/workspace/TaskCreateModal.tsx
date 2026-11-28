@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Button, Input } from '../../components/ui';
+import { Button, Input, DatePicker, TimePicker } from '../../components/ui';
 import { SampleTask } from '../../data/sampleTasks';
 import { DEFAULT_CATEGORIES, type UserCategory } from '../../data/categories';
 import { X, Tag, CheckCircle2, AlertCircle, Plus } from 'lucide-react';
@@ -15,6 +15,8 @@ export interface TaskCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateTask?: (task: SampleTask) => void;
+  /** Clock used for "today" and validation. Defaults to the real current time. */
+  now?: Date;
   categories?: UserCategory[];
   onAddCategory?: (category: { name: string; color?: string }) => Promise<UserCategory> | UserCategory;
   initialStartDate?: string;
@@ -26,16 +28,20 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
   isOpen,
   onClose,
   onCreateTask,
+  now: nowProp,
   categories = DEFAULT_CATEGORIES,
   onAddCategory,
-  initialStartDate,
   initialDueDate,
   initialDueTime,
 }) => {
+  const now = nowProp ?? new Date();
+  const todayStr = getTodayDateString(now);
+  const sevenDaysAgoStr = getSevenDaysAgoDateString(now);
+  const currentTimeStr = getCurrentTimeString(now);
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState(() => initialStartDate || '');
-  const [dueDate, setDueDate] = useState(() => initialDueDate || getTodayDateString());
+  const [dueDate, setDueDate] = useState(() => initialDueDate || todayStr);
   const [dueTime, setDueTime] = useState(() => initialDueTime ?? getDefaultDueTime());
   const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('medium');
   const [category, setCategory] = useState<string>('personal');
@@ -45,21 +51,15 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
 
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  const todayStr = getTodayDateString();
-  const sevenDaysAgoStr = getSevenDaysAgoDateString();
-  const currentTimeStr = getCurrentTimeString();
-
-  // Compute live validation using useMemo
   const validation = useMemo(() => {
     return validateChronologicalDeadline({
-      startDate,
       dueDate,
       dueTime,
+      now,
     });
-  }, [startDate, dueDate, dueTime]);
+  }, [dueDate, dueTime, now]);
 
   const isFormValid = Boolean(title.trim()) && validation.isValid;
-
   const isSelectedDateToday = dueDate === todayStr;
 
   useEffect(() => {
@@ -72,14 +72,13 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       window.addEventListener('keydown', handleKeyDown);
       setSubmittedNotice(false);
 
-      const today = getTodayDateString();
       if (!dueDate) {
-        setDueDate(today);
+        setDueDate(todayStr);
       }
       setTimeout(() => titleInputRef.current?.focus(), 50);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, todayStr]);
 
   if (!isOpen) return null;
 
@@ -91,7 +90,6 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       id: `task-${Date.now()}`,
       title: title.trim(),
       description: description.trim() || undefined,
-      startDate: startDate.trim() || undefined,
       dueDate: validation.effectiveDueDate,
       dueTime: validation.effectiveDueTime,
       priority: (priority as 'high' | 'medium' | 'low') || undefined,
@@ -102,9 +100,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
         {
           id: `cp-${Date.now()}`,
           timestamp: validation.effectiveCreatedAt,
-          note: startDate.trim()
-            ? `Task initialized in workspace (started on ${startDate.trim()}).`
-            : 'Task initialized in workspace.',
+          note: 'Task initialized in workspace.',
         },
       ],
     };
@@ -112,11 +108,9 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
     setSubmittedNotice(true);
     onCreateTask?.(newTask);
 
-    // Reset inputs
     setTitle('');
     setDescription('');
-    setStartDate('');
-    setDueDate(getTodayDateString());
+    setDueDate(todayStr);
     setDueTime(getDefaultDueTime());
     setPriority('medium');
     setCategory('personal');
@@ -133,7 +127,7 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -196,41 +190,29 @@ export const TaskCreateModal: React.FC<TaskCreateModalProps> = ({
             />
           </div>
 
-          {/* Date & Time Selection */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input
-              label="Start Date (Optional)"
-              type="date"
-              min={sevenDaysAgoStr}
-              value={startDate}
-              error={validation.startError}
-              helperText="Defaults to today if omitted (max 7 days in past)"
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-
-            <Input
+            <DatePicker
               label="Target Due Date *"
-              type="date"
               required
-              min={startDate || sevenDaysAgoStr}
               value={dueDate}
+              onChange={setDueDate}
+              min={sevenDaysAgoStr}
+              today={todayStr}
               error={validation.dateError}
-              onChange={(e) => setDueDate(e.target.value)}
+              helperText="Up to 7 days back, for work already started"
             />
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input
+            <TimePicker
               label="Due Time (Optional)"
-              type="time"
               value={dueTime}
+              onChange={setDueTime}
+              minTime={isSelectedDateToday ? currentTimeStr : undefined}
               error={validation.timeError}
               helperText={
-                isSelectedDateToday && !startDate
+                isSelectedDateToday
                   ? `Must be after ${currentTimeStr} (defaults to 11:59 PM if omitted)`
                   : 'Defaults to 11:59 PM if omitted'
               }
-              onChange={(e) => setDueTime(e.target.value)}
             />
           </div>
 
